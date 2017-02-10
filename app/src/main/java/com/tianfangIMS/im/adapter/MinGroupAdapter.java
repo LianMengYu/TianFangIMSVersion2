@@ -8,11 +8,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.utils.CommUtils;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by LianMengYu on 2017/2/3.
@@ -22,10 +21,12 @@ import java.util.Map;
 public class MinGroupAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
-    private List<Map<String,String>> parentBeen;
-    private List<ArrayList<Map<String,String>>> childBeen;
+//    private List<Map<String,String>> parentBeen;
+//    private List<ArrayList<Map<String,String>>> childBeen;
+    private List<MineGroupParentBean> parentBeen;
+    private List<List<MineGroupParentBean>> childBeen;
 
-    public MinGroupAdapter( Context mContext,List<ArrayList<Map<String, String>>> childBeen, List<Map<String, String>> parentBeen) {
+    public MinGroupAdapter(List<List<MineGroupParentBean>> childBeen, Context mContext, List<MineGroupParentBean> parentBeen) {
         this.childBeen = childBeen;
         this.mContext = mContext;
         this.parentBeen = parentBeen;
@@ -77,7 +78,7 @@ public class MinGroupAdapter extends BaseExpandableListAdapter {
         }else {
             parentHodler = (ParentHodler)convertView.getTag();
         }
-        parentHodler.name.setText(parentBeen.get(groupPosition).get("title"));
+        parentHodler.name.setText(parentBeen.get(groupPosition).getText().getICreate().get(groupPosition).getName());
         return convertView;
     }
 
@@ -93,8 +94,8 @@ public class MinGroupAdapter extends BaseExpandableListAdapter {
         }else {
             childhodler = (ChildHodler)convertView.getTag();
         }
-        CommUtils.GetImages(mContext,childBeen.get(groupPosition).get(childPosition).get("logo"),childhodler.img);
-        childhodler.name.setText(childBeen.get(groupPosition).get(childPosition).get("name"));
+        CommUtils.GetImages(mContext,parentBeen.get(groupPosition).getText().getICreate().get(childPosition).getLogo(),childhodler.img);
+        childhodler.name.setText(childBeen.get(groupPosition).get(childPosition).getText().getICreate().get(childPosition).getName());
         return convertView;
     }
 

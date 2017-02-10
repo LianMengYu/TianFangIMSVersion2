@@ -60,27 +60,27 @@
             android:textColor="#FFA256"
             android:textSize="14dp" />
 
-        <ImageView
-            android:id="@+id/iv_iaotou"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@+id/tv_contacts_text"
-            android:scaleType="centerCrop"
-            android:src="@mipmap/icon_right_jiao" />
+        <!--<ImageView-->
+            <!--android:id="@+id/iv_iaotou"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_toRightOf="@+id/tv_contacts_text"-->
+            <!--android:scaleType="centerCrop"-->
+            <!--android:src="@mipmap/icon_right_jiao" />-->
 
-        <TextView
-            android:id="@+id/tv_contacts_text_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@+id/iv_iaotou"
-            android:text="需要获取上一层公司名称"
-            android:textColor="#B3B3B3"
-            android:textSize="14dp"
-            android:visibility="visible" />
+        <!--<TextView-->
+            <!--android:id="@+id/tv_contacts_text_2"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_marginLeft="5dp"-->
+            <!--android:layout_toRightOf="@+id/iv_iaotou"-->
+            <!--android:text="需要获取上一层公司名称"-->
+            <!--android:textColor="#B3B3B3"-->
+            <!--android:textSize="14dp"-->
+            <!--android:visibility="visible" />-->
 
     </RelativeLayout>
 

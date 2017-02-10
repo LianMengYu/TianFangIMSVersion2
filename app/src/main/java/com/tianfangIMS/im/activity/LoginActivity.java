@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -30,14 +31,18 @@ import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.AMUtils;
 import com.tianfangIMS.im.utils.CommUtils;
 import com.tianfangIMS.im.utils.MD5;
 import com.tianfangIMS.im.utils.NToast;
 
+import java.util.List;
+
 import io.rong.imkit.RongIM;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.UserInfo;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -46,7 +51,7 @@ import okhttp3.Response;
  * 登录页
  */
 
-public class LoginActivity extends Activity implements View.OnClickListener {
+public class LoginActivity extends Activity implements View.OnClickListener, RongIM.UserInfoProvider {
     private final static String TAG = "LoginActivity";
     private static final int LOGIN = 5;
     private static final int GET_TOKEN = 6;
@@ -64,6 +69,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     private String loginToken;
     private String connectResultId;
     private LoginBean user;
+    private List<LoginBean> mLoginBeanList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +80,30 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         sp = getSharedPreferences("config", MODE_PRIVATE);
         editor = sp.edit();
         init();//初始化控件
+    }
+
+    private void SetSyncUserGroup(LoginBean bean) {
+        String id = bean.getText().getId();
+        OkGo.post(ConstantValue.SYNCUSERGROUP)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", id)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        if (!TextUtils.isEmpty(s)) {
+                            Gson gson = new Gson();
+                            SetSyncUserBean syncUserBean = gson.fromJson(s, SetSyncUserBean.class);
+                            if (syncUserBean.getCode().equals("200")) {
+                                Log.e("Login", "返回消息：" + syncUserBean.getText());
+                            } else {
+                                NToast.shortToast(mContext, "同步群组失败");
+                            }
+                        }
+                    }
+                });
     }
 
     //初始化控件
@@ -121,7 +151,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         if (getIntent().getBooleanExtra("kickedByOtherClient", false)) {
 //            final AlertDialog dlg = new AlertDialog().Builder(LoginActivity.this).create();
 //            dlg.show();
-          //  注释掉的为掉线逻辑，现在暂未实现，保留后续
+            //  注释掉的为掉线逻辑，现在暂未实现，保留后续
 //            Window window = dlg.getWindow();
 //            window.setContentView(R.layout.other_devices);
             Toast.makeText(getApplicationContext(), "您的账号在其他设备登录", Toast.LENGTH_SHORT).show();
@@ -207,38 +237,32 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                     @Override
                     public void onAfter(String s, Exception e) {
                         super.onAfter(s, e);
-                        Log.e("aaaaaaaaaaaaaa", "已经执行。" + s);
                     }
 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-                        LoadDialog.dismiss(mContext);
-                        if (!TextUtils.isEmpty(s)) {
 
+                        if (!TextUtils.isEmpty(s)) {
+                            Log.e("OnSuccess", "访问成功" + s);
                             Gson gson = new Gson();
                             user = gson.fromJson(s, LoginBean.class);
                             loginToken = user.getText().getToken();
-                            CommUtils.saveUserInfo(mContext,gson.toJson(user));
-                            Log.e("OnSuccess", "打印结果" + user.getText().getBirthday());
+                            CommUtils.saveUserInfo(mContext, gson.toJson(user));
                             if (user.getCode() == 1) {
-
                                 if (!TextUtils.isEmpty(loginToken)) {
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                         @Override
                                         public void onTokenIncorrect() {
-
                                         }
-
                                         @Override
                                         public void onSuccess(String s) {
+                                            LoadDialog.dismiss(mContext);
+                                            SetSyncUserGroup(user);
                                             Log.e("OnSuccess", "访问成功" + s);
                                             connectResultId = s;
                                             Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_SHORT).show();
                                             Intent intent_login = new Intent();
                                             intent_login.setClass(LoginActivity.this, MainActivity.class);
-                                            Bundle bundle = new Bundle();
-                                            bundle.putSerializable("loginBean", user);
-                                            intent_login.putExtras(bundle);
                                             startActivity(intent_login);
                                         }
 
@@ -255,12 +279,14 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
                             }
                             if (user.getCode() == 0) {
+                                LoadDialog.dismiss(mContext);
                                 Toast.makeText(getApplicationContext(), "账号密码错误，请重新输入", Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
                         }
                         if (TextUtils.isEmpty(s)) {
+                            LoadDialog.dismiss(mContext);
                             Toast.makeText(getApplicationContext(), "请求超时", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -368,5 +394,23 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    private LoginBean GetUesrBean() {
+        Gson gson = new Gson();
+        LoginBean bean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        return bean;
+    }
 
+    @Override
+    public UserInfo getUserInfo(String s) {
+        mLoginBeanList.add(GetUesrBean());
+        if (mLoginBeanList != null && mLoginBeanList.size() > 0) {
+            for (LoginBean i :
+                    mLoginBeanList) {
+                if (i.getText().getId().equals(s)) {
+                    return new UserInfo(i.getText().getId(), i.getText().getFullname(), Uri.parse(ConstantValue.ImageFile + i.getText().getLogo()));
+                }
+            }
+        }
+        return null;
+    }
 }

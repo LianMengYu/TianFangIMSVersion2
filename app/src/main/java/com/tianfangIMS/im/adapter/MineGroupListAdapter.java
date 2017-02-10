@@ -8,10 +8,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.utils.CommUtils;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by LianMengYu on 2017/2/4.
@@ -21,11 +21,11 @@ import java.util.Map;
 public class MineGroupListAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<Map<String, String>> ListGroup;
-    private List<Map<String, String>> listItem;
+    private List<MineGroupParentBean> ListGroup;
+    private List<MineGroupParentBean> listItem;
 
-    public MineGroupListAdapter(List<Map<String, String>> listGroup, List<Map<String, String>> listItem, Context mContext) {
-        this.ListGroup = listGroup;
+    public MineGroupListAdapter(List<MineGroupParentBean> listGroup, List<MineGroupParentBean> listItem, Context mContext) {
+        ListGroup = listGroup;
         this.listItem = listItem;
         this.mContext = mContext;
     }
@@ -84,8 +84,8 @@ public class MineGroupListAdapter extends BaseAdapter {
             childHodler = (ChildHodler) convertView.getTag();
         }
 //        parentHolder.name.setText("我的群组");
-        CommUtils.GetImages(mContext, listItem.get(position).get("logo"), childHodler.img);
-        childHodler.name.setText(listItem.get(position).get("name"));
+        CommUtils.GetImages(mContext, listItem.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
+        childHodler.name.setText(listItem.get(position).getText().getICreate().get(position).getName());
         return convertView;
     }
     class ParentHolder{

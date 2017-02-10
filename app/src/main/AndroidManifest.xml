@@ -154,11 +154,6 @@
 
         </activity>
         <activity
-            android:name=".activity.VideoActivity"
-            android:theme="@android:style/Theme.NoTitleBar">
-
-        </activity>
-        <activity
             android:name=".activity.GroupDetailActivity"
             android:theme="@android:style/Theme.NoTitleBar">
 
@@ -184,13 +179,19 @@
         <activity android:name=".activity.MineTopContactsActivity">
 
         </activity>
+        <activity android:name=".activity.AddGroupActivity">
+
+        </activity>
+        <activity android:name=".activity.VideoActivity"></activity>
+        <activity android:name=".activity.SecondActivity"></activity>
+        <activity android:name=".activity.Group_AddTopContactsActivity">
+
+        </activity>
         <!--会话页面-->
         <activity
             android:name=".activity.ConversationActivity"
-            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize">
-
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -202,11 +203,15 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
+        <!--含有ViewPager的Activity-->
+        <activity android:name=".activity.ConversationViewpagerActivity">
+
+        </activity>
         <!--高德地图定位服务-->
         <service android:name="com.amap.api.location.APSService"></service>
         <!--会话列表-->
         <activity
-            android:name=".activity.ConversationListActivity"
+            android:name=".activity.ConversationListDynamicActivtiy"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize">
 
@@ -221,6 +226,22 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
+        <!--聚合会话-->
+        <activity
+            android:name=".activity.SubConversationListActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data
+                    android:host="com.tianfangIMS.im"
+                    android:path="/subconversationlist"
+                    android:scheme="rong" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.FriendPersonInfoActivity"></activity>
         <!-- GCM 配置结束 < -->
         <provider
             android:name="android.support.v4.content.FileProvider"

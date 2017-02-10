@@ -18,10 +18,10 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.activity.Contacts_DepartmentActivity;
-import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
+import com.tianfangIMS.im.activity.SecondActivity;
 import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +39,24 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     private LinearLayout ly_company_name;
     private RelativeLayout rl_mine_topcontacts;
     private TextView tv_company_name;
+    public static JSONUtils jsonUtils;
+    private String name;
+    private int pid;
+    public static Contacts_Fragment contacts_fragment;
+
+
+    public static Contacts_Fragment getInstance() {
+        return contacts_fragment;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.contacts_fragment, container, false);
         initView(view);
         GetData();
+        contacts_fragment = this;
+        jsonUtils = new JSONUtils();
         return view;
     }
 
@@ -52,7 +64,7 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
         ly_company_name = (LinearLayout) view.findViewById(R.id.ly_company_name);
         rl_mine_topcontacts = (RelativeLayout) view.findViewById(R.id.rl_mine_topcontacts);
-        tv_company_name = (TextView)view.findViewById(R.id.tv_company_name);
+        tv_company_name = (TextView) view.findViewById(R.id.tv_company_name);
 
         rl_mine_topcontacts.setOnClickListener(this);
         ly_company_name.setOnClickListener(this);
@@ -80,8 +92,11 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                             List<Map<String, String>> list = gson.fromJson(s, new TypeToken<ArrayList<Map<String, String>>>() {
                             }.getType());
                             for (int i = 0; i < list.size(); i++) {
-                                if((list.get(i).get("pid")).equals("-1")){
+                                if ((list.get(i).get("pid")).equals("-1")) {
                                     tv_company_name.setText(list.get(i).get("name"));
+                                    name = list.get(i).get("name");
+                                    String str = list.get(i).get("pid");
+                                    pid = Integer.parseInt(str);
                                 }
                             }
                         }
@@ -93,10 +108,14 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_mine_contacts:
-                startActivity(new Intent(getActivity(), MineGroupActivity.class));
+//                startActivity(new Intent(getActivity(), MineGroupActivity.class));
                 break;
             case R.id.ly_company_name:
-                startActivity(new Intent(getActivity(), Contacts_DepartmentActivity.class));
+//                startActivity(new Intent(getActivity(), Contacts_DepartmentActivity.class));
+                Intent intent = new Intent(getActivity(), SecondActivity.class);
+                intent.putExtra("name", name);
+                intent.putExtra("pid", pid);
+                startActivity(intent);
                 break;
             case R.id.rl_mine_topcontacts:
                 startActivity(new Intent(getActivity(), MineTopContactsActivity.class));

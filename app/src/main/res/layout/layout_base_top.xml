@@ -29,9 +29,39 @@
             android:layout_toRightOf="@id/btn_left"
             android:maxLength="20"
             android:maxLines="1"
-            android:text="我来组成头部"
+            android:text="标题"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/ll_talk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/iv_talk_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/talk_message_selected" />
+
+            <ImageView
+                android:id="@+id/iv_talk_intercom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/talk_intercom" />
+
+            <ImageView
+                android:id="@+id/iv_talk_call"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                android:src="@mipmap/talk_call" />
+        </LinearLayout>
 
         <ImageButton
             android:id="@+id/iv_conversation_location"
@@ -50,8 +80,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:background="@null"
             android:layout_marginRight="17dp"
+            android:background="@null"
             android:scaleType="centerCrop"
             android:src="@mipmap/conversation_contacts" />
 

@@ -26,8 +26,6 @@ public class AddTopContactsAdapter extends BaseAdapter {
     private Context mContext;
     private List<AddFriendBean> mList;
     public static HashMap<Integer, Boolean> isSelectedCheck;
-    private String itemString = null; // 记录每个item中textview的值
-    private String keyString[] = null;
     //存储CheckBox状态的集合
     private Map<Integer,Boolean> checkedMap;
 

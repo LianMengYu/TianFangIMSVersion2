@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -28,6 +29,7 @@ import com.tianfangIMS.im.adapter.AddTopContacts_GridView_Adapter;
 import com.tianfangIMS.im.bean.AddFriendBean;
 import com.tianfangIMS.im.bean.AddFriendRequestBean;
 import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.bean.TopContactsBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommUtils;
 import com.tianfangIMS.im.utils.NToast;
@@ -53,7 +55,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
     private List<AddFriendBean> list;
     private RelativeLayout rl_selectAddContacts_background;
     private TextView tv_addfriend_submit;
-    private List<AddFriendBean> listBean = new ArrayList<AddFriendBean>();
+    private List<TopContactsBean> listBean = new ArrayList<TopContactsBean>();
     private GridView gv_addContacts;
     private AddTopContacts_GridView_Adapter gridView_adapter;
     private List<AddFriendBean> allChecked;
@@ -65,9 +67,14 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.addtopcpntacts_activity);
+        Intent intent = getIntent();
+        Bundle bundle = intent.getExtras();
+        String flag = (String) bundle.get("MainPlusDialog");
+
         mContext = this;
         init();
         setTitle("添加常用联系人");
+
 //        getCount();
     }
 
@@ -212,9 +219,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
-        String str = CommUtils.listToString(list);
-        Log.e(TAG, "打印结果" + loginBean.getText().getAccount());
-        Log.e(TAG, "数组 出来吧：" + str);
+        String str = list.toString();
         OkGo.post(ConstantValue.ADDTOPCONTACTS)
                 .tag(this)
                 .connTimeOut(10000)

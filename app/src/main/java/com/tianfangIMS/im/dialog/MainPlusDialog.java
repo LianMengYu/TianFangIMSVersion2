@@ -2,12 +2,14 @@ package com.tianfangIMS.im.dialog;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.activity.AddGroupActivity;
 import com.tianfangIMS.im.activity.AddTopContacts_Activity;
 
 /**
@@ -15,7 +17,7 @@ import com.tianfangIMS.im.activity.AddTopContacts_Activity;
  */
 
 public class MainPlusDialog extends PopupWindow implements View.OnClickListener {
-
+    private static final String TAG = "MainPlusDialog";
     private Context mContext;
     private RelativeLayout rl_mainplus_chatroom, rl_mainplus_topcontacts;
 
@@ -28,8 +30,17 @@ public class MainPlusDialog extends PopupWindow implements View.OnClickListener 
         init(view);
     }
 
-    private void jump(){
-        mContext.startActivity(new Intent(mContext,AddTopContacts_Activity.class));
+    private void jumpContacts(){
+        Intent intent = new Intent(mContext,AddTopContacts_Activity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("SimpleName",TAG);
+        intent.putExtras(bundle);
+        mContext.startActivity(intent);
+        this.dismiss();
+
+    }
+    private void jumpGroup(){
+        mContext.startActivity(new Intent(mContext,AddGroupActivity.class));
         this.dismiss();
 
     }
@@ -46,10 +57,10 @@ public class MainPlusDialog extends PopupWindow implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_mainplus_chatroom:
-
+                jumpGroup();
                 break;
             case R.id.rl_mainplus_topcontacts:
-                jump();
+                jumpContacts();
                 break;
         }
     }

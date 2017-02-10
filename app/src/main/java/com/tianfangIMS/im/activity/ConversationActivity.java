@@ -1,40 +1,54 @@
 package com.tianfangIMS.im.activity;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerTabStrip;
+import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.fragment.CallPhoneFragment;
+import com.tianfangIMS.im.fragment.IntercomFragment;
 import com.tianfangIMS.im.utils.NToast;
-import com.tianfangIMS.im.view.SildingFinishLayout;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import io.rong.imkit.RongIM;
+import io.rong.imkit.fragment.ConversationFragment;
 import io.rong.imkit.fragment.UriFragment;
+import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.UserInfo;
 
+import static android.R.id.message;
+
 /**
  * Created by LianMengYu on 2017/1/16.
  */
 
-public class ConversationActivity extends BaseActivity implements View.OnClickListener {
+public class ConversationActivity extends BaseActivity implements View.OnClickListener, IUnReadMessageObserver, ViewPager.OnPageChangeListener {
+    private static final String TAG = "ConversationActivity";
     private String title;
     /**
      * 会话类型
@@ -56,33 +70,23 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+    public static ViewPager mViewpager;
+    private List<Fragment> mFragment = new ArrayList<>();
+    private ConversationFragment conversationDynamicFragment = null;
+    private Fragment mConversationFragment = null;
+    private ImageView tag_message, tag_intercom, tag_call;
+    private List<ImageView> imageViewList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setContentView(R.layout.conversation);
         setContentView(R.layout.conversation);
-
-        loactionButton = getIv_conversation_loaction();
-        contactsButton = getIv_conversation_contacts();
-
+        initParentView();
+        initConversationViewPager();
         final Intent intent = getIntent();
-
-        //聊天界面滑动逻辑
-        SildingFinishLayout sildingFinishLayout = (SildingFinishLayout) this.findViewById(R.id.conversation_layout);
-        sildingFinishLayout.setOnSildingFinishListener(new SildingFinishLayout.OnSildingFinishListener() {
-            @Override
-            public void onSildingFinish() {
-                ConversationActivity.this.finish();
-                overridePendingTransition(0, R.anim.base_slide_right_out);
-            }
-            @Override
-            public void onLeftScroll() {
-                Intent intentSilding = new Intent(ConversationActivity.this, VideoActivity.class);
-                startActivity(intentSilding);
-                overridePendingTransition(R.anim.base_sile_left_out, R.anim.base_silde_left_int);
-            }
-        });
         mTargetId = intent.getData().getQueryParameter("targetId");
+
         //10000 为 Demo Server 加好友的 id，若 targetId 为 10000，则为加好友消息，默认跳转到 NewFriendListActivity  18610203981
         // Demo 逻辑
         if (mTargetId != null && mTargetId.equals("10000")) {
@@ -99,7 +103,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
          * 设置右边Button
          */
         if (mConversationType.equals(Conversation.ConversationType.GROUP)) {
-//            contactsButton.setBackground(getResources().getDrawable(R.mipmap.conversation_contacts));
+            contactsButton.setBackground(getResources().getDrawable(R.mipmap.conversation_contacts));
             contactsButton.setBackgroundDrawable(getResources().getDrawable(R.mipmap.conversation_contacts));
         } else if (mConversationType.equals(Conversation.ConversationType.PRIVATE) | mConversationType.equals(Conversation.ConversationType.PUBLIC_SERVICE) | mConversationType.equals(Conversation.ConversationType.DISCUSSION)) {
             contactsButton.setBackgroundDrawable(getResources().getDrawable(R.mipmap.conversation_contacts));
@@ -122,7 +126,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                         } else {
                             int isPermissionGranted = checkSelfPermission(permission);
                             if (isPermissionGranted != PackageManager.PERMISSION_GRANTED) {
-                                new AlertDialog.Builder(ConversationActivity.this)
+                                new android.app.AlertDialog.Builder(ConversationActivity.this)
                                         .setMessage("你需要在设置里打开以下权限:" + permission)
                                         .setPositiveButton("确认", new DialogInterface.OnClickListener() {
                                             @SuppressLint("NewApi")
@@ -140,21 +144,137 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 }
             });
         }
-
+//        enterFragment(mConversationType,mTargetId);
         setActionBarTitle(mConversationType, mTargetId);
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
-//    @Override
+    private void initParentView() {
+        loactionButton = getIv_conversation_loaction();
+        contactsButton = getIv_conversation_contacts();
+        tag_message = getIv_talk_message();
+        tag_intercom = getIv_talk_intercom();
+        tag_call = getIv_talk_call();
+
+    }
+
+    private void initConversationViewPager() {
+
+        mConversationFragment = initConversation();
+        mViewpager = (ViewPager) this.findViewById(R.id.conversation);
+        mFragment.add(mConversationFragment);
+        mFragment.add(IntercomFragment.getInstance());
+        mFragment.add(CallPhoneFragment.getInstance());
+        //添加tag
+        imageViewList.add(tag_message);
+        imageViewList.add(tag_intercom);
+        imageViewList.add(tag_call);
+
+        FragmentPagerAdapter fragmentPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                return mFragment.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return mFragment.size();
+            }
+        };
+        mViewpager.setAdapter(fragmentPagerAdapter);
+//        mViewpager.setOffscreenPageLimit(4);
+        mViewpager.setOnPageChangeListener(this);
+//        initData();
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        Log.e(TAG, "当前那个页面被选中：" + position);
+        switch (position) {
+            case 0:
+                tag_message.setImageResource(R.mipmap.talk_message_selected);
+                tag_call.setImageResource(R.mipmap.talk_call);
+                tag_intercom.setImageResource(R.mipmap.talk_intercom);
+                break;
+            case 1:
+                tag_message.setImageResource(R.mipmap.talk_message);
+                tag_call.setImageResource(R.mipmap.talk_call);
+                tag_intercom.setImageResource(R.mipmap.talk_intercom_selected);
+                break;
+            case 2:
+                tag_message.setImageResource(R.mipmap.talk_message);
+                tag_call.setImageResource(R.mipmap.talk_call_selected);
+                tag_intercom.setImageResource(R.mipmap.talk_intercom);
+                break;
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        Log.e(TAG, "滑动的状态" + state);
+    }
+
+    @Override
+    public void onCountChanged(int count) {
+
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getBooleanExtra("systemconversation", false)) {
+            mViewpager.setCurrentItem(0, false);
+        }
+    }
+
+    protected void initData() {
+
+        final Conversation.ConversationType[] conversationTypes = {
+                Conversation.ConversationType.PRIVATE,
+                Conversation.ConversationType.GROUP, Conversation.ConversationType.SYSTEM,
+                Conversation.ConversationType.PUBLIC_SERVICE, Conversation.ConversationType.APP_PUBLIC_SERVICE
+        };
+        RongIM.getInstance().addUnReadMessageCountChangedObserver(this, conversationTypes);
+//        getConversationPush();// 获取 push 的 id 和 target
+//        getPushMessage();
+    }
+
+    //    @Override
 //    public void initView() {
 //
 //    }
+    private Fragment initConversation() {
+        if (conversationDynamicFragment == null) {
+            Intent intent = getIntent();
+            mTargetId = intent.getData().getQueryParameter("targetId");
+            mConversationType = Conversation.ConversationType.valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.getDefault()));
+            ConversationFragment fragment = new ConversationFragment();
+            Uri uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
+                    .appendPath("conversation").appendPath(mConversationType.getName().toLowerCase())
+                    .appendQueryParameter("targetId", mTargetId).build();
 
-    /**
-     * 设置私聊界面 ActionBar
-     */
+            fragment.setUri(uri);
+
+             /* 加载 ConversationFragment */
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+//            transaction.add(R.id.fragment_view, fragment);
+            transaction.commit();
+            return fragment;
+        } else {
+            return conversationDynamicFragment;
+        }
+    }
+
+    //    /**
+//     * 设置私聊界面 ActionBar
+//     */
     private void setPrivateActionBar(String targetId) {
         if (!TextUtils.isEmpty(title)) {
             if (title.equals("null")) {
@@ -173,11 +293,12 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    /**
-     * 设置群聊界面 ActionBar
-     *
-     * @param targetId 会话 Id
-     */
+    //
+//    /**
+//     * 设置群聊界面 ActionBar
+//     *
+//     * @param targetId 会话 Id
+//     */
     private void setGroupActionBar(String targetId) {
         if (!TextUtils.isEmpty(title)) {
             setTitle(title);
@@ -186,9 +307,10 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
-    /**
-     * 设置讨论组界面 ActionBar
-     */
+    //
+//    /**
+//     * 设置讨论组界面 ActionBar
+//     */
     private void setDiscussionActionBar(String targetId) {
 
         if (targetId != null) {
@@ -212,7 +334,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             setTitle("讨论组");
         }
     }
-
 
     /**
      * 设置标题
@@ -251,10 +372,11 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
 
     }
 
-    /**
-     * ATTENTION: This was auto-generated to implement the App Indexing API.
-     * See https://g.co/AppIndexing/AndroidStudio for more information.
-     */
+    //
+//    /**
+//     * ATTENTION: This was auto-generated to implement the App Indexing API.
+//     * See https://g.co/AppIndexing/AndroidStudio for more information.
+//     */
     public Action getIndexApiAction() {
         Thing object = new Thing.Builder()
                 .setName("Conversation Page") // TODO: Define a title for the content shown.
@@ -327,14 +449,35 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
+    /**
+     * 加载会话页面 ConversationFragmentEx 继承自 ConversationFragment
+     *
+     * @param mConversationType 会话类型
+     * @param mTargetId         会话 Id
+     */
+    private void enterFragment(Conversation.ConversationType mConversationType, String mTargetId) {
+
+        Log.e("eeeeeeee", "会话界面是否执行");
+
+        Uri uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
+                .appendPath("conversation").appendPath(mConversationType.getName().toLowerCase())
+                .appendQueryParameter("targetId", mTargetId).build();
+
+//        fragment.setUri(uri);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        //xxx 为你要加载的 id
+//        transaction.add(R.id.conversation, fragment);
+        transaction.commitAllowingStateLoss();
+    }
+
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.iv_conversation_contacts:
                 enterSettingActivity();
                 break;
             case R.id.iv_conversation_location:
-                Intent intentLocation = new Intent(ConversationActivity.this,AMapForPreviewActivity.class);
+                Intent intentLocation = new Intent(ConversationActivity.this, AMapForPreviewActivity.class);
                 startActivity(intentLocation);
                 break;
         }

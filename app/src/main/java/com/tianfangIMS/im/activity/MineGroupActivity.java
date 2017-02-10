@@ -50,7 +50,6 @@ public class MineGroupActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mine_activity);
-        setData();
         mContext = this;
         setTitle("我的群组");
         initView();
@@ -61,9 +60,9 @@ public class MineGroupActivity extends BaseActivity {
     public void initView() {
 //        mListView = (ListView) this.findViewById(R.id.minegroup_list);
 
-//        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
-//        minegroup_list_Ijoin = (ListView)this.findViewById(R.id.minegroup_list_Ijoin);
-        exlv_MineGroup = (ExpandableListView) this.findViewById(R.id.exlv_MineGroup);
+        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
+        minegroup_list_Ijoin = (ListView)this.findViewById(R.id.minegroup_list_Ijoin);
+//        exlv_MineGroup = (ExpandableListView) this.findViewById(R.id.exlv_MineGroup);
     }
 
     private void setData() {
@@ -116,42 +115,15 @@ public class MineGroupActivity extends BaseActivity {
                             Gson gson = new Gson();
                             Type listType = new TypeToken<List<MineGroupParentBean>>() {
                             }.getType();
-                            MineGroupParentBean bean = gson.fromJson(s, listType);
+//                            MineGroupParentBean bean = gson.fromJson(s, listType);
                             list = gson.fromJson(s, listType);
-                            Log.e(TAG, "看看解析成功没有:::" + bean);
+//                            CeshishujuAdapter adapter = new CeshishujuAdapter(mContext,list);
+//                            minegroup_list_ICreate.setAdapter(adapter);
+//                            adapter.notifyDataSetChanged();
+
                             for (int i = 0; i < list.size(); i++) {
                                 Log.e(TAG, "看看解析成功没有:::" + list.get(i).getText().getICreate().get(i).getFullname());
                             }
-
-//                            List<Map<String,String>> Plist =(List<Map<String,String>>)map.get("text");
-
-//                            List<Map<String,String>> list = new ArrayList<Map<String, String>>();
-//                            list =  (List<Map<String,String>>)map1.get("ICreate");
-//                            list =  (List<Map<String,String>>)map1.get("IJoin");
-
-//                            //首先把我创建的添加到ListGroup 和listitem中
-//                            Map<String, String> mp = new HashMap<String, String>();
-//                            mp.put("title","ICreate");
-//                            Listitem.add(mp);//向子类里边添加
-//                            ListGroup.add(mp);//想父类里边添加
-//                            //把我创建的所有数据添加到子类
-//                            Map<String, String> map12 = (Map<String, String>)map1.get("ICreate");
-//                            Listitem.add(map12);
-//                            mp = new HashMap<String, String>();
-//
-//                            //然后把我加入的添加到ListGroup 和listitem中
-//                            mp.put("title","IJoin");
-//                            Listitem.add(mp);//向子类里边添加
-//                            ListGroup.add(mp);//想父类里边添加
-//                            Map<String, String> map13 = (Map<String, String>)map1.get("IJoin");
-//                            Listitem.add(map13);
-//
-//                            MineGroupListAdapter adapter = new MineGroupListAdapter(ListGroup,list,mContext);
-//                            mListView.setAdapter(adapter);
-//                            adapter.notifyDataSetChanged();
-
-//
-//
                         }
                     }
 

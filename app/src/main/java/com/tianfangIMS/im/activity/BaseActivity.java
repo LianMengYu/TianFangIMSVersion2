@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -35,6 +36,8 @@ public class BaseActivity extends FragmentActivity {
     private FrameLayout mContentView;
     private ImageButton iv_conversation_loaction;
     private ImageButton iv_conversation_contacts;
+    private ImageView iv_talk_message, iv_talk_intercom, iv_talk_call;
+    private LinearLayout ll_talk;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,11 @@ public class BaseActivity extends FragmentActivity {
         mContentView = (FrameLayout) super.findViewById(R.id.layout_container);
         iv_conversation_loaction = (ImageButton) super.findViewById(R.id.iv_conversation_location);
         iv_conversation_contacts = (ImageButton) super.findViewById(R.id.iv_conversation_contacts);
+        //Viewpager滑动的tag
+        iv_talk_message = (ImageView) super.findViewById(R.id.iv_talk_message);
+        iv_talk_intercom = (ImageView) super.findViewById(R.id.iv_talk_intercom);
+        iv_talk_call = (ImageView) super.findViewById(R.id.iv_talk_call);
+        ll_talk = (LinearLayout) super.findViewById(R.id.ll_talk);
     }
 
 //    @Override
@@ -150,6 +158,26 @@ public class BaseActivity extends FragmentActivity {
 
     public ImageButton getIv_conversation_contacts() {
         return iv_conversation_contacts;
+    }
+
+
+    /**
+     * 设置Viewpager的Tag小标签是否可见
+     */
+    public void setViewPagerTagVisibiliy(int visibiliy) {
+        ll_talk.setVisibility(visibiliy);
+    }
+
+    public ImageView getIv_talk_message() {
+        return iv_talk_message;
+    }
+
+    public ImageView getIv_talk_intercom() {
+        return iv_talk_intercom;
+    }
+
+    public ImageView getIv_talk_call() {
+        return iv_talk_call;
     }
 
 //

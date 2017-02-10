@@ -29,7 +29,6 @@ public class CommUtils {
 
     private static final String path = File.separator + File.separator + "sdcard" + File.separator + "TianFangIMS";
     private static final String PathIMGES = path + File.separator + "Images" + File.separator;
-
     public static void FilePath() {
 
         File file = new File(path);
@@ -145,5 +144,26 @@ public class CommUtils {
         SharedPreferences pref = mContext.getSharedPreferences(
                 "user_login", 0);
         return pref.edit().putString("user_info", info).commit();
+    }
+
+    public static boolean saveFrientUserInfo(Context mContext, String info) {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                "friend_info", 0);
+        return pref.edit().putString("friend_info", info).commit();
+    }
+    public static String getFrientUserInfo(Context mContext) {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                "friend_info", 0);
+        return pref.getString("friend_info", "");
+    }
+    public static boolean saveGroupUserInfo(Context mContext, String info) {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                "group_info", 0);
+        return pref.edit().putString("group_info", info).commit();
+    }
+    public static String getGroupUserInfo(Context mContext) {
+        SharedPreferences pref = mContext.getSharedPreferences(
+                "group_info", 0);
+        return pref.getString("group_info", "");
     }
 }

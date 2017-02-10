@@ -17,6 +17,7 @@
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@id/cb_addfrien"
             android:background="@android:color/transparent"
             android:scaleType="centerCrop"
             app:RCCornerRadius="3dp"

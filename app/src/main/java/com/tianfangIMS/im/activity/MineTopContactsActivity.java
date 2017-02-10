@@ -3,6 +3,8 @@ package com.tianfangIMS.im.activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -23,6 +25,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.imkit.RongIM;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -31,7 +34,7 @@ import okhttp3.Response;
  * 常用联系人
  */
 
-public class MineTopContactsActivity extends BaseActivity {
+public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener{
     private static final String TAG = "MineTopContactsActivity";
     private Context mContext;
     private ListView lv_topContacts;
@@ -42,14 +45,17 @@ public class MineTopContactsActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mine_topcontacts_activity);
+        setTitle("选择常用联系人");
         mContext = this;
         initView();
         GetTopContacts();
     }
 
     private void initView() {
-        lv_topContacts = (ListView) this.findViewById(R.id.lv_topcontacts);
+        lv_topContacts = (ListView) this.findViewById(R.id.lv_group_addtopcontacts);
+        lv_topContacts.setOnItemClickListener(this);
     }
+
 
     private void GetTopContacts() {
         Gson gson = new Gson();
@@ -92,5 +98,10 @@ public class MineTopContactsActivity extends BaseActivity {
                         return;
                     }
                 });
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        RongIM.getInstance().startPrivateChat(mContext, topContactsList.get(position).getId(),topContactsList.get(position).getFullname());
     }
 }

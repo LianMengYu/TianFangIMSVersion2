@@ -31,10 +31,15 @@ public class ConstantValue {
 
     public static final String SEARCHFRIEND = Urls + "member!searchUser";//查找联系人
 
-    public static final String ADDTOPCONTACTS = Urls +"friend!addFriend";//添加常用联系人
+    public static final String ADDTOPCONTACTS = Urls + "friend!addFriend";//添加常用联系人
 
-    public static final String GETCONTACTSLIST = Urls +"friend!getMemberFriends";//获取常用联系人列表
+    public static final String GETCONTACTSLIST = Urls + "friend!getMemberFriends";//获取常用联系人列表
 
-    public static final String MINEGROUP = Urls +"group!groupListWithAction";//我的群组接口
+    public static final String MINEGROUP = Urls + "group!groupListWithAction";//我的群组接口
 
+    public static final String CREATEGROUP = Urls + "group!createGroup";//创建群聊
+
+    public static final String SYNCUSERGROUP = Urls + "group!syncUserGroup";//同步用户群列表
+
+    public static final String GETALLGROUP = Urls + "group!groupList";//获取所有群组信息
 }

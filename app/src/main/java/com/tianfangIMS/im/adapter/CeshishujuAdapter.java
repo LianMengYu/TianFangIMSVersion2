@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.bean.MineGroupChildBean;
+import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.utils.CommUtils;
 
 import java.util.List;
@@ -20,9 +20,9 @@ import java.util.List;
 public class CeshishujuAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<MineGroupChildBean> mlist;
+    private List<MineGroupParentBean> mlist;
 
-    public CeshishujuAdapter(Context mContext, List<MineGroupChildBean> mlist) {
+    public CeshishujuAdapter(Context mContext, List<MineGroupParentBean> mlist) {
         this.mContext = mContext;
         this.mlist = mlist;
     }
@@ -53,8 +53,8 @@ public class CeshishujuAdapter extends BaseAdapter {
         }else {
             childHodler = (ChildHodler) convertView.getTag();
         }
-        CommUtils.GetImages(mContext, mlist.get(position).getText().getICreate().getLogo(), childHodler.img);
-        childHodler.name.setText(mlist.get(position).getText().getICreate().getName());
+        CommUtils.GetImages(mContext, mlist.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
+        childHodler.name.setText(mlist.get(position).getText().getICreate().get(position).getName());
         return convertView;
     }
 

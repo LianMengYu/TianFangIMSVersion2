@@ -11,7 +11,9 @@ import com.lzy.okgo.model.HttpParams;
 
 import java.util.logging.Level;
 
+import io.rong.imkit.RongExtensionManager;
 import io.rong.imkit.RongIM;
+import io.rong.ptt.kit.PTTExtensionModule;
 
 /**
  * Created by Lincktek_Lmy on 2016/12/29.
@@ -23,6 +25,7 @@ public class TianFangIMSApplication extends Application {
     public void onCreate() {
         super.onCreate();
         RongIM.init(this);
+        RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
         OkGo.init(this);
         HttpHeaders headers = new HttpHeaders();
         headers.put("commonHeaderKey1", "commonHeaderValue1");    //header不支持中文
@@ -83,6 +86,5 @@ public class TianFangIMSApplication extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 }
