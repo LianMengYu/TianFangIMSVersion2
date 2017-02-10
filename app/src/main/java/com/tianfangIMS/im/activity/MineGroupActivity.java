@@ -14,7 +14,10 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.adapter.GroupAdapter;
+import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.bean.MineGroupBean;
 import com.tianfangIMS.im.bean.MineGroupChildBean;
 import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
@@ -46,10 +49,19 @@ public class MineGroupActivity extends BaseActivity {
     private ListView minegroup_list_ICreate;
     private ListView minegroup_list_Ijoin;
 
+    ListView activity_group_lv_data;
+
+    MineGroupBean mMineGroupBean;
+    List<GroupBean> mGroupBeen;
+
+    GroupAdapter mGroupAdapter;
+
+    Gson mGson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mine_activity);
+        setContentView(R.layout.activity_group);
         mContext = this;
         setTitle("我的群组");
         initView();
@@ -58,10 +70,11 @@ public class MineGroupActivity extends BaseActivity {
     }
 
     public void initView() {
+        activity_group_lv_data = (ListView) findViewById(R.id.activity_group_lv_data);
 //        mListView = (ListView) this.findViewById(R.id.minegroup_list);
 
-        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
-        minegroup_list_Ijoin = (ListView)this.findViewById(R.id.minegroup_list_Ijoin);
+//        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
+//        minegroup_list_Ijoin = (ListView) this.findViewById(R.id.minegroup_list_Ijoin);
 //        exlv_MineGroup = (ExpandableListView) this.findViewById(R.id.exlv_MineGroup);
     }
 
@@ -97,6 +110,26 @@ public class MineGroupActivity extends BaseActivity {
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "json:---" + s);
                         if (!TextUtils.isEmpty(s)) {
+                            mGson = new Gson();
+                            mGroupBeen = new ArrayList<GroupBean>();
+                            mMineGroupBean = mGson.fromJson(s, MineGroupBean.class);
+                            GroupBean tmp = new GroupBean();
+                            tmp.setName("我建的组");
+                            tmp.setGID(String.valueOf(-1));
+                            mGroupBeen.add(tmp);
+                            mGroupBeen.addAll(mMineGroupBean.getText().getICreate());
+                            tmp = new GroupBean();
+                            tmp.setName("我加入的");
+                            tmp.setGID(String.valueOf(-1));
+                            mGroupBeen.add(tmp);
+                            mGroupBeen.addAll(mMineGroupBean.getText().getIJoin());
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mGroupAdapter = new GroupAdapter(mGroupBeen, mContext);
+                                    activity_group_lv_data.setAdapter(mGroupAdapter);
+                                }
+                            });
 //                            Type listType = new TypeToken<Map<String, Object>>() {
 //                            }.getType();
 //
@@ -111,19 +144,19 @@ public class MineGroupActivity extends BaseActivity {
 //                            for (int i = 0; i < list.size(); i++) {
 //                                Log.e(TAG, "解析有没有成功" + list.get(i));
 //                            }
-                            List<MineGroupParentBean> list = new ArrayList<MineGroupParentBean>();
-                            Gson gson = new Gson();
-                            Type listType = new TypeToken<List<MineGroupParentBean>>() {
-                            }.getType();
-//                            MineGroupParentBean bean = gson.fromJson(s, listType);
-                            list = gson.fromJson(s, listType);
-//                            CeshishujuAdapter adapter = new CeshishujuAdapter(mContext,list);
-//                            minegroup_list_ICreate.setAdapter(adapter);
-//                            adapter.notifyDataSetChanged();
-
-                            for (int i = 0; i < list.size(); i++) {
-                                Log.e(TAG, "看看解析成功没有:::" + list.get(i).getText().getICreate().get(i).getFullname());
-                            }
+//                            List<MineGroupParentBean> list = new ArrayList<MineGroupParentBean>();
+//                            Gson gson = new Gson();
+//                            Type listType = new TypeToken<List<MineGroupParentBean>>() {
+//                            }.getType();
+////                            MineGroupParentBean bean = gson.fromJson(s, listType);
+//                            list = gson.fromJson(s, listType);
+////                            CeshishujuAdapter adapter = new CeshishujuAdapter(mContext,list);
+////                            minegroup_list_ICreate.setAdapter(adapter);
+////                            adapter.notifyDataSetChanged();
+//
+//                            for (int i = 0; i < list.size(); i++) {
+//                                Log.e(TAG, "看看解析成功没有:::" + list.get(i).getText().getICreate().get(i).getFullname());
+//                            }
                         }
                     }
 

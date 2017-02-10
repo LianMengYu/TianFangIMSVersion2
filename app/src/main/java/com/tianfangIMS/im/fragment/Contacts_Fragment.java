@@ -18,6 +18,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
 import com.tianfangIMS.im.activity.SecondActivity;
 import com.tianfangIMS.im.dialog.LoadDialog;
@@ -108,7 +109,7 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_mine_contacts:
-//                startActivity(new Intent(getActivity(), MineGroupActivity.class));
+                startActivity(new Intent(getActivity(), MineGroupActivity.class));
                 break;
             case R.id.ly_company_name:
 //                startActivity(new Intent(getActivity(), Contacts_DepartmentActivity.class));
