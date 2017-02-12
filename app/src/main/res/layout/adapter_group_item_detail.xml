@@ -18,7 +18,7 @@
             android:layout_height="match_parent"
             android:alpha="0.5" />
 
-        <com.titan.im.view.FrameView
+        <com.tianfangIMS.im.view.FrameView
             android:id="@+id/adapter_group_item_detail_index"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
