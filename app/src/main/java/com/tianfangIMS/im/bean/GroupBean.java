@@ -62,6 +62,9 @@ public class GroupBean implements Serializable {
         this.workno = workno;
     }
 
+    public GroupBean() {
+    }
+
     public String getAccount() {
         return account;
     }

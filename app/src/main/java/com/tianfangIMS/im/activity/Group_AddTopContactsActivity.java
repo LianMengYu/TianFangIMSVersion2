@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -99,6 +100,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
+                        Log.e(TAG, "测试返回JSON数据：" + s);
                         if (!TextUtils.isEmpty(s)) {
                             Type listType = new TypeToken<List<TopContactsBean>>() {
                             }.getType();

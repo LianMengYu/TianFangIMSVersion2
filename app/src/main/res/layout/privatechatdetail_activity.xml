@@ -18,14 +18,21 @@
             android:layout_marginLeft="30dp"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/iv_conversationDetail_photo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <com.tianfangIMS.im.view.CircleImageViews
+                android:id="@+id/iv_user_photo"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:layout_marginLeft="25dp"
+                android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/me_icon_photo" />
+                app:RCCornerRadius="3dp"
+                app:RCDefDrawable="@mipmap/me_icon_photo"
+                app:RCShape="circle" />
 
             <TextView
+                android:id="@+id/tv_conversationdetail_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="秦时风"
@@ -34,6 +41,7 @@
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/iv_createGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

@@ -157,6 +157,12 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         tag_message = getIv_talk_message();
         tag_intercom = getIv_talk_intercom();
         tag_call = getIv_talk_call();
+        loactionButton.setVisibility(View.VISIBLE);
+        contactsButton.setVisibility(View.VISIBLE);
+        contactsButton.setVisibility(View.VISIBLE);
+        tag_message.setVisibility(View.VISIBLE);
+        tag_intercom.setVisibility(View.VISIBLE);
+        tag_call.setVisibility(View.VISIBLE);
 
     }
 
@@ -457,7 +463,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
      */
     private void enterFragment(Conversation.ConversationType mConversationType, String mTargetId) {
 
-        Log.e("eeeeeeee", "会话界面是否执行");
 
         Uri uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
                 .appendPath("conversation").appendPath(mConversationType.getName().toLowerCase())
@@ -478,6 +483,9 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 break;
             case R.id.iv_conversation_location:
                 Intent intentLocation = new Intent(ConversationActivity.this, AMapForPreviewActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("UserID",mTargetId);
+                intentLocation.putExtras(bundle);
                 startActivity(intentLocation);
                 break;
         }

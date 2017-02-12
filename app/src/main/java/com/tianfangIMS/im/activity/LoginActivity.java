@@ -94,8 +94,10 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
+                            Log.e(TAG, "返回Json：" + s);
                             Gson gson = new Gson();
                             SetSyncUserBean syncUserBean = gson.fromJson(s, SetSyncUserBean.class);
+                            Log.e(TAG, "返回Bean：" + syncUserBean);
                             if (syncUserBean.getCode().equals("200")) {
                                 Log.e("Login", "返回消息：" + syncUserBean.getText());
                             } else {
@@ -254,6 +256,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                                         @Override
                                         public void onTokenIncorrect() {
                                         }
+
                                         @Override
                                         public void onSuccess(String s) {
                                             LoadDialog.dismiss(mContext);

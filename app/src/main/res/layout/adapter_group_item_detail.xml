@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.zhy.android.percent.support.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                     xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                     android:layout_width="match_parent"
-                                                     android:layout_height="match_parent"
-                                                     android:orientation="horizontal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
     <com.zhy.android.percent.support.PercentRelativeLayout
         android:layout_width="0dp"
@@ -16,7 +16,7 @@
             android:id="@+id/adapter_group_item_detail_header"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.5"/>
+            android:alpha="0.5" />
 
         <com.titan.im.view.FrameView
             android:id="@+id/adapter_group_item_detail_index"
@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:textColor="@android:color/white"
-            android:textSize="21sp"/>
+            android:textSize="21sp" />
     </com.zhy.android.percent.support.PercentRelativeLayout>
 
     <LinearLayout
@@ -39,11 +39,11 @@
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:gravity="center_vertical"/>
+            android:gravity="center_vertical" />
 
         <View
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
     </LinearLayout>
 </com.zhy.android.percent.support.PercentLinearLayout>

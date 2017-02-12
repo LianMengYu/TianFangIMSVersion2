@@ -24,7 +24,7 @@
                 android:layout_height="48dp"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:layout_marginLeft="35dp"
+                android:layout_marginLeft="25dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 app:RCCornerRadius="3dp"
@@ -73,6 +73,7 @@
                     android:text="邮箱" />
 
                 <TextView
+                    android:id="@+id/friendinfo_email"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -93,7 +94,7 @@
                     android:text="手机" />
 
                 <TextView
-                    android:id="@+id/tx_userinfo_phonenumber"
+                    android:id="@+id/tx_frienduserinfo_phonenumber"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -113,6 +114,7 @@
                     android:text="电话" />
 
                 <TextView
+                    android:id="@+id/iv_friendinfo_phone"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -141,6 +143,7 @@
                     android:text="公司" />
 
                 <TextView
+                    android:id="@+id/friendinfo_company"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -160,6 +163,7 @@
                     android:text="地址" />
 
                 <TextView
+                    android:id="@+id/friendinfo_address"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -187,6 +191,7 @@
                     android:text="部门" />
 
                 <TextView
+                    android:id="@+id/friendinfo_chanpin"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -206,6 +211,7 @@
                     android:text="职位" />
 
                 <TextView
+                    android:id="@+id/friendinfo_jingli"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

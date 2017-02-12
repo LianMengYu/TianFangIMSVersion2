@@ -42,4 +42,8 @@ public class ConstantValue {
     public static final String SYNCUSERGROUP = Urls + "group!syncUserGroup";//同步用户群列表
 
     public static final String GETALLGROUP = Urls + "group!groupList";//获取所有群组信息
+
+    public static final String GETONEPERSONINFO = Urls +  "member!getOneOfMember";//获取单用户信息
+
+
 }

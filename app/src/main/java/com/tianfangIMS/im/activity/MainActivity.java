@@ -158,6 +158,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 .connTimeOut(10000)
                 .readTimeOut(10000)
                 .writeTimeOut(10000)
+                .cacheKey("getfriendinfo")
                 .params("account", UID)
                 .execute(new StringCallback() {
                     @Override
@@ -215,7 +216,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //                            topContactsList = gson.fromJson(s, listType);
 //
 //                            Log.e(TAG,"保存好友："+topContactsList);
-                            Log.e(TAG, "有没有执行");
+
+                            Log.e(TAG, "有没有执行" + s);
                             CommUtils.saveGroupUserInfo(mContext, s);
                         } else {
                             return;
@@ -259,14 +261,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
 
         @Override
-        public boolean onUserPortraitClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo) {
-            NToast.longToast(context, "点击了头像" + userInfo.getUserId() + "会话类型" + conversationType.getValue());
-            if(conversationType.equals(Conversation.ConversationType.GROUP)){
-                NToast.shortToast(mContext,"为群组，没有跳转");
-            }
-            if(conversationType.equals(Conversation.ConversationType.PRIVATE)){
-                startActivity(new Intent(mContext, FriendPersonInfoActivity.class));
-            }
+        public boolean onUserPortraitClick(Context context, Conversation.ConversationType mConversationType, UserInfo userInfo) {
+//            NToast.longToast(context, "点击了头像" + userInfo.getUserId() + "会话类型" + mConversationType.getValue());
+            String userID = userInfo.getUserId().toString();
+//            if (mConversationType.equals(Conversation.ConversationType.GROUP)) {
+//                Intent intentGroup = new Intent(mContext, FriendPersonInfoActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putString("userId", userID);
+//                startActivity(intentGroup);
+//            }
+//            if (mConversationType.equals(Conversation.ConversationType.PRIVATE)) {
+                Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("userId", userID);
+                intent.putExtras(bundle);
+                intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+                startActivity(intent);
+
+//            }
             return true;
         }
 
@@ -340,7 +352,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case R.id.ly_tab_menu_me:
                 setSelected();
                 tv_tab_menu_me.setSelected(true);
-//                tv_tab_menu_me_num.setVisibility(View.INVISIBLE);
                 tv_tab_menu_me.setTextColor(this.getResources().getColor(R.color.colorNaviationClick));
                 SelectFragment(4);
                 break;
@@ -538,6 +549,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         Type listType = new TypeToken<GroupListBean>() {
         }.getType();
         Gson gson = new Gson();
+        String str = CommUtils.getGroupUserInfo(mContext);
+        Log.e(TAG, "数据又出问题了：" + str);
         GroupListBean GroupAllBean = gson.fromJson(CommUtils.getGroupUserInfo(mContext), listType);
         ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
         if (GroupBeanList != null && GroupBeanList.size() > 0) {
