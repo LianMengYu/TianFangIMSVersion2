@@ -44,6 +44,12 @@
             android:textSize="14dp" />
     </RelativeLayout>
 
+    <Button
+        android:id="@+id/activity_info_btn_tree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="跳转至树状图"/>
+
     <HorizontalScrollView
         android:layout_marginTop="10dp"
         android:layout_width="match_parent"

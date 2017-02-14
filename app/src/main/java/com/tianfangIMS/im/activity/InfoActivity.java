@@ -23,6 +23,7 @@ import com.tianfangIMS.im.bean.TreeInfo;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -68,6 +69,8 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     LinearLayout activity_info_ll_header;
     TextView activity_info_tv_header;
 
+    Button activity_info_btn_tree;
+
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -83,6 +86,16 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
+
+        activity_info_btn_tree = (Button) findViewById(R.id.activity_info_btn_tree);
+        activity_info_btn_tree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
+                mIntent.putExtra("map", maps);
+                startActivityForResult(mIntent, 100);
+            }
+        });
 
         activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
         activity_info_ll_indicator = (LinearLayout) findViewById(R.id.activity_info_ll_indicator);
@@ -242,6 +255,21 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 if (child != null) {
                     calcSum(child);
                 }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case 100:
+                    clickHistory.clear();
+                    clickHistory.addAll((Collection<? extends TreeInfo>) data.getSerializableExtra("clickHistory"));
+                    currentLevel = data.getIntExtra("currentLevel", -1);
+                    transfer();
+                    break;
             }
         }
     }
