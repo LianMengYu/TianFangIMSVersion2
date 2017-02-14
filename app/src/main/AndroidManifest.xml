@@ -178,7 +178,7 @@
 
         </activity>
         <activity android:name=".activity.VideoActivity"></activity>
-        <activity android:name=".activity.SecondActivity"></activity>
+        <activity android:name=".activity.InfoActivity"></activity>
         <activity android:name=".activity.Group_AddTopContactsActivity">
 
         </activity>

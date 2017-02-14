@@ -8,7 +8,6 @@ import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -19,12 +18,10 @@ import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.MineGroupBean;
 import com.tianfangIMS.im.bean.MineGroupChildBean;
-import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommUtils;
 import com.tianfangIMS.im.utils.NToast;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
