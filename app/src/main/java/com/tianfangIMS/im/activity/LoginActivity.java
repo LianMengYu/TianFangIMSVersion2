@@ -93,7 +93,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-                        if (!TextUtils.isEmpty(s)) {
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                             Log.e(TAG, "返回Json：" + s);
                             Gson gson = new Gson();
                             SetSyncUserBean syncUserBean = gson.fromJson(s, SetSyncUserBean.class);
@@ -103,6 +103,8 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                             } else {
                                 NToast.shortToast(mContext, "同步群组失败");
                             }
+                        }else {
+                            return;
                         }
                     }
                 });
@@ -255,6 +257,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                         @Override
                                         public void onTokenIncorrect() {
+
                                         }
 
                                         @Override

@@ -45,5 +45,10 @@ public class ConstantValue {
 
     public static final String GETONEPERSONINFO = Urls +  "member!getOneOfMember";//获取单用户信息
 
+    public static final String GETONEGROUPINFO = Urls +  "group!groupInfo";//获取单群组信息
+
+    public static final String SINGOUTGROUP = Urls +  "group!leftGroup";//退出群组
+
+    public static final String CHANGEGROUPNAME = Urls +  "group!changeGroupName";//修改群组名称
 
 }

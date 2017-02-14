@@ -168,11 +168,6 @@
             android:theme="@android:style/Theme.NoTitleBar">
 
         </activity>
-        <activity
-            android:name=".activity.AMapForPreviewActivity"
-            android:theme="@android:style/Theme.NoTitleBar">
-
-        </activity>
         <activity android:name=".activity.AddTopContacts_Activity">
 
         </activity>
@@ -207,6 +202,7 @@
         <activity android:name=".activity.ConversationViewpagerActivity">
 
         </activity>
+        <activity android:name=".activity.ChangeGroupNameActivity"></activity>
         <!--高德地图定位服务-->
         <service android:name="com.amap.api.location.APSService"></service>
         <!--会话列表-->

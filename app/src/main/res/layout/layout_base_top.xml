@@ -27,7 +27,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="12dp"
             android:layout_toRightOf="@id/btn_left"
-            android:maxLength="20"
+            android:maxLength="10"
             android:maxLines="1"
             android:text="标题"
             android:textColor="#FFFFFF"
@@ -39,8 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:visibility="invisible"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:visibility="invisible">
 
             <ImageView
                 android:id="@+id/iv_talk_message"
@@ -73,8 +73,8 @@
             android:layout_marginRight="50dp"
             android:background="@null"
             android:scaleType="centerCrop"
-            android:visibility="invisible"
-            android:src="@mipmap/conversation_location" />
+            android:src="@mipmap/conversation_location"
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/iv_conversation_contacts"
@@ -85,8 +85,20 @@
             android:layout_marginRight="17dp"
             android:background="@null"
             android:scaleType="centerCrop"
-            android:visibility="invisible"
-            android:src="@mipmap/conversation_contacts" />
+            android:src="@mipmap/conversation_contacts"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="17dp"
+            android:background="@null"
+            android:scaleType="centerCrop"
+            android:text="完成"
+            android:visibility="invisible" />
 
     </RelativeLayout>
 </LinearLayout>

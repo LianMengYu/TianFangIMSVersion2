@@ -30,7 +30,7 @@ import com.tianfangIMS.im.R;
 public class BaseActivity extends FragmentActivity {
     protected Context mContext;
     private ImageButton btn_left_back;
-    private TextView tv_title;
+    private TextView tv_title, tv_complete;
     private LinearLayout layout_head;
     private Drawable mBtnBackDrawable;
     private FrameLayout mContentView;
@@ -61,6 +61,7 @@ public class BaseActivity extends FragmentActivity {
         iv_talk_intercom = (ImageView) super.findViewById(R.id.iv_talk_intercom);
         iv_talk_call = (ImageView) super.findViewById(R.id.iv_talk_call);
         ll_talk = (LinearLayout) super.findViewById(R.id.ll_talk);
+        tv_complete = (TextView) super.findViewById(R.id.tv_complete);
     }
 
 //    @Override
@@ -168,6 +169,10 @@ public class BaseActivity extends FragmentActivity {
         ll_talk.setVisibility(visibiliy);
     }
 
+    public LinearLayout getll_talk() {
+        return ll_talk;
+    }
+
     public ImageView getIv_talk_message() {
         return iv_talk_message;
     }
@@ -178,6 +183,13 @@ public class BaseActivity extends FragmentActivity {
 
     public ImageView getIv_talk_call() {
         return iv_talk_call;
+    }
+
+    public void setTv_completeVisibiliy(int visibiliy){
+        tv_complete.setVisibility(visibiliy);
+    }
+    public TextView getTv_title(){
+        return tv_complete;
     }
 
 //

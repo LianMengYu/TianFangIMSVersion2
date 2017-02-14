@@ -45,7 +45,6 @@ public class PTTActionPlugin implements IPluginModule {
         pttKitManager.joinSession(extension.getConversationType(), extension.getTargetId(), new JoinSessionCallback() {
             @Override
             public void onSuccess(List<String> users) {
-
                 Intent intent = new Intent(context, PTTSessionActivity.class);
                 intent.putStringArrayListExtra("users", users == null ? null : new ArrayList<String>(users));
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

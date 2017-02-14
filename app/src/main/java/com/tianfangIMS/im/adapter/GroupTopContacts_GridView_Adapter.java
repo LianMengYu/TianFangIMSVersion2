@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.utils.CommUtils;
 
 import java.util.List;
@@ -19,9 +19,9 @@ import java.util.List;
 
 public class GroupTopContacts_GridView_Adapter extends BaseAdapter {
     private Context mContext;
-    private List<TopContactsBean> mList;
+    private List<TopContactsListBean> mList;
 
-    public GroupTopContacts_GridView_Adapter(Context mContext, List<TopContactsBean> mList) {
+    public GroupTopContacts_GridView_Adapter(Context mContext, List<TopContactsListBean> mList) {
         this.mContext = mContext;
         this.mList = mList;
     }
@@ -55,8 +55,8 @@ public class GroupTopContacts_GridView_Adapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        CommUtils.GetImages(mContext, mList.get(position).getLogo(), viewHolder.img);
-        viewHolder.text.setText(mList.get(position).getFullname());
+        CommUtils.GetImages(mContext, mList.get(position).getText().get(position).getLogo(), viewHolder.img);
+        viewHolder.text.setText(mList.get(position).getText().get(position).getFullname());
         return convertView;
     }
 

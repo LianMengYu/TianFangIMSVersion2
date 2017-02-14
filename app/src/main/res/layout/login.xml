@@ -62,8 +62,6 @@
                 android:background="@null"
                 android:hint="@string/edittext_login"
                 android:imeOptions="actionGo"
-                android:inputType="number"
-                android:maxLength="11"
                 android:maxLines="1"
                 android:textColor="#373E61"
                 android:textColorHint="#BFC9D9" />

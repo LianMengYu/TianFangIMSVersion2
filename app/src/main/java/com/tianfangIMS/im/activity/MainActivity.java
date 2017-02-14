@@ -30,6 +30,7 @@ import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
 import com.tianfangIMS.im.fragment.Jobs_Fragment;
@@ -41,6 +42,7 @@ import com.tianfangIMS.im.utils.NToast;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
@@ -88,10 +90,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TopContactsBean topContactsBean;
     private List<TopContactsBean> topContactsList;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.mian_activity);
         GetFriendInfo();//持久化所有好友信息
         GetGroupInfo();//持久化所有群组信息
@@ -106,7 +108,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.getInstance().setMessageAttachedUserInfo(true);
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
-
+        RemoveSignOutGroupConversation();
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
 
@@ -148,11 +150,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         fragment_container = (FrameLayout) this.findViewById(R.id.fragment_container);
     }
 
+    //用来移除已经退出的群组
+    private void RemoveSignOutGroupConversation() {
+        if (!TextUtils.isEmpty(getIntent().getStringExtra("TargetID"))) {
+            Object object = getIntent().getSerializableExtra("conversationType");
+            Conversation.ConversationType mConversationType = (Conversation.ConversationType) object;
+            String id = getIntent().getStringExtra("TargetID");
+            RongIM.getInstance().removeConversation(mConversationType,id);
+        }else {
+            return;
+        }
+
+    }
+
     //获取所有好友信息
     private void GetFriendInfo() {
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
+        Log.e(TAG, "看看好友的参数：" + UID);
         OkGo.post(ConstantValue.GETCONTACTSLIST)
                 .tag(this)
                 .connTimeOut(10000)
@@ -169,12 +185,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
-//                            Type listType = new TypeToken< List<TopContactsBean> >() {
-//                            }.getType();
-//                            Gson gson = new Gson();
-//                            topContactsList = gson.fromJson(s, listType);
-//
-//                            Log.e(TAG,"保存好友："+topContactsList);
                             CommUtils.saveFrientUserInfo(mContext, s);
                         } else {
                             return;
@@ -210,14 +220,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
-//                            Type listType = new TypeToken< List<GroupListBean> >() {
-//                            }.getType();
-//                            Gson gson = new Gson();
-//                            topContactsList = gson.fromJson(s, listType);
-//
-//                            Log.e(TAG,"保存好友："+topContactsList);
-
-                            Log.e(TAG, "有没有执行" + s);
                             CommUtils.saveGroupUserInfo(mContext, s);
                         } else {
                             return;
@@ -271,12 +273,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //                startActivity(intentGroup);
 //            }
 //            if (mConversationType.equals(Conversation.ConversationType.PRIVATE)) {
-                Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("userId", userID);
-                intent.putExtras(bundle);
-                intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
-                startActivity(intent);
+            Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("userId", userID);
+            intent.putExtras(bundle);
+            intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+            startActivity(intent);
 
 //            }
             return true;
@@ -524,19 +526,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public UserInfo getUserInfo(String s) {
-        Log.e(TAG, "用户新提供的S：" + s);
-        Type listType = new TypeToken<List<TopContactsBean>>() {
+        Gson gson1 = new Gson();
+        String jsondata = CommUtils.getFrientUserInfo(mContext);
+        Type listTypeJson = new TypeToken<Map<String, Object>>() {
         }.getType();
-        Gson gson = new Gson();
-        topContactsList = gson.fromJson(CommUtils.getFrientUserInfo(mContext), listType);
-        if (topContactsList != null && topContactsList.size() > 0) {
-            for (TopContactsBean i :
-                    topContactsList) {
-                Log.e(TAG, "内容提供者是否实现:" + i.getId() + "---s:" + s);
-                if (i.getId().equals(s)) {
-                    Uri uri = Uri.parse(ConstantValue.ImageFile + i.getLogo());
-                    Log.e(TAG, "内容提供者URI:" + uri);
-                    return new UserInfo(i.getId(), i.getFullname(), Uri.parse(ConstantValue.ImageFile + i.getLogo()));
+        Map<String, Object> map = gson1.fromJson(jsondata, listTypeJson);
+        if (0 == (double) map.get("code")) {
+            return null;
+        } else {
+            Gson gson = new Gson();
+            Type listType = new TypeToken<TopContactsListBean>() {
+            }.getType();
+            TopContactsListBean bean = gson.fromJson(CommUtils.getFrientUserInfo(mContext), listType);
+            if (bean != null && bean.getText().size() > 0) {
+                for (int i = 0; i > bean.getText().size(); i++) {
+                    if (bean.getText().get(i).getId().equals(s)) {
+                        Log.e(TAG, "用户新提供的S：" + s);
+                        Log.e(TAG, "自己的id" + bean.getText().get(i).getId());
+                        return new UserInfo(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), Uri.parse(ConstantValue.ImageFile + bean.getText().get(i).getLogo()));
+                    }
                 }
             }
         }
@@ -545,18 +553,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public Group getGroupInfo(String groupId) {
-        Log.e(TAG, "获取群组ID：" + groupId);
-        Type listType = new TypeToken<GroupListBean>() {
+
+        String str = CommUtils.getGroupUserInfo(mContext);
+        Log.e(TAG, "首先获取信息：" + str);
+        Type listType = new TypeToken<Map<String, Object>>() {
         }.getType();
         Gson gson = new Gson();
-        String str = CommUtils.getGroupUserInfo(mContext);
-        Log.e(TAG, "数据又出问题了：" + str);
-        GroupListBean GroupAllBean = gson.fromJson(CommUtils.getGroupUserInfo(mContext), listType);
-        ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
-        if (GroupBeanList != null && GroupBeanList.size() > 0) {
-            for (GroupBean i : GroupBeanList) {
-                if (i.getGID().equals(groupId)) {
-                    return new Group(i.getGID(), i.getName(), Uri.parse(ConstantValue.ImageFile + i.getLogo()));
+        Map<String, Object> jsonData = gson.fromJson(str, listType);
+        if (0 == (double) jsonData.get("code")) {
+            Map<String, String> textData = (Map<String, String>) jsonData.get("text");
+            Log.e(TAG, "群组信息提供者:" + textData);
+        } else {
+            Log.e(TAG, "执行没有");
+            Type listType1 = new TypeToken<GroupListBean>() {
+            }.getType();
+            Gson gson1 = new Gson();
+            GroupListBean GroupAllBean = gson1.fromJson(CommUtils.getGroupUserInfo(mContext), listType1);
+            ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
+            Log.e(TAG, "群组信息提供者:" + GroupBeanList);
+            if (GroupBeanList != null && GroupBeanList.size() > 0) {
+                for (GroupBean i : GroupBeanList) {
+                    if (i.getGID().equals(groupId)) {
+                        return new Group(i.getGID(), i.getName(), Uri.parse(ConstantValue.ImageFile + i.getLogo()));
+                    }
                 }
             }
         }

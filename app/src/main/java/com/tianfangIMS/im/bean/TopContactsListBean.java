@@ -1,44 +1,17 @@
 package com.tianfangIMS.im.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * Created by LianMengYu on 2017/2/3.
+ * Created by LianMengYu on 2017/2/13.
+ * 包含list的联系人bean
  */
 
-public class TopContactsBean implements Serializable {
+public class TopContactsListBean implements Serializable {
 
     private String code;
-    private Text text;
-
-    public TopContactsBean(String code, Text text) {
-        this.code = code;
-        this.text = text;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public Text getText() {
-        return text;
-    }
-
-    public void setText(Text text) {
-        this.text = text;
-    }
-
-    @Override
-    public String toString() {
-        return "TopContactsBean{" +
-                "code='" + code + '\'' +
-                ", text=" + text +
-                '}';
-    }
+    private List<Text> text;
 
     public static class Text implements Serializable {
         private String account;
@@ -247,7 +220,7 @@ public class TopContactsBean implements Serializable {
 
         @Override
         public String toString() {
-            return "TopContactsBean{" +
+            return "Text{" +
                     "account='" + account + '\'' +
                     ", address='" + address + '\'' +
                     ", birthday='" + birthday + '\'' +
@@ -272,4 +245,32 @@ public class TopContactsBean implements Serializable {
         }
     }
 
+    public TopContactsListBean(String code, List<Text> text) {
+        this.code = code;
+        this.text = text;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public List<Text> getText() {
+        return text;
+    }
+
+    public void setText(List<Text> text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return "TopContactsListBean{" +
+                "code='" + code + '\'' +
+                ", text=" + text +
+                '}';
+    }
 }

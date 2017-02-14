@@ -10,11 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.utils.CommUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,10 +22,11 @@ import java.util.Map;
 
 public class Group_AddTopContactsAdapter  extends BaseAdapter{
     private Context mContext;
-    private List<TopContactsBean> mList;
+//    private List<TopContactsBean> mList;
+    private TopContactsListBean mList;
     //存储CheckBox状态的集合
     private Map<Integer,Boolean> checkedMap;
-    public Group_AddTopContactsAdapter(Context mContext, List<TopContactsBean> mList) {
+    public Group_AddTopContactsAdapter(Context mContext, TopContactsListBean mList) {
         this.mContext = mContext;
         this.mList = mList;
         checkedMap = new HashMap<>();
@@ -37,18 +37,18 @@ public class Group_AddTopContactsAdapter  extends BaseAdapter{
      * @param isChecked   CheckBox状态
      */
     public void initCheckBox(boolean isChecked) {
-        for (int i = 0; i<mList.size();i++) {
+        for (int i = 0; i<mList.getText().size();i++) {
             checkedMap.put(i,isChecked);
         }
     }
     @Override
     public int getCount() {
-        return mList.size();
+        return mList.getText().size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mList.get(position);
+        return mList.getText().get(position);
     }
 
     @Override
@@ -78,9 +78,9 @@ public class Group_AddTopContactsAdapter  extends BaseAdapter{
             }
         });
         viewHodler.cb_addfrien.setChecked(checkedMap.get(position));
-        CommUtils.GetImages(mContext,mList.get(position).getLogo(),viewHodler.img);
-        viewHodler.name.setText(mList.get(position).getFullname());
-        viewHodler.level.setText(mList.get(position).getSex());
+        CommUtils.GetImages(mContext,mList.getText().get(position).getLogo(),viewHodler.img);
+        viewHodler.name.setText(mList.getText().get(position).getFullname());
+        viewHodler.level.setText(mList.getText().get(position).getSex());
         return convertView;
     }
     public class ViewHodler{

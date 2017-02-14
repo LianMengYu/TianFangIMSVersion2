@@ -14,7 +14,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -24,13 +23,12 @@ import com.tianfangIMS.im.adapter.AddTopContacts_GridView_Adapter;
 import com.tianfangIMS.im.adapter.GroupTopContacts_GridView_Adapter;
 import com.tianfangIMS.im.adapter.Group_AddTopContactsAdapter;
 import com.tianfangIMS.im.bean.LoginBean;
-import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TopContactsRequestBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommUtils;
 import com.tianfangIMS.im.utils.NToast;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,18 +45,18 @@ import okhttp3.Response;
 public class Group_AddTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
     private static final String TAG = "Group_AddTopContactsActivity";
     private Context mContext;
-    private List<TopContactsBean> topContactsList = new ArrayList<TopContactsBean>();
+    private List<TopContactsListBean> topContactsList = new ArrayList<TopContactsListBean>();
     private ListView lv_topContacts;
     private RelativeLayout rl_selectAddGroupContacts_background;
     private GridView gv_addContacts;
-    private List<TopContactsBean> allChecked;
+    private List<TopContactsListBean> allChecked;
     private Map<Integer, Boolean> checkedMap;
     private TextView tv_addfriend_submit;
-    private List<TopContactsBean> list;
+    private List<TopContactsListBean> list;
     private AddTopContacts_GridView_Adapter gridView_adapter;
     private Group_AddTopContactsAdapter group_addTopContactsAdapter;
     private GroupTopContacts_GridView_Adapter groupTopContacts_gridView_adapter;
-
+    private TopContactsListBean bean;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,11 +100,11 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "测试返回JSON数据：" + s);
                         if (!TextUtils.isEmpty(s)) {
-                            Type listType = new TypeToken<List<TopContactsBean>>() {
-                            }.getType();
                             Gson gson = new Gson();
-                            topContactsList = gson.fromJson(s, listType);
-                            group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, topContactsList);
+//                            topContactsList = gson.fromJson(s, listType);
+                            bean = gson.fromJson(s, TopContactsListBean.class);
+
+                            group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, bean);
                             lv_topContacts.setAdapter(group_addTopContactsAdapter);
                             group_addTopContactsAdapter.notifyDataSetChanged();
 
@@ -134,7 +132,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
     }
 
     //对GridView 显示的宽高经行设置
-    private void SettingGridView(List<TopContactsBean> list) {
+    private void SettingGridView(List<TopContactsListBean> list) {
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         float density = dm.density;
@@ -154,13 +152,12 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
 
     private void getCount() {
         checkedMap = group_addTopContactsAdapter.getCheckedMap();//获取选中的人，true是选中的，false是没选中的
-        allChecked = new ArrayList<TopContactsBean>();//创建一个存储选中的人的集合
+        allChecked = new ArrayList<TopContactsListBean>();//创建一个存储选中的人的集合
         for (int i = 0; i < checkedMap.size(); i++) {
             if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
                 continue;
             } else if (checkedMap.get(i)) {
-                TopContactsBean testCheckBean = topContactsList.get(i);
-                allChecked.add(testCheckBean);
+                allChecked.add(bean);
                 if (allChecked.size() == 0) {
                     tv_addfriend_submit.setText("添加（0）");
                 } else {
@@ -182,14 +179,13 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
     private void AddGroup() {
         List<String> list = new ArrayList<String>();
         for (int i = 0; i < allChecked.size(); i++) {
-            list.add(allChecked.get(i).getId().toString());
+            list.add(allChecked.get(i).getText().get(i).getId());
         }
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
         list.add(loginBean.getText().getId());
         String UID = loginBean.getText().getId();
         String aa = list.toString();
-        System.out.println("aaaaaaaaaaaaa:" + aa);
         OkGo.post(ConstantValue.CREATEGROUP)
                 .tag(this)
                 .connTimeOut(10000)

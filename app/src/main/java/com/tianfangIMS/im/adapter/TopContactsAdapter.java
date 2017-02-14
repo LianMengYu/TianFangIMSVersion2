@@ -8,12 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.utils.CommUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by LianMengYu on 2017/2/3.
@@ -22,32 +18,21 @@ import java.util.Map;
 
 public class TopContactsAdapter extends BaseAdapter {
     private Context mContext;
-    private List<TopContactsBean> mList;
-    //存储CheckBox状态的集合
-    private Map<Integer,Boolean> checkedMap;
-    public TopContactsAdapter(Context mContext, List<TopContactsBean> mList) {
+    private TopContactsListBean list;
+
+    public TopContactsAdapter(TopContactsListBean list, Context mContext) {
+        this.list = list;
         this.mContext = mContext;
-        this.mList = mList;
-        checkedMap = new HashMap<>();
-        initCheckBox(false);
     }
-    /**
-     * 初始化Map集合
-     * @param isChecked   CheckBox状态
-     */
-    public void initCheckBox(boolean isChecked) {
-        for (int i = 0; i<mList.size();i++) {
-            checkedMap.put(i,isChecked);
-        }
-    }
+
     @Override
     public int getCount() {
-        return mList.size();
+        return list.getText().size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mList.get(position);
+        return list.getText().get(position);
     }
 
     @Override
@@ -68,21 +53,14 @@ public class TopContactsAdapter extends BaseAdapter {
         }else {
             viewHodler = (ViewHodler)convertView.getTag();
         }
-        CommUtils.GetImages(mContext,mList.get(position).getLogo(),viewHodler.img);
-        viewHodler.name.setText(mList.get(position).getFullname());
-        viewHodler.level.setText(mList.get(position).getSex());
+        CommUtils.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
+        viewHodler.name.setText(list.getText().get(position).getFullname());
+        viewHodler.level.setText(list.getText().get(position).getWorkno());
         return convertView;
     }
     public class ViewHodler{
         ImageView img;
         TextView name;
         TextView level;
-    }
-    /**
-     * 得到勾选状态的集合
-     * @return
-     */
-    public Map<Integer,Boolean> getCheckedMap() {
-        return checkedMap;
     }
 }

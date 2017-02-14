@@ -8,7 +8,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -16,14 +15,10 @@ import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.TopContactsAdapter;
 import com.tianfangIMS.im.bean.LoginBean;
-import com.tianfangIMS.im.bean.TopContactsBean;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommUtils;
 import com.tianfangIMS.im.utils.NToast;
-
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.rong.imkit.RongIM;
 import okhttp3.Call;
@@ -34,12 +29,12 @@ import okhttp3.Response;
  * 常用联系人
  */
 
-public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener{
+public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private static final String TAG = "MineTopContactsActivity";
     private Context mContext;
     private ListView lv_topContacts;
     private TopContactsAdapter topContactsAdapter;
-    private List<TopContactsBean> topContactsList = new ArrayList<TopContactsBean>();
+    private TopContactsListBean bean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,11 +73,21 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
                         if (!TextUtils.isEmpty(s)) {
-                            Type listType = new TypeToken<List<TopContactsBean>>() {
-                            }.getType();
+//                            Type listType = new TypeToken<TopContactsListBean>() {
+//                            }.getType();
                             Gson gson = new Gson();
-                            topContactsList = gson.fromJson(s, listType);
-                            topContactsAdapter = new TopContactsAdapter(mContext, topContactsList);
+                            bean = gson.fromJson(s, TopContactsListBean.class);
+//
+////                            List<Object> list =(List<Object>) bean.getText();
+//
+//                            String str = bean.getText().toString();
+//                            Gson gson1 = new Gson();
+//                            Type listType = new TypeToken<List<Map<String,Object>>>() {
+//                            }.getType();
+//
+//                            List<Map<String,ContactsTopBean>> contactsTopBean = gson1.fromJson(str, listType);
+//                            Log.e(TAG, "获取了什么数据:" + contactsTopBean);
+                            topContactsAdapter = new TopContactsAdapter(bean, mContext);
                             lv_topContacts.setAdapter(topContactsAdapter);
                             topContactsAdapter.notifyDataSetChanged();
                         } else {
@@ -102,6 +107,6 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        RongIM.getInstance().startPrivateChat(mContext, topContactsList.get(position).getId(),topContactsList.get(position).getFullname());
+        RongIM.getInstance().startPrivateChat(mContext, bean.getText().get(position).getId(), bean.getText().get(position).getFullname());
     }
 }
