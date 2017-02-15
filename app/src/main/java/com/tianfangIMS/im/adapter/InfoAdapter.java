@@ -30,11 +30,12 @@ public class InfoAdapter extends BaseAdapter {
     List<Integer> childCount;
     TreeInfo mTreeInfo;
     private Map<Integer, Boolean> checkedMap;
-
-    public InfoAdapter(Context context, List<TreeInfo> treeInfos, List<Integer> childCount) {
+    private boolean flag;
+    public InfoAdapter(Context context, List<TreeInfo> treeInfos, List<Integer> childCount,boolean flag) {
         mContext = context;
         this.mInfos = treeInfos;
         this.childCount = childCount;
+        this.flag = flag;
         initCheckBox(false);
     }
 
@@ -84,11 +85,17 @@ public class InfoAdapter extends BaseAdapter {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.adapter_info_item_banch, null);
                     mBranchHolder = new BranchHolder();
+                    mBranchHolder.cb_addfrien = (CheckBox) convertView.findViewById(R.id.cb_addfrien);
                     mBranchHolder.adapter_info_item_branch_name = (TextView) convertView.findViewById(R.id.adapter_info_item_branch_name);
                     mBranchHolder.adapter_info_item_branch_count = (TextView) convertView.findViewById(R.id.adapter_info_item_branch_count);
                     convertView.setTag(mBranchHolder);
                 } else {
                     mBranchHolder = (BranchHolder) convertView.getTag();
+                }
+                if (flag == true){
+                    mBranchHolder.cb_addfrien.setVisibility(View.VISIBLE);
+                }else {
+                    mBranchHolder.cb_addfrien.setVisibility(View.INVISIBLE);
                 }
                 mBranchHolder.adapter_info_item_branch_name.setText(getItem(position).getName());
                 //部门类型才显示子部门及人员数量
@@ -111,6 +118,11 @@ public class InfoAdapter extends BaseAdapter {
                 } else {
                     mWorkerHolder = (WorkerHolder) convertView.getTag();
                 }
+                if (flag == true){
+                    mWorkerHolder.cb_addfrien.setVisibility(View.VISIBLE);
+                }else {
+                    mWorkerHolder.cb_addfrien.setVisibility(View.INVISIBLE);
+                }
                 mWorkerHolder.cb_addfrien.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -127,11 +139,12 @@ public class InfoAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private class BranchHolder {
+    public class BranchHolder {
+        public CheckBox cb_addfrien;
         TextView adapter_info_item_branch_name, adapter_info_item_branch_count;
     }
 
-    private class WorkerHolder {
+    public class WorkerHolder {
         public CheckBox cb_addfrien;
         ImageView adapter_info_item_worker_header;
         TextView adapter_info_item_worker_name, adapter_info_item_worker_job;

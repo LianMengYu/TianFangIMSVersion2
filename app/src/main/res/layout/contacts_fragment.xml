@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/backgroundColor"
-              android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="345dp"
@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:src="@mipmap/icon_search"/>
+            android:src="@mipmap/icon_search" />
 
         <EditText
             android:id="@+id/et_search"
@@ -32,7 +32,7 @@
             android:hint="@string/search"
             android:maxLines="1"
             android:paddingLeft="9dp"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -41,7 +41,7 @@
             android:layout_centerVertical="true"
             android:text="取消"
             android:textColor="#B3B3B3"
-            android:textSize="14dp"/>
+            android:textSize="14dp" />
     </RelativeLayout>
 
     <LinearLayout
@@ -63,7 +63,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="25dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/icon_mine_chatroom"/>
+                android:src="@mipmap/icon_mine_chatroom" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -71,7 +71,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/iv_mine_chatroom"
-                android:text="我的群组"/>
+                android:text="我的群组" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -86,7 +86,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="25dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/icon_topcontacts"/>
+                android:src="@mipmap/icon_topcontacts" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -94,52 +94,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/iv_topcontacts"
-                android:text="常用联系人"/>
+                android:text="常用联系人" />
         </RelativeLayout>
     </LinearLayout>
 
-    <!--<LinearLayout-->
-    <!--android:id="@+id/ly_company_name"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginTop="10dp"-->
-    <!--android:background="@color/White"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<RelativeLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="45dp"-->
-    <!--android:gravity="center_vertical">-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/tv_company_name"-->
-    <!--style="@style/Contacts_company_txt"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerVertical="true"-->
-    <!--android:text="天坊信息科技有限公司"/>-->
-
-    <!--<ImageView-->
-    <!--android:id="@+id/iv_company_icon"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_alignParentRight="true"-->
-    <!--android:layout_centerVertical="true"-->
-    <!--android:layout_marginRight="10dp"-->
-    <!--android:scaleType="centerCrop"-->
-    <!--android:src="@mipmap/icon_right_jiao"/>-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/tv_company_dapartment_number"-->
-    <!--style="@style/Contacts_company_txt"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerVertical="true"-->
-    <!--android:layout_toLeftOf="@+id/iv_company_icon"-->
-    <!--android:text="1"/>-->
-
-    <!--</RelativeLayout>-->
-    <!--</LinearLayout>-->
 
     <ListView
         android:id="@+id/fragment_contacts_lv_departments"
@@ -155,5 +113,5 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="50dp"
         android:text="@string/No_friends"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 </LinearLayout>

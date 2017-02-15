@@ -26,7 +26,6 @@ import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,16 +73,6 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
 //        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
 //        minegroup_list_Ijoin = (ListView) this.findViewById(R.id.minegroup_list_Ijoin);
 //        exlv_MineGroup = (ExpandableListView) this.findViewById(R.id.exlv_MineGroup);
-    }
-
-    private void setData() {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("title", "IJoin");
-        ListGroup.add(map);
-
-        map = new HashMap<String, String>();
-        map.put("title", "IJoin");
-        ListGroup.add(map);
     }
 
     private void GetGroupList() {

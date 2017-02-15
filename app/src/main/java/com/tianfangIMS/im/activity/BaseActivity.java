@@ -119,8 +119,8 @@ public class BaseActivity extends FragmentActivity {
     public void setContentView(int layoutResID) {
         View view = LayoutInflater.from(this).inflate(layoutResID, null);
         setContentView(view);
-    }
 
+    }
     /**
      * 设置头部是否可见
      *
@@ -129,6 +129,7 @@ public class BaseActivity extends FragmentActivity {
     public void setHeadVisibility(int visibility) {
         layout_head.setVisibility(visibility);
     }
+
 
     /**
      * 设置左边是否可见

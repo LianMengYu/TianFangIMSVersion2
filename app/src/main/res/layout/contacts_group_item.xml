@@ -43,7 +43,7 @@
                 style="@style/Contacts_company_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="天坊信息科技有限公司" />
+                android:text="天坊信息有限公司" />
 
             <TextView
                 android:id="@+id/tv_person_departmentTxt"

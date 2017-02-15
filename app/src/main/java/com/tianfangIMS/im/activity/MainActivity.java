@@ -63,7 +63,7 @@ import okhttp3.Response;
  * 主要作为所有fragment的基类来使用
  */
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider ,RongIMClient.OnReceiveMessageListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, RongIMClient.OnReceiveMessageListener {
     private static final String TAG = "MainActivity";
     private LinearLayout ly_tab_menu_msg, ly_tab_menu_job, ly_tab_menu_contacts, ly_tab_menu_me;
     private TextView tv_tab_menu_msg, tv_tab_menu_job, tv_tab_menu_contacts, tv_tab_menu_me;
@@ -93,7 +93,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView main_button;
     private TopContactsBean topContactsBean;
     private List<TopContactsBean> topContactsList;
-
+    private ImageView main_tree;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +143,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //        CommonUtil.GetImage(this,GetUesrBean().getText().getLogo());
     }
 
+    /**
+     * 设置头部+号是否可见
+     *
+     * @param visibility
+     */
+    public void setplusVisibility(int visibility) {
+        main_plus.setVisibility(visibility);
+    }
+
+    public void settreeVisibility(int visibility) {
+        main_tree.setVisibility(visibility);
+    }
+
+    public ImageView getIv_MainTree(){
+        return main_tree;
+    }
+
 //    @Override
 //    public void initView() {
 //
@@ -173,6 +190,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         ly_tab_menu_me.setOnClickListener(this);
         main_plus.setOnClickListener(this);
         main_button = (ImageView) this.findViewById(R.id.main_plus);
+        main_tree = (ImageView) this.findViewById(R.id.main_tree);
+        main_tree.setOnClickListener(this);
         fragment_container = (FrameLayout) this.findViewById(R.id.fragment_container);
     }
 
@@ -388,6 +407,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setSelected();
                 tv_tab_menu_msg.setSelected(true);
                 tv_tab_menu_msg_num.setVisibility(View.INVISIBLE);
+                main_tree.setVisibility(View.GONE);
+                main_plus.setVisibility(View.VISIBLE);
                 tv_tab_menu_msg.setTextColor(this.getResources().getColor(R.color.colorNaviationClick));
                 SelectFragment(1);
                 break;
@@ -402,6 +423,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setSelected();
                 tv_tab_menu_contacts.setSelected(true);
                 tv_tab_menu_contacts_num.setVisibility(View.INVISIBLE);
+                main_tree.setVisibility(View.VISIBLE);
+                main_plus.setVisibility(View.INVISIBLE);
                 tv_tab_menu_contacts.setTextColor(this.getResources().getColor(R.color.colorNaviationClick));
                 SelectFragment(3);
                 break;
@@ -409,6 +432,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setSelected();
                 tv_tab_menu_me.setSelected(true);
                 tv_tab_menu_me.setTextColor(this.getResources().getColor(R.color.colorNaviationClick));
+                main_tree.setVisibility(View.INVISIBLE);
+                main_plus.setVisibility(View.INVISIBLE);
                 SelectFragment(4);
                 break;
             case R.id.main_plus:
@@ -419,6 +444,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 mainPlusDialog.setTouchable(true);
                 mainPlusDialog.setFocusable(true);
                 mainPlusDialog.showPopupWindow(main_plus);
+                break;
+            case R.id.main_tree:
+                startActivity(new Intent(mContext, TreeActivity.class));
                 break;
         }
     }
@@ -506,6 +534,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mConversationList = initConversationList();
 //            mConversationList = new Message_Fragment();
             transaction.add(R.id.fragment_container, mConversationList);
+            main_tree.setVisibility(View.GONE);
+            main_plus.setVisibility(View.VISIBLE);
             Log.i("TAG", "主Fragment");
             SetIconIsTrue();
         } else {
@@ -635,7 +665,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
         return null;
     }
+
     private long mExitTime;//退出时间
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
@@ -645,6 +677,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
         return super.onKeyDown(keyCode, event);
     }
+
     public void exit() {
         if ((System.currentTimeMillis() - mExitTime) > 2000) {
             Toast.makeText(MainActivity.this, "再按一次退出应用", Toast.LENGTH_SHORT).show();

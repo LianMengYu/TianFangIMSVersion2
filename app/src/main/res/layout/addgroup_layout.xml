@@ -62,56 +62,13 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/ly_company_name"
+
+    <ListView
+        android:id="@+id/lv_addGroup_company"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:background="@color/White"
-        android:orientation="horizontal">
+        android:background="@android:color/white"></ListView>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:gravity="center_vertical">
-
-
-            <CheckBox
-                android:id="@+id/cb_addfrien"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:button="@drawable/chenkbox_selector"
-                android:focusable="false" />
-
-            <TextView
-                android:id="@+id/tv_company_name"
-                style="@style/Contacts_company_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="天坊信息科技有限公司" />
-
-            <ImageView
-                android:id="@+id/iv_company_icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="10dp"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/icon_right_jiao" />
-
-            <TextView
-                android:id="@+id/tv_company_dapartment_number"
-                style="@style/Contacts_company_txt"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/iv_company_icon"
-                android:text="1" />
-
-        </RelativeLayout>
-    </LinearLayout>
 
 </LinearLayout>

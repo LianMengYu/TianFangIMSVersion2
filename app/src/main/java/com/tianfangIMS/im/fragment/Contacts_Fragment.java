@@ -3,10 +3,12 @@ package com.tianfangIMS.im.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -21,7 +23,6 @@ import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.activity.InfoActivity;
 import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
-import com.tianfangIMS.im.activity.SecondActivity;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.dialog.LoadDialog;
@@ -44,15 +45,13 @@ import okhttp3.Response;
 public class Contacts_Fragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener {
     private RelativeLayout rl_mine_contacts;
     private RelativeLayout rl_mine_topcontacts;
-    //    private LinearLayout ly_company_name;
-//    private TextView tv_company_name;
     public static JSONUtils jsonUtils;
     private String name;
     private int pid;
     public static Contacts_Fragment contacts_fragment;
 
     ListView fragment_contacts_lv_departments;
-
+    private Boolean flag = false;
 
     Gson mGson;
 
@@ -61,7 +60,7 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
 
     HashMap<Integer, TreeInfo> map;
     HashMap<Integer, HashMap<Integer, TreeInfo>> maps;
-
+    private ImageView MainTree;
     InfoAdapter mAdapter;
     int workerCount;
 
@@ -88,14 +87,11 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     private void initView(View view) {
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
         rl_mine_topcontacts = (RelativeLayout) view.findViewById(R.id.rl_mine_topcontacts);
-//        ly_company_name = (LinearLayout) view.findViewById(R.id.ly_company_name);
-//        tv_company_name = (TextView) view.findViewById(R.id.tv_company_name);
 
         fragment_contacts_lv_departments = (ListView) view.findViewById(R.id.fragment_contacts_lv_departments);
         fragment_contacts_lv_departments.setOnItemClickListener(this);
 
         rl_mine_topcontacts.setOnClickListener(this);
-//        ly_company_name.setOnClickListener(this);
         rl_mine_contacts.setOnClickListener(this);
     }
 
@@ -160,25 +156,11 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                                 clickHistory = new ArrayList<TreeInfo>();
                                 mTreeInfos = new ArrayList<>();
                                 childCount = new ArrayList<Integer>();
-                                mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount);
+                                mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount,flag);
                                 fragment_contacts_lv_departments.setAdapter(mAdapter);
                                 transfer();
                             }
                         });
-//                        if (!TextUtils.isEmpty(s)) {
-//                            Gson gson = new Gson();
-//                            List<Map<String, String>> list = gson.fromJson(s, new TypeToken<ArrayList<Map<String, String>>>() {
-//                            }.getType());
-//                            for (int i = 0; i < list.size(); i++) {
-//                                if ((list.get(i).get("pid")).equals("-1")) {
-//                                    tv_company_name.setText(list.get(i).get("name"));
-//                                    name = list.get(i).get("name");
-//                                    String str = list.get(i).get("pid");
-//                                    pid = Integer.parseInt(str);
-//                                }
-//                            }
-//                        }
-
                     }
                 });
     }
@@ -250,11 +232,6 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
             case R.id.rl_mine_contacts:
                 startActivity(new Intent(getActivity(), MineGroupActivity.class));
                 break;
-            case R.id.ly_company_name:
-                Intent mIntent = new Intent(getActivity(), SecondActivity.class);
-                mIntent.putExtra("maps", maps);
-                startActivity(mIntent);
-                break;
             case R.id.rl_mine_topcontacts:
                 startActivity(new Intent(getActivity(), MineTopContactsActivity.class));
                 break;
@@ -266,8 +243,10 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
         mIntent = new Intent(getActivity(), InfoActivity.class);
         mIntent.putExtra("maps", maps);
+        mIntent.putExtra("IsBoolean",flag);
         mIntent.putExtra("currentLevel", mTreeInfos.get(position).getId());
         mIntent.putExtra("parentLevel", mTreeInfos.get(position).getPid());
+        Log.e("打印传递的数据:", "getContacts：" + mTreeInfos.get(position).getId() + "--Pid:" + mTreeInfos.get(position).getPid()+"---pos:"+position);
         startActivity(mIntent);
     }
 }

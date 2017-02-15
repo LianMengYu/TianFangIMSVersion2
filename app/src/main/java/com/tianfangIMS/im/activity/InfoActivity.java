@@ -1,11 +1,14 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -50,7 +53,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
 
     //树节点深度
     int currentLevel, parentLevel;
-
+    Boolean flag;
     List<TreeInfo> clickHistory;
     LinearLayout activity_info_ll_indicator;
 
@@ -78,7 +81,8 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
-
+        flag = getIntent().getBooleanExtra("IsBoolean",false);
+        Log.e("打印传递数据:","aaaaa:"+flag);
         activity_info_btn_tree = (Button) findViewById(R.id.activity_info_btn_tree);
         activity_info_btn_tree.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +108,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         clickHistory = new ArrayList<TreeInfo>();
         mTreeInfos = new ArrayList<>();
         childCount = new ArrayList<Integer>();
-        mAdapter = new InfoAdapter(InfoActivity.this, mTreeInfos, childCount);
+        mAdapter = new InfoAdapter(InfoActivity.this, mTreeInfos, childCount,flag);
+        if(flag == true){
+
+        }
         activity_info_lv_part.setAdapter(mAdapter);
         for (TreeInfo info : maps.get(parentLevel).values()) {
             if (info.getId() == currentLevel) {

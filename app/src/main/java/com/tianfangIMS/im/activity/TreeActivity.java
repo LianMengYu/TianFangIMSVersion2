@@ -1,6 +1,5 @@
 package com.tianfangIMS.im.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -10,7 +9,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
@@ -27,7 +25,7 @@ import java.util.Map;
  * Created by Titan on 2017/2/10.
  */
 
-public class TreeActivity extends Activity {
+public class TreeActivity extends BaseActivity {
 
     HashMap<Integer, HashMap<Integer, TreeInfo>> maps;
     HashMap<Integer, TreeInfo> map;
@@ -61,6 +59,7 @@ public class TreeActivity extends Activity {
         mInfoMap = new HashMap<>();
         dictionary = new HashMap<>();
         //以ID为Key 实体自身为Value 存入Map中
+
         for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
             for (TreeInfo info : hashMap.values()) {
                 mInfoMap.put(info.getId(), info);
