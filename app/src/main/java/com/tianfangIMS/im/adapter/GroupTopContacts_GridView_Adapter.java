@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.List;
 
@@ -55,7 +55,7 @@ public class GroupTopContacts_GridView_Adapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        CommUtils.GetImages(mContext, mList.get(position).getText().get(position).getLogo(), viewHolder.img);
+        CommonUtil.GetImages(mContext, mList.get(position).getText().get(position).getLogo(), viewHolder.img);
         viewHolder.text.setText(mList.get(position).getText().get(position).getFullname());
         return convertView;
     }

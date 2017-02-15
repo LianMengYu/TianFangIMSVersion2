@@ -14,4 +14,6 @@
     <string name="password_is_null">密码不能为空</string>
     <string name="password_cannot_contain_spaces">密码不能包含空格</string>
     <string name="layout_dialog_loading">正在加载</string>
+    <string name="all_pic">全部图片</string>
+    <string name="preview_without_num">预览</string>
 </resources>

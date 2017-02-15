@@ -1,43 +1,35 @@
 package com.tianfangIMS.im.activity;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.TreeInfo;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.Call;
-import okhttp3.Callback;
+import io.rong.imkit.RongIM;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
 /**
- * Created by Titan on 2017/2/7.
+ * Created by LianMengYu on 2017/2/7.
+ * 组织结构列表页
  */
 
 public class InfoActivity extends BaseActivity implements AdapterView.OnItemClickListener {
@@ -199,7 +191,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         mTreeInfo = mTreeInfos.get(position);
         //点击的选项为员工类型
         if (mTreeInfo.getFlag() == 1) {
-            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
+            RongIM.getInstance().startPrivateChat(mContext, String.valueOf(mTreeInfo.getId()), mTreeInfo.getName());
             return;
         }
         //记录下一级部门的PID(当前部门的ID即为下一级的PID)

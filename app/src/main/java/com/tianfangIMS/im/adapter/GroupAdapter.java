@@ -74,6 +74,7 @@ public class GroupAdapter extends BaseAdapter {
                     convertView.setTag(mDescHolder);
                 } else {
                     mDescHolder = (DescHolder) convertView.getTag();
+
                 }
                 mDescHolder.desc.setText(getItem(position).getName());
                 break;

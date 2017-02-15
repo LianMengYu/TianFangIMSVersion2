@@ -26,6 +26,7 @@
                 android:src="@mipmap/icon_forgetpassword" />
 
             <EditText
+                android:id="@+id/et_oldpassword"
                 style="@style/resetpwd_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,6 +52,7 @@
                 android:src="@mipmap/icon_forgetpassword" />
 
             <EditText
+                android:id="@+id/ed_newpassword"
                 style="@style/resetpwd_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -76,6 +78,7 @@
                 android:src="@mipmap/icon_forgetpassword" />
 
             <EditText
+                android:id="@+id/ed_comparepwd"
                 style="@style/resetpwd_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -86,6 +89,7 @@
         </RelativeLayout>
     </LinearLayout>
     <RelativeLayout
+        android:id="@+id/btn_submit"
         android:layout_width="match_parent"
         android:layout_height="59dp"
         android:layout_marginTop="56dp"

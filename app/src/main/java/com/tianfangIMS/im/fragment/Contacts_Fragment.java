@@ -3,17 +3,12 @@ package com.tianfangIMS.im.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -256,13 +251,9 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                 startActivity(new Intent(getActivity(), MineGroupActivity.class));
                 break;
             case R.id.ly_company_name:
-//                startActivity(new Intent(getActivity(), Contacts_DepartmentActivity.class));
                 Intent mIntent = new Intent(getActivity(), SecondActivity.class);
                 mIntent.putExtra("maps", maps);
                 startActivity(mIntent);
-//                intent.putExtra("name", name);
-//                intent.putExtra("pid", pid);
-//                startActivity(intent);
                 break;
             case R.id.rl_mine_topcontacts:
                 startActivity(new Intent(getActivity(), MineTopContactsActivity.class));

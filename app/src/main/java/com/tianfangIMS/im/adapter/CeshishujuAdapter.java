@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.MineGroupParentBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class CeshishujuAdapter extends BaseAdapter {
         }else {
             childHodler = (ChildHodler) convertView.getTag();
         }
-        CommUtils.GetImages(mContext, mlist.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
+        CommonUtil.GetImages(mContext, mlist.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
         childHodler.name.setText(mlist.get(position).getText().getICreate().get(position).getName());
         return convertView;
     }

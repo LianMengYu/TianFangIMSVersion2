@@ -17,7 +17,7 @@ import com.tianfangIMS.im.adapter.TopContactsAdapter;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import io.rong.imkit.RongIM;
@@ -54,7 +54,7 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
 
     private void GetTopContacts() {
         Gson gson = new Gson();
-        LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         OkGo.post(ConstantValue.GETCONTACTSLIST)
                 .tag(this)

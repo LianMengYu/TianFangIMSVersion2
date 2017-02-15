@@ -31,7 +31,7 @@ import com.tianfangIMS.im.bean.AddFriendRequestBean;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TopContactsBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.lang.reflect.Type;
@@ -217,9 +217,10 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
             list.add(allChecked.get(i).getAccount().toString());
         }
         Gson gson = new Gson();
-        LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         String str = list.toString();
+        Log.e(TAG,"打印好友参数："+UID+"---:"+str);
         OkGo.post(ConstantValue.ADDTOPCONTACTS)
                 .tag(this)
                 .connTimeOut(10000)

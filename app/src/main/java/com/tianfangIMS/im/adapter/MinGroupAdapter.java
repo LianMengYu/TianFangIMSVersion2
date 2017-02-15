@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.MineGroupParentBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.List;
 
@@ -94,7 +94,7 @@ public class MinGroupAdapter extends BaseExpandableListAdapter {
         }else {
             childhodler = (ChildHodler)convertView.getTag();
         }
-        CommUtils.GetImages(mContext,parentBeen.get(groupPosition).getText().getICreate().get(childPosition).getLogo(),childhodler.img);
+        CommonUtil.GetImages(mContext,parentBeen.get(groupPosition).getText().getICreate().get(childPosition).getLogo(),childhodler.img);
         childhodler.name.setText(childBeen.get(groupPosition).get(childPosition).getText().getICreate().get(childPosition).getName());
         return convertView;
     }

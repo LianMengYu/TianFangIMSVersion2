@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class Group_AddTopContactsAdapter  extends BaseAdapter{
             }
         });
         viewHodler.cb_addfrien.setChecked(checkedMap.get(position));
-        CommUtils.GetImages(mContext,mList.getText().get(position).getLogo(),viewHodler.img);
+        CommonUtil.GetImages(mContext,mList.getText().get(position).getLogo(),viewHodler.img);
         viewHodler.name.setText(mList.getText().get(position).getFullname());
         viewHodler.level.setText(mList.getText().get(position).getSex());
         return convertView;

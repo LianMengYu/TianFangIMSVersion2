@@ -1,5 +1,6 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -38,12 +39,14 @@ public class SecondActivity extends BaseActivity implements OnItemClickListener 
 
     private boolean isFromSon = false;
     private String title;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.departmentperson_activity);
-        setTitle("");
+        setTitle(" ");
+        mContext = this;
         tv_title = (TextView) findViewById(R.id.tv_contacts_text);
         tv_title.setVisibility(View.VISIBLE);
         listView = (ListView) findViewById(R.id.lv_departmentperson_info);
@@ -85,7 +88,7 @@ public class SecondActivity extends BaseActivity implements OnItemClickListener 
         if (parentModels != null && parentModels.size() != 0) {
             //获取下一级name
             List<String> data = getNames(parentModels.get(position).getId(), Contacts_Fragment.getInstance().jsonUtils.parentModelList
-                    , Contacts_Fragment.getInstance().jsonUtils.sonModelList,position);
+                    , Contacts_Fragment.getInstance().jsonUtils.sonModelList, position);
             Log.d(TAG, "onItemClick: " + data);
 
             if (data != null && data.size() != 0) {

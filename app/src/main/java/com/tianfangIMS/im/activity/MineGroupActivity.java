@@ -4,10 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.ExpandableListView;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -19,7 +22,7 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.MineGroupBean;
 import com.tianfangIMS.im.bean.MineGroupChildBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.rong.imkit.RongIM;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -35,17 +39,12 @@ import okhttp3.Response;
  * 我的群组
  */
 
-public class MineGroupActivity extends BaseActivity {
+public class MineGroupActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private static final String TAG = "MineGroupActivity";
     private Context mContext;
     private List<MineGroupChildBean> mList = new ArrayList<MineGroupChildBean>();
-    private ListView mListView;
     private List<Map<String, String>> ListGroup = new ArrayList<Map<String, String>>();
-    private ExpandableListView exlv_MineGroup;
-    private List<Map<String, String>> Listitem = new ArrayList<Map<String, String>>();
-    private ListView minegroup_list_ICreate;
-    private ListView minegroup_list_Ijoin;
-
+    private TextView tv_groupIsNull;
     ListView activity_group_lv_data;
 
     MineGroupBean mMineGroupBean;
@@ -68,6 +67,8 @@ public class MineGroupActivity extends BaseActivity {
 
     public void initView() {
         activity_group_lv_data = (ListView) findViewById(R.id.activity_group_lv_data);
+        activity_group_lv_data.setOnItemClickListener(this);
+        tv_groupIsNull = (TextView) findViewById(R.id.tv_groupIsNull);
 //        mListView = (ListView) this.findViewById(R.id.minegroup_list);
 
 //        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
@@ -87,7 +88,7 @@ public class MineGroupActivity extends BaseActivity {
 
     private void GetGroupList() {
         Gson gson = new Gson();
-        final LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        final LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getId();
         OkGo.post(ConstantValue.MINEGROUP)
                 .tag(this)
@@ -107,53 +108,35 @@ public class MineGroupActivity extends BaseActivity {
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "json:---" + s);
                         if (!TextUtils.isEmpty(s)) {
-                            mGson = new Gson();
-                            mGroupBeen = new ArrayList<GroupBean>();
-                            mMineGroupBean = mGson.fromJson(s, MineGroupBean.class);
-                            GroupBean tmp = new GroupBean();
-                            tmp.setName("我建的组");
-                            tmp.setGID(String.valueOf(-1));
-                            mGroupBeen.add(tmp);
-                            mGroupBeen.addAll(mMineGroupBean.getText().getICreate());
-                            tmp = new GroupBean();
-                            tmp.setName("我加入的");
-                            tmp.setGID(String.valueOf(-1));
-                            mGroupBeen.add(tmp);
-                            mGroupBeen.addAll(mMineGroupBean.getText().getIJoin());
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mGroupAdapter = new GroupAdapter(mGroupBeen, mContext);
-                                    activity_group_lv_data.setAdapter(mGroupAdapter);
-                                }
-                            });
-//                            Type listType = new TypeToken<Map<String, Object>>() {
-//                            }.getType();
-//
-//                            Gson gson = new Gson();
-//
-//                            Map<String, Object> map = gson.fromJson(s, listType);
-//                            Map<String,String> map1 = (Map<String,String>)map.get("text");
-//                            List<Map<String,String>> list =new ArrayList<Map<String,String>>();
-//                            list.add(map1);
-//
-//
-//                            for (int i = 0; i < list.size(); i++) {
-//                                Log.e(TAG, "解析有没有成功" + list.get(i));
-//                            }
-//                            List<MineGroupParentBean> list = new ArrayList<MineGroupParentBean>();
-//                            Gson gson = new Gson();
-//                            Type listType = new TypeToken<List<MineGroupParentBean>>() {
-//                            }.getType();
-////                            MineGroupParentBean bean = gson.fromJson(s, listType);
-//                            list = gson.fromJson(s, listType);
-////                            CeshishujuAdapter adapter = new CeshishujuAdapter(mContext,list);
-////                            minegroup_list_ICreate.setAdapter(adapter);
-////                            adapter.notifyDataSetChanged();
-//
-//                            for (int i = 0; i < list.size(); i++) {
-//                                Log.e(TAG, "看看解析成功没有:::" + list.get(i).getText().getICreate().get(i).getFullname());
-//                            }
+                            Gson gson1 = new Gson();
+                            Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            if ((map.get("code").toString()).equals("1.0")) {
+                                Log.e("打印返回数据", "你是什么:" + s);
+                                mGson = new Gson();
+                                mGroupBeen = new ArrayList<GroupBean>();
+                                mMineGroupBean = mGson.fromJson(s, MineGroupBean.class);
+                                GroupBean tmp = new GroupBean();
+                                tmp.setName("我建的组");
+                                tmp.setGID(String.valueOf(-1));
+                                mGroupBeen.add(tmp);
+                                mGroupBeen.addAll(mMineGroupBean.getText().getICreate());
+                                tmp = new GroupBean();
+                                tmp.setName("我加入的");
+                                tmp.setGID(String.valueOf(-1));
+                                mGroupBeen.add(tmp);
+                                mGroupBeen.addAll(mMineGroupBean.getText().getIJoin());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mGroupAdapter = new GroupAdapter(mGroupBeen, mContext);
+                                        activity_group_lv_data.setAdapter(mGroupAdapter);
+
+                                    }
+                                });
+                            } else {
+                                tv_groupIsNull.setText("群组为空");
+                            }
                         }
                     }
 
@@ -165,5 +148,10 @@ public class MineGroupActivity extends BaseActivity {
                         return;
                     }
                 });
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        RongIM.getInstance().startGroupChat(mContext, mGroupBeen.get(position).getGID(), mGroupBeen.get(position).getName());
     }
 }

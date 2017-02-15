@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.MineGroupParentBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.List;
 
@@ -84,7 +84,7 @@ public class MineGroupListAdapter extends BaseAdapter {
             childHodler = (ChildHodler) convertView.getTag();
         }
 //        parentHolder.name.setText("我的群组");
-        CommUtils.GetImages(mContext, listItem.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
+        CommonUtil.GetImages(mContext, listItem.get(position).getText().getICreate().get(position).getLogo(), childHodler.img);
         childHodler.name.setText(listItem.get(position).getText().getICreate().get(position).getName());
         return convertView;
     }

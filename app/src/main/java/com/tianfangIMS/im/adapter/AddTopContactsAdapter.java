@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.AddFriendBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.HashMap;
 import java.util.List;
@@ -83,7 +83,7 @@ public class AddTopContactsAdapter extends BaseAdapter {
             }
         });
         holder.cb_addfrien.setChecked(checkedMap.get(position));
-        CommUtils.GetImages(mContext, mList.get(position).getLogo(), holder.AddFriendPhoto);
+        CommonUtil.GetImages(mContext, mList.get(position).getLogo(), holder.AddFriendPhoto);
         holder.AddFriendName.setText(mList.get(position).getName());
         holder.AddFriendLevel.setText(mList.get(position).getSex());
         return convertView;

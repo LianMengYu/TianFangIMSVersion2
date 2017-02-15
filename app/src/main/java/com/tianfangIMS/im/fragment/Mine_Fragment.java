@@ -1,16 +1,22 @@
 package com.tianfangIMS.im.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.activity.Settings_Activity;
 import com.tianfangIMS.im.activity.UserInfo_Activity;
+import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 /**
  * Created by LianMengYu on 2017/1/4.
@@ -18,6 +24,9 @@ import com.tianfangIMS.im.activity.UserInfo_Activity;
 
 public class Mine_Fragment extends BaseFragment implements View.OnClickListener {
     private RelativeLayout rl_me_use, rl_mine_settings;
+    private TextView tv_me_username, tv_mine_company, tv_mine_department, tv_position;
+    private ImageView iv_sex;
+    private Context mContext;
 
     @Nullable
     @Override
@@ -30,9 +39,25 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener 
     private void initView(View view) {
         rl_me_use = (RelativeLayout) view.findViewById(R.id.rl_me_use);
         rl_mine_settings = (RelativeLayout) view.findViewById(R.id.rl_mine_settings);
-
+        tv_me_username = (TextView) view.findViewById(R.id.tv_me_username);
+        iv_sex = (ImageView) view.findViewById(R.id.iv_sex);
+        tv_mine_company = (TextView) view.findViewById(R.id.tv_mine_company);
+        tv_mine_department = (TextView) view.findViewById(R.id.tv_mine_department);
+        tv_position = (TextView) view.findViewById(R.id.tv_position);
         rl_mine_settings.setOnClickListener(this);
         rl_me_use.setOnClickListener(this);
+
+        Gson gson = new Gson();
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
+        tv_me_username.setText(loginBean.getText().getFullname());
+        tv_mine_company.setText(" ");
+        if (loginBean.getText().getSex().equals(1)) {
+            iv_sex.setImageResource(R.mipmap.me_sexicon_nan);
+        } else {
+            iv_sex.setImageResource(R.mipmap.me_sexicon_nv);
+        }
+        tv_mine_department.setText(loginBean.getText().getIntro());
+        tv_position.setText(loginBean.getText().getWorkno());
     }
 
     @Override

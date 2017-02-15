@@ -2,11 +2,23 @@
 <com.zhy.android.percent.support.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f0f0f0"
     android:orientation="vertical">
+
+    <include layout="@layout/search_layout" />
 
     <ListView
         android:id="@+id/activity_group_lv_data"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:descendantFocusability="blocksDescendants"
+        android:divider="@color/fengexian"
+        android:dividerHeight="1dp" />
 
+    <TextView
+        android:id="@+id/tv_groupIsNull"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 </com.zhy.android.percent.support.PercentLinearLayout>

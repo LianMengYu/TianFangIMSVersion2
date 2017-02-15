@@ -13,6 +13,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -34,7 +35,7 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.AMUtils;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.MD5;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -94,16 +95,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
-                            Log.e(TAG, "返回Json：" + s);
                             Gson gson = new Gson();
                             SetSyncUserBean syncUserBean = gson.fromJson(s, SetSyncUserBean.class);
-                            Log.e(TAG, "返回Bean：" + syncUserBean);
                             if (syncUserBean.getCode().equals("200")) {
-                                Log.e("Login", "返回消息：" + syncUserBean.getText());
                             } else {
                                 NToast.shortToast(mContext, "同步群组失败");
                             }
-                        }else {
+                        } else {
                             return;
                         }
                     }
@@ -147,10 +145,6 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         });
         String oldPhone = sp.getString(ConstantValue.SEALTALK_LOGING_PHONE, "");
         String oldPassword = sp.getString(ConstantValue.SEALTALK_LOGING_PASSWORD, "");
-        if (!TextUtils.isEmpty(oldPhone) && !TextUtils.isEmpty(oldPassword)) {
-            et_login_user.setText(oldPhone);
-            et_login_password.setText(oldPassword);
-        }
 
         if (getIntent().getBooleanExtra("kickedByOtherClient", false)) {
 //            final AlertDialog dlg = new AlertDialog().Builder(LoginActivity.this).create();
@@ -201,13 +195,10 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         btn_login.setOnClickListener(this);
         et_login_password.setOnClickListener(this);
         et_login_user.setOnClickListener(this);
-        CommUtils.FilePath();//创建项目文件
+        CommonUtil.FilePath();//创建项目文件
     }
 
     private void setLogin() {
-        phoneString = et_login_user.getText().toString().trim();
-        passwordString = et_login_password.getText().toString().trim();
-
         if (TextUtils.isEmpty(phoneString)) {
             NToast.shortToast(getApplicationContext(), R.string.phone_number_is_null);
             return;
@@ -220,10 +211,6 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
             NToast.shortToast(getApplicationContext(), R.string.password_cannot_contain_spaces);
             return;
         }
-//                LoadDialog.show(mContext);
-        editor.putBoolean("exit", false);
-        editor.apply();
-        String oldPhone = sp.getString(ConstantValue.SEALTALK_LOGING_PHONE, "");
         OkGo.post(ConstantValue.AFTERLOGIN)
                 .tag(this)
                 .connTimeOut(10000)
@@ -250,8 +237,10 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                             Log.e("OnSuccess", "访问成功" + s);
                             Gson gson = new Gson();
                             user = gson.fromJson(s, LoginBean.class);
+                            CommonUtil.saveUserInfo(mContext, gson.toJson(user));
                             loginToken = user.getText().getToken();
-                            CommUtils.saveUserInfo(mContext, gson.toJson(user));
+                            editor.putString("token", loginToken);
+                            editor.apply();
                             if (user.getCode() == 1) {
                                 if (!TextUtils.isEmpty(loginToken)) {
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
@@ -270,6 +259,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                                             Intent intent_login = new Intent();
                                             intent_login.setClass(LoginActivity.this, MainActivity.class);
                                             startActivity(intent_login);
+                                            finish();
                                         }
 
                                         @Override
@@ -325,6 +315,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                 et_login_password.getText().clear();
                 break;
             case R.id.btn_login:
+                phoneString = et_login_user.getText().toString().trim();
+                passwordString = et_login_password.getText().toString().trim();
+                editor.putString("username", phoneString);
+                editor.putString("userpass", passwordString);
+                editor.apply();
                 setLogin();
                 break;
             case R.id.et_login_user:
@@ -402,7 +397,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
     private LoginBean GetUesrBean() {
         Gson gson = new Gson();
-        LoginBean bean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        LoginBean bean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         return bean;
     }
 
@@ -418,5 +413,18 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
             }
         }
         return null;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

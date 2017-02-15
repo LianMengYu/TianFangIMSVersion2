@@ -26,7 +26,7 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TopContactsRequestBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
 
     private void GetCheckTopContacts() {
         Gson gson = new Gson();
-        LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         OkGo.post(ConstantValue.GETCONTACTSLIST)
                 .tag(this)
@@ -182,7 +182,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
             list.add(allChecked.get(i).getText().get(i).getId());
         }
         Gson gson = new Gson();
-        LoginBean loginBean = gson.fromJson(CommUtils.getUserInfo(mContext), LoginBean.class);
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         list.add(loginBean.getText().getId());
         String UID = loginBean.getText().getId();
         String aa = list.toString();

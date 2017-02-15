@@ -21,9 +21,11 @@ import io.rong.ptt.kit.PTTExtensionModule;
  */
 
 public class TianFangIMSApplication extends Application {
+    private static TianFangIMSApplication instance;
     @Override
     public void onCreate() {
         super.onCreate();
+        instance = this;
         RongIM.init(this);
         RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
         OkGo.init(this);
@@ -86,5 +88,8 @@ public class TianFangIMSApplication extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static TianFangIMSApplication getInstance(){
+        return instance;
     }
 }

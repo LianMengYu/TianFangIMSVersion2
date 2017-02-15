@@ -12,7 +12,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.UserInfoBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 import io.rong.imlib.model.Conversation;
 import okhttp3.Call;
@@ -69,7 +69,7 @@ public class FriendPersonInfoActivity extends BaseActivity {
                                 userInfoBean.getAddress(),
                                 userInfoBean.getName(),
                                 userInfoBean.getOrganname());
-                        CommUtils.GetImages(mContext, userInfoBean.getLogo(), iv_friendinfo_photo);
+                        CommonUtil.GetImages(mContext, userInfoBean.getLogo(), iv_friendinfo_photo);
                     }
                 });
     }

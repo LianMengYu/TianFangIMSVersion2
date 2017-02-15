@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommUtils;
+import com.tianfangIMS.im.utils.CommonUtil;
 
 /**
  * Created by LianMengYu on 2017/2/3.
@@ -53,7 +53,7 @@ public class TopContactsAdapter extends BaseAdapter {
         }else {
             viewHodler = (ViewHodler)convertView.getTag();
         }
-        CommUtils.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
+        CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
         viewHodler.name.setText(list.getText().get(position).getFullname());
         viewHodler.level.setText(list.getText().get(position).getWorkno());
         return convertView;

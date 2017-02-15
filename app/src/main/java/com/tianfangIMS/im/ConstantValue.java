@@ -51,4 +51,6 @@ public class ConstantValue {
 
     public static final String CHANGEGROUPNAME = Urls +  "group!changeGroupName";//修改群组名称
 
+    public static final String SINGOUTUSER = Urls +  "system!logOut";//登出
+
 }
