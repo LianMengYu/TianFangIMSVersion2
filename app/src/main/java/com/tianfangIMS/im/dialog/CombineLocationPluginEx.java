@@ -4,15 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
-import android.widget.Toast;
 
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.plugin.IPluginModule;
-import io.rong.imkit.plugin.location.AMapLocationActivity;
-import io.rong.imkit.plugin.location.AMapRealTimeActivity;
-import io.rong.imkit.plugin.location.LocationManager;
-import io.rong.imkit.utilities.OptionsPopupDialog;
-import io.rong.imkit.utilities.PermissionCheckUtil;
 
 /**
  * Created by LianMengYu on 2017/2/13.
@@ -32,27 +26,27 @@ public class CombineLocationPluginEx  implements IPluginModule {
 
     @Override
     public void onClick(final Fragment currentFragment,final RongExtension extension) {
-        String[] permissions = new String[]{"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_NETWORK_STATE"};
-        if(PermissionCheckUtil.requestPermissions(currentFragment, permissions)) {
-            String[] items = new String[]{currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_message), currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_sharing)};
-            OptionsPopupDialog.newInstance(currentFragment.getActivity(), items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                public void onOptionsItemClicked(int which) {
-                    Intent intent;
-                    if(which == 0) {
-                        intent = new Intent(currentFragment.getActivity(), AMapLocationActivity.class);
-                        extension.startActivityForPluginResult(intent, 1, CombineLocationPluginEx.this);
-                    } else if(which == 1) {
-                        if(LocationManager.getInstance().joinLocationSharing()) {
-                            intent = new Intent(currentFragment.getActivity(), AMapRealTimeActivity.class);
-                            currentFragment.getActivity().startActivity(intent);
-                        } else {
-                            Toast.makeText(currentFragment.getActivity(), io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                }
-            }).show();
-        }
+//        String[] permissions = new String[]{"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_NETWORK_STATE"};
+//        if(PermissionCheckUtil.requestPermissions(currentFragment, permissions)) {
+//            String[] items = new String[]{currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_message), currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_sharing)};
+//            OptionsPopupDialog.newInstance(currentFragment.getActivity(), items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
+//                public void onOptionsItemClicked(int which) {
+//                    Intent intent;
+//                    if(which == 0) {
+//                        intent = new Intent(currentFragment.getActivity(), AMapLocationActivity.class);
+//                        extension.startActivityForPluginResult(intent, 1, CombineLocationPluginEx.this);
+//                    } else if(which == 1) {
+//                        if(LocationManager.getInstance().joinLocationSharing()) {
+//                            intent = new Intent(currentFragment.getActivity(), AMapRealTimeActivity.class);
+//                            currentFragment.getActivity().startActivity(intent);
+//                        } else {
+//                            Toast.makeText(currentFragment.getActivity(), io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//
+//                }
+//            }).show();
+//        }
     }
 
     @Override

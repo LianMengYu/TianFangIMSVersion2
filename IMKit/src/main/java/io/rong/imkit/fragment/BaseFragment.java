@@ -20,19 +20,22 @@ public abstract class BaseFragment extends Fragment implements Handler.Callback 
     public static final String TOKEN = "RONG_TOKEN";
     public static final int UI_RESTORE = 1;
     private Handler mHandler;
-
+    private String mToken;
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        String token = null;
-
+        super.onCreate(savedInstanceState);
         mHandler = new Handler(this);
-
         if (savedInstanceState != null) {
-            token = savedInstanceState.getString(TOKEN);
+            mToken = savedInstanceState.getString(TOKEN);
         }
-        if (token != null && !RongIMClient.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (mToken != null && !RongIMClient.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
             RLog.i(TAG, "onCreate auto reconnect");
-            RongIM.connect(token, new RongIMClient.ConnectCallback() {
+            RongIM.connect(mToken, new RongIMClient.ConnectCallback() {
                 @Override
                 public void onSuccess(String s) {
                     mHandler.sendEmptyMessage(UI_RESTORE);
@@ -49,13 +52,6 @@ public abstract class BaseFragment extends Fragment implements Handler.Callback 
                 }
             });
         }
-
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
     }
 
 

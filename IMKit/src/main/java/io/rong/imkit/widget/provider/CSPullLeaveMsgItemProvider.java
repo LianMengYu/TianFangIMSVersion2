@@ -71,7 +71,7 @@ public class CSPullLeaveMsgItemProvider extends IContainerItemProvider.MessagePr
 
     private void onLeaveMessageClicked(View v, UIMessage message) {
         Intent intent;
-        if (message.getCsConfig() != null && message.getCsConfig().leaveMessgeConfigType.equals(CustomServiceConfig.CSLeaveMessageType.WEB)) {
+        if (message.getCsConfig() != null && message.getCsConfig().leaveMessageConfigType.equals(CustomServiceConfig.CSLeaveMessageType.WEB)) {
             String action = RongKitIntent.RONG_INTENT_ACTION_WEBVIEW;
             intent = new Intent(action);
             intent.setPackage(v.getContext().getPackageName());
@@ -82,7 +82,7 @@ public class CSPullLeaveMsgItemProvider extends IContainerItemProvider.MessagePr
             intent = new Intent(v.getContext(), CSLeaveMessageActivity.class);
             intent.putExtra("targetId", message.getTargetId());
             Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("itemList", message.getCsConfig().defaultConfigList);
+            bundle.putParcelableArrayList("itemList", message.getCsConfig().leaveMessageNativeInfo);
             intent.putExtras(bundle);
             v.getContext().startActivity(intent);
         }

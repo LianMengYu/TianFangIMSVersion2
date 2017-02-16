@@ -30,6 +30,9 @@ import io.rong.imkit.userInfoCache.RongUserInfoManager;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UserInfo;
+
+import static io.rong.imlib.statistics.UserData.name;
 
 @ConversationProviderTag(conversationType = "private", portraitPosition = 1)
 public class PrivateConversationProvider implements IContainerItemProvider.ConversationProvider<UIConversation> {
@@ -74,7 +77,7 @@ public class PrivateConversationProvider implements IContainerItemProvider.Conve
             //设置内容
             if (!TextUtils.isEmpty(data.getDraft()) || data.getMentionedFlag()) {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                SpannableString string ;
+                SpannableString string;
                 if (data.getMentionedFlag()) {
                     string = new SpannableString(view.getContext().getString(R.string.rc_message_content_mentioned));
                     string.setSpan(new ForegroundColorSpan(view.getContext().getResources().getColor(R.color.rc_mentioned_color)), 0, string.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -83,7 +86,7 @@ public class PrivateConversationProvider implements IContainerItemProvider.Conve
                     string = new SpannableString(view.getContext().getString(R.string.rc_message_content_draft));
                     string.setSpan(new ForegroundColorSpan(view.getContext().getResources().getColor(R.color.rc_draft_color)), 0, string.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     builder.append(string).append(" ")
-                    .append(data.getDraft());
+                            .append(data.getDraft());
                 }
                 AndroidEmoji.ensure(builder);
 
@@ -116,7 +119,7 @@ public class PrivateConversationProvider implements IContainerItemProvider.Conve
                 tag = RongContext.getInstance().getMessageProviderTag(data.getMessageContent().getClass());
 
             if (data.getSentStatus() != null && (data.getSentStatus() == Message.SentStatus.FAILED
-                                                 || data.getSentStatus() == Message.SentStatus.SENDING) && tag != null && tag.showWarning() == true
+                    || data.getSentStatus() == Message.SentStatus.SENDING) && tag != null && tag.showWarning() == true
                     && data.getConversationSenderId() != null && data.getConversationSenderId().equals(RongIM.getInstance().getCurrentUserId())) {
                 Bitmap bitmap = BitmapFactory.decodeResource(view.getResources(), R.drawable.rc_conversation_list_msg_send_failure);
                 int width = bitmap.getWidth();
@@ -149,24 +152,14 @@ public class PrivateConversationProvider implements IContainerItemProvider.Conve
     }
 
     public String getTitle(String userId) {
-        String name;
-        if (RongUserInfoManager.getInstance().getUserInfo(userId) == null) {
-            name = userId;
-        } else {
-            name = RongUserInfoManager.getInstance().getUserInfo(userId).getName();
-        }
-        return name;
+        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(userId);
+        return userInfo == null ? userId : userInfo.getName();
     }
 
     @Override
-    public Uri getPortraitUri(String id) {
-        Uri uri;
-        if (RongUserInfoManager.getInstance().getUserInfo(id) == null) {
-            uri = null;
-        } else {
-            uri = RongUserInfoManager.getInstance().getUserInfo(id).getPortraitUri();
-        }
-        return uri;
+    public Uri getPortraitUri(String userId) {
+        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(userId);
+        return userInfo == null ? null : userInfo.getPortraitUri();
     }
 
 }

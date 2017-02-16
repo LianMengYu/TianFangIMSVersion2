@@ -358,7 +358,7 @@ public class DiscussionNotificationMessageItemProvider extends IContainerItemPro
         }).show();
     }
 
-    public void onEventBackgroundThread(final UserInfo userInfo) {
+    public void onEventMainThread(final UserInfo userInfo) {
         if (userInfo.getName() == null)
             return;
 

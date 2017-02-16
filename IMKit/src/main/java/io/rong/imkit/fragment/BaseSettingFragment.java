@@ -9,6 +9,8 @@ import android.widget.CheckBox;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import io.rong.imkit.R;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
@@ -39,7 +41,7 @@ public abstract class BaseSettingFragment extends BaseFragment implements View.O
             if (intent.getData() != null) {
 
                 mConversationType = Conversation.ConversationType
-                                    .valueOf(intent.getData().getLastPathSegment().toUpperCase());
+                                    .valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.US));
 
                 mTargetId = intent.getData().getQueryParameter("targetId");
             }

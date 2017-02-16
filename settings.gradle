@@ -1,1 +1,1 @@
-include ':app', ':IMLib', ':TianFangIMS', ':pttkit', ':IMKit'
+include ':app', ':TianFangIMS', ':pttkit', ':IMKit', ':IMLib'

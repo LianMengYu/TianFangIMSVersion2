@@ -156,7 +156,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         main_tree.setVisibility(visibility);
     }
 
-    public ImageView getIv_MainTree(){
+    public ImageView getIv_MainTree() {
         return main_tree;
     }
 
@@ -242,13 +242,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         Log.e(TAG, "看看好友的参数：" + UID);
-        OkGo.post(ConstantValue.GETCONTACTSLIST)
+        OkGo.post(ConstantValue.GETALLPERSONINFO)
                 .tag(this)
                 .connTimeOut(10000)
                 .readTimeOut(10000)
                 .writeTimeOut(10000)
                 .cacheKey("getfriendinfo")
-                .params("account", UID)
                 .execute(new StringCallback() {
                     @Override
                     public void onBefore(BaseRequest request) {
@@ -258,6 +257,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
+                            Log.e(TAG, "获取所有好友的信息:" + s);
                             CommonUtil.saveFrientUserInfo(mContext, s);
                         } else {
                             return;
@@ -267,7 +267,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     @Override
                     public void onError(Call call, Response response, Exception e) {
                         super.onError(call, response, e);
-                        NToast.shortToast(mContext, "好友请求失败");
+                        NToast.shortToast(mContext, "信息提供者好友请求失败");
                         return;
                     }
                 });
@@ -610,20 +610,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public UserInfo getUserInfo(String s) {
+        Log.e(TAG, "用户新提供的S：" + s);
         Gson gson1 = new Gson();
         String jsondata = CommonUtil.getFrientUserInfo(mContext);
+        Log.e(TAG, "我回去的信息：" + jsondata);
         Type listTypeJson = new TypeToken<Map<String, Object>>() {
         }.getType();
         Map<String, Object> map = gson1.fromJson(jsondata, listTypeJson);
         if (0 == (double) map.get("code")) {
+            Log.e(TAG, "打印code：" + (double) map.get("code"));
             return null;
         } else {
+
             Gson gson = new Gson();
             Type listType = new TypeToken<TopContactsListBean>() {
             }.getType();
             TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(mContext), listType);
+            Log.e(TAG, "打印bean：" + bean.getText());
             if (bean != null && bean.getText().size() > 0) {
-                for (int i = 0; i > bean.getText().size(); i++) {
+                for (int i = 0; i < bean.getText().size(); i++) {
                     if (bean.getText().get(i).getId().equals(s)) {
                         Log.e(TAG, "用户新提供的S：" + s);
                         Log.e(TAG, "自己的id" + bean.getText().get(i).getId());
@@ -644,7 +649,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }.getType();
         Gson gson = new Gson();
         Map<String, Object> jsonData = gson.fromJson(str, listType);
-        if (0 == (double) jsonData.get("code")) {
+        if (jsonData.get("code").equals("0.0")) {
             Map<String, String> textData = (Map<String, String>) jsonData.get("text");
             Log.e(TAG, "群组信息提供者:" + textData);
         } else {

@@ -162,7 +162,7 @@ public class RongUserInfoManager implements Handler.Callback {
                 }
                 mRequestCache.add((String) msg.obj);
                 groupId = StringUtils.getArg1((String) msg.obj);
-                userId = StringUtils.getArg1((String) msg.obj);
+                userId = StringUtils.getArg2((String) msg.obj);
                 if (mRongDatabaseDao != null) {
                     groupUserInfo = mRongDatabaseDao.getGroupUserInfo(groupId, userId);
                 }
@@ -219,32 +219,47 @@ public class RongUserInfoManager implements Handler.Callback {
             case EVENT_UPDATE_GROUP_USER_INFO:
                 groupUserInfo = (GroupUserInfo) msg.obj;
                 String key = StringUtils.getKey(groupUserInfo.getGroupId(), groupUserInfo.getUserId());
-                mRequestCache.remove(key);
-                if (mRongDatabaseDao != null) {
-                    mRongDatabaseDao.putGroupUserInfo(groupUserInfo);
-                }
-                if (mCacheListener != null) {
-                    mCacheListener.onGroupUserInfoUpdated(groupUserInfo);
+                final GroupUserInfo oldGroupUserInfo = mGroupUserInfoCache.put(key, groupUserInfo);
+                if ((oldGroupUserInfo == null)
+                        || (oldGroupUserInfo.getNickname() != null && groupUserInfo.getNickname() != null && !oldGroupUserInfo.getNickname().equals(groupUserInfo.getNickname()))) {
+                    mRequestCache.remove(key);
+                    if (mRongDatabaseDao != null) {
+                        mRongDatabaseDao.putGroupUserInfo(groupUserInfo);
+                    }
+                    if (mCacheListener != null) {
+                        mCacheListener.onGroupUserInfoUpdated(groupUserInfo);
+                    }
                 }
                 break;
             case EVENT_UPDATE_GROUP_INFO:
                 group = (Group) msg.obj;
-                String cachedGroupId = GROUP_PREFIX + group.getId();
-                mRequestCache.remove(cachedGroupId);
-                if (mRongDatabaseDao != null) {
-                    mRongDatabaseDao.putGroupInfo(group);
-                }
-                if (mCacheListener != null) {
-                    mCacheListener.onGroupUpdated(group);
+                RongConversationInfo conversationInfo = new RongConversationInfo(Conversation.ConversationType.GROUP.getValue() + "", group.getId(), group.getName(), group.getPortraitUri());
+                RongConversationInfo oldConversationInfo = mGroupCache.put(conversationInfo.getId(), conversationInfo);
+                if ((oldConversationInfo == null)
+                        || (oldConversationInfo.getName() != null && conversationInfo.getName() != null && !oldConversationInfo.getName().equals(conversationInfo.getName()))
+                        || (oldConversationInfo.getUri() != null && conversationInfo.getUri() != null && !oldConversationInfo.getUri().toString().equals(conversationInfo.getUri().toString()))) {
+                    String cachedGroupId = GROUP_PREFIX + group.getId();
+                    mRequestCache.remove(cachedGroupId);
+                    if (mRongDatabaseDao != null) {
+                        mRongDatabaseDao.putGroupInfo(group);
+                    }
+                    if (mCacheListener != null) {
+                        mCacheListener.onGroupUpdated(group);
+                    }
                 }
                 break;
             case EVENT_UPDATE_DISCUSSION:
                 discussion = (Discussion) msg.obj;
-                if (mRongDatabaseDao != null) {
-                    mRongDatabaseDao.putDiscussionInfo(discussion);
-                }
-                if (mCacheListener != null) {
-                    mCacheListener.onDiscussionUpdated(discussion);
+                conversationInfo = new RongConversationInfo(Conversation.ConversationType.DISCUSSION.getValue() + "", discussion.getId(), discussion.getName(), null);
+                oldConversationInfo = mDiscussionCache.put(conversationInfo.getId(), conversationInfo);
+                if ((oldConversationInfo == null)
+                        || (oldConversationInfo.getName() != null && conversationInfo.getName() != null && !oldConversationInfo.getName().equals(conversationInfo.getName()))) {
+                    if (mRongDatabaseDao != null) {
+                        mRongDatabaseDao.putDiscussionInfo(discussion);
+                    }
+                    if (mCacheListener != null) {
+                        mCacheListener.onDiscussionUpdated(discussion);
+                    }
                 }
                 break;
             case EVENT_GET_USER_INFO:
@@ -273,10 +288,15 @@ public class RongUserInfoManager implements Handler.Callback {
                 break;
             case EVENT_UPDATE_USER_INFO:
                 userInfo = (UserInfo) msg.obj;
-                putUserInfoInDB(userInfo);
-                mRequestCache.remove(userInfo.getUserId());
-                if (mCacheListener != null) {
-                    mCacheListener.onUserInfoUpdated(userInfo);
+                UserInfo oldUserInfo = putUserInfoInCache(userInfo);
+                if ((oldUserInfo == null)
+                        || (oldUserInfo.getName() != null && userInfo.getName() != null && !oldUserInfo.getName().equals(userInfo.getName()))
+                        || (oldUserInfo.getPortraitUri() != null && userInfo.getPortraitUri() != null && !oldUserInfo.getPortraitUri().toString().equals(userInfo.getPortraitUri().toString()))) {
+                    putUserInfoInDB(userInfo);
+                    mRequestCache.remove(userInfo.getUserId());
+                    if (mCacheListener != null) {
+                        mCacheListener.onUserInfoUpdated(userInfo);
+                    }
                 }
                 break;
             case EVENT_LOGOUT:
@@ -285,8 +305,10 @@ public class RongUserInfoManager implements Handler.Callback {
                 mCacheListener = null;
                 mUserId = null;
                 mAppKey = null;
-                mRongDatabaseDao.close();
-                mRongDatabaseDao = null;
+                if (mRongDatabaseDao != null) {
+                    mRongDatabaseDao.close();
+                    mRongDatabaseDao = null;
+                }
                 updateCachedUserId("");
                 break;
             case EVENT_CLEAR_CACHE:
@@ -514,15 +536,10 @@ public class RongUserInfoManager implements Handler.Callback {
 
     public void setUserInfo(final UserInfo info) {
         if (mIsCacheUserInfo) {
-            final UserInfo oldInfo = putUserInfoInCache(info);
-            if ((oldInfo == null)
-                    || (oldInfo.getName() != null && info.getName() != null && !oldInfo.getName().equals(info.getName()))
-                    || (oldInfo.getPortraitUri() != null && info.getPortraitUri() != null && !oldInfo.getPortraitUri().toString().equals(info.getPortraitUri().toString()))) {
-                Message message = Message.obtain();
-                message.what = EVENT_UPDATE_USER_INFO;
-                message.obj = info;
-                mWorkHandler.sendMessage(message);
-            }
+            Message message = Message.obtain();
+            message.what = EVENT_UPDATE_USER_INFO;
+            message.obj = info;
+            mWorkHandler.sendMessage(message);
         } else {
             if (mCacheListener != null) {
                 mCacheListener.onUserInfoUpdated(info);
@@ -531,16 +548,11 @@ public class RongUserInfoManager implements Handler.Callback {
     }
 
     public void setGroupUserInfo(final GroupUserInfo info) {
-        String key = StringUtils.getKey(info.getGroupId(), info.getUserId());
         if (mIsCacheGroupUserInfo) {
-            final GroupUserInfo oldInfo = mGroupUserInfoCache.put(key, info);
-            if ((oldInfo == null)
-                    || (oldInfo.getNickname() != null && info.getNickname() != null && !oldInfo.getNickname().equals(info.getNickname()))) {
-                Message message = Message.obtain();
-                message.what = EVENT_UPDATE_GROUP_USER_INFO;
-                message.obj = info;
-                mWorkHandler.sendMessage(message);
-            }
+            Message message = Message.obtain();
+            message.what = EVENT_UPDATE_GROUP_USER_INFO;
+            message.obj = info;
+            mWorkHandler.sendMessage(message);
         } else {
             if (mCacheListener != null) {
                 mCacheListener.onGroupUserInfoUpdated(info);
@@ -550,16 +562,10 @@ public class RongUserInfoManager implements Handler.Callback {
 
     public void setGroupInfo(final Group group) {
         if (mIsCacheGroupInfo) {
-            final RongConversationInfo info = new RongConversationInfo(Conversation.ConversationType.GROUP.getValue() + "", group.getId(), group.getName(), group.getPortraitUri());
-            final RongConversationInfo oldInfo = mGroupCache.put(info.getId(), info);
-            if ((oldInfo == null)
-                    || (oldInfo.getName() != null && info.getName() != null && !oldInfo.getName().equals(info.getName()))
-                    || (oldInfo.getUri() != null && info.getUri() != null && !oldInfo.getUri().toString().equals(info.getUri().toString()))) {
-                Message message = Message.obtain();
-                message.what = EVENT_UPDATE_GROUP_INFO;
-                message.obj = group;
-                mWorkHandler.sendMessage(message);
-            }
+            Message message = Message.obtain();
+            message.what = EVENT_UPDATE_GROUP_INFO;
+            message.obj = group;
+            mWorkHandler.sendMessage(message);
         } else {
             if (mCacheListener != null) {
                 mCacheListener.onGroupUpdated(group);
@@ -568,15 +574,10 @@ public class RongUserInfoManager implements Handler.Callback {
     }
 
     public void setDiscussionInfo(final Discussion discussion) {
-        RongConversationInfo info = new RongConversationInfo(Conversation.ConversationType.DISCUSSION.getValue() + "", discussion.getId(), discussion.getName(), null);
-        RongConversationInfo oldInfo = mDiscussionCache.put(info.getId(), info);
-        if ((oldInfo == null)
-                || (oldInfo.getName() != null && info.getName() != null && !oldInfo.getName().equals(info.getName()))) {
-            Message message = Message.obtain();
-            message.what = EVENT_UPDATE_DISCUSSION;
-            message.obj = discussion;
-            mWorkHandler.sendMessage(message);
-        }
+        Message message = Message.obtain();
+        message.what = EVENT_UPDATE_DISCUSSION;
+        message.obj = discussion;
+        mWorkHandler.sendMessage(message);
     }
 
     public void setPublicServiceProfile(final PublicServiceProfile profile) {

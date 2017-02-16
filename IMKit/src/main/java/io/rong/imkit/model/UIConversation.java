@@ -273,6 +273,7 @@ public class UIConversation implements Parcelable {
         conversationContent = null;
         unReadMessageCount = 0;
         isMentioned = false;
+        sentStatus=Message.SentStatus.DESTROYED;
     }
 
     public void clearUnRead(Conversation.ConversationType conversationType, String targetId) {

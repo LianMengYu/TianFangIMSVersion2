@@ -12,6 +12,7 @@ import android.widget.GridView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import io.rong.imkit.R;
 import io.rong.imkit.RongContext;
@@ -50,7 +51,7 @@ public class ConversationAddMemberFragment extends BaseFragment implements Adapt
             if (intent.getData() != null) {
 
                 mConversationType = Conversation.ConversationType
-                                    .valueOf(intent.getData().getLastPathSegment().toUpperCase());
+                                    .valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.US));
 
                 mTargetId = intent.getData().getQueryParameter("targetId");
             }

@@ -1,11 +1,14 @@
 package io.rong.imkit;
 
+import android.content.Context;
+import android.content.res.Resources;
 import android.view.KeyEvent;
 import android.widget.EditText;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import io.rong.common.RLog;
 import io.rong.imkit.emoticon.EmojiTab;
@@ -23,13 +26,16 @@ import io.rong.imlib.model.Message;
 public class DefaultExtensionModule implements IExtensionModule {
     private final static String TAG = DefaultExtensionModule.class.getSimpleName();
     private EditText mEditText;
+    private Stack<EditText> stack;
+    String[] types = null;
+
 
     public DefaultExtensionModule() {
     }
 
     @Override
     public void onInit(String appKey) {
-
+        stack = new Stack<>();
     }
 
     @Override
@@ -40,11 +46,25 @@ public class DefaultExtensionModule implements IExtensionModule {
     @Override
     public void onAttachedToExtension(RongExtension extension) {
         mEditText = extension.getInputEditText();
+        Context context = extension.getContext();
+        RLog.i(TAG, "attach " + stack.size());
+        stack.push(mEditText);
+        Resources resources = context.getResources();
+
+        try {
+            types = resources.getStringArray(resources.getIdentifier("rc_realtime_support_conversation_types", "array", context.getPackageName()));
+        }catch(Resources.NotFoundException e){
+
+        }
     }
 
     @Override
     public void onDetachedFromExtension() {
-        mEditText = null;
+        RLog.i(TAG, "detach " + stack.size());
+        if(stack.size() > 0) {
+            stack.pop();
+            mEditText = stack.size() > 0 ? stack.peek() : null;
+        }
     }
 
     @Override
@@ -66,11 +86,27 @@ public class DefaultExtensionModule implements IExtensionModule {
             if (locationCls != null) {
                 IPluginModule combineLocation = new CombineLocationPlugin();
                 IPluginModule locationPlugin = new DefaultLocationPlugin();
-                if (conversationType.equals(Conversation.ConversationType.PRIVATE)) {
-                    pluginModuleList.add(combineLocation);
-                } else {
-                    pluginModuleList.add(locationPlugin);
+
+                boolean typesDefined = false;
+                if(types != null && types.length > 0){
+                    for(String type: types){
+                        if(conversationType.getName().equals(type)){
+                            typesDefined = true;
+                            break;
+                        }
+                    }
                 }
+
+                if(typesDefined){
+                    pluginModuleList.add(combineLocation);
+                }else {
+                    if (types == null && conversationType.equals(Conversation.ConversationType.PRIVATE)) {//配置文件中没有类型定义且会话类型为私聊
+                        pluginModuleList.add(combineLocation);
+                    } else {
+                        pluginModuleList.add(locationPlugin);
+                    }
+                }
+
             }
         } catch (Exception e) {
             RLog.i(TAG, "Not include AMap");
@@ -86,7 +122,7 @@ public class DefaultExtensionModule implements IExtensionModule {
         try {
             String clsName = "com.iflytek.cloud.SpeechUtility";
             Class<?> cls = Class.forName(clsName);
-            if(cls != null) {
+            if (cls != null) {
                 cls = Class.forName("io.rong.recognizer.RecognizePlugin");
                 Constructor<?> constructor = cls.getConstructor();
                 IPluginModule recognizer = (IPluginModule) constructor.newInstance();

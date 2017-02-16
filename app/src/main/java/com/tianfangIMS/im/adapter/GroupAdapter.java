@@ -92,7 +92,7 @@ public class GroupAdapter extends BaseAdapter {
 
                 Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + getItem(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mDetailHolder.groupHeader);
                 mDetailHolder.groupName.setText(getItem(position).getName());
-                mDetailHolder.groupIndex.setText(getItem(position).getName().substring(0, 1));
+                mDetailHolder.groupIndex.setText(getItem(position).getName().substring(1, 2));
                 break;
         }
         return convertView;

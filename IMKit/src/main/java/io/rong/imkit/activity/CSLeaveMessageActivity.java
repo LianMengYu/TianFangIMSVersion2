@@ -3,6 +3,7 @@ package io.rong.imkit.activity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,13 +31,11 @@ import io.rong.common.RLog;
 import io.rong.eventbus.EventBus;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.model.Event;
 import io.rong.imkit.utilities.RongUtils;
-import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.CSLMessageItem;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Message;
-import io.rong.message.CSLeaveMessage;
 import io.rong.message.InformationNotificationMessage;
 
 public class CSLeaveMessageActivity extends Activity {
@@ -50,10 +50,7 @@ public class CSLeaveMessageActivity extends Activity {
         setContentView(R.layout.rc_cs_leave_message);
 
         mTargetId = getIntent().getStringExtra("targetId");
-        if (getIntent().getBooleanExtra("csTerminal", false)) {
-            finish();
-            return;
-        }
+
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mItemList = bundle.getParcelableArrayList("itemList");
@@ -74,33 +71,17 @@ public class CSLeaveMessageActivity extends Activity {
                         String name = (String) editText.getTag();
                         map.put(name, editText.getText().toString());
                     }
-                    CSLeaveMessage message = new CSLeaveMessage();
-                    message.setDataSet(map);
-                    RongIMClient.getInstance().sendMessage(Message.obtain(mTargetId, Conversation.ConversationType.CUSTOMER_SERVICE, message), null, null, new IRongCallback.ISendMediaMessageCallback() {
+
+                    RongIMClient.getInstance().leaveMessageCustomService(mTargetId, map, new RongIMClient.OperationCallback() {
                         @Override
-                        public void onProgress(Message message, int progress) {
-
-                        }
-
-                        @Override
-                        public void onCanceled(Message message) {
-
-                        }
-
-                        @Override
-                        public void onAttached(Message message) {
-
-                        }
-
-                        @Override
-                        public void onSuccess(Message message) {
+                        public void onSuccess() {
                             InformationNotificationMessage notificationMessage = new InformationNotificationMessage(getResources().getString(R.string.rc_cs_message_submited));
                             RongIM.getInstance().insertMessage(Conversation.ConversationType.CUSTOMER_SERVICE, mTargetId, RongIMClient.getInstance().getCurrentUserId(), notificationMessage, null);
                             finish();
                         }
 
                         @Override
-                        public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+                        public void onError(RongIMClient.ErrorCode errorCode) {
 
                         }
                     });
@@ -111,9 +92,12 @@ public class CSLeaveMessageActivity extends Activity {
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideSoftInputKeyboard();
                 finish();
             }
         });
+
+        EventBus.getDefault().register(this);
     }
 
     private void addItemToContainer(LinearLayout parent) {
@@ -229,8 +213,8 @@ public class CSLeaveMessageActivity extends Activity {
     /**
      * 通过正则验证是否是合法手机号码
      *
-     * @param phoneNumber
-     * @return
+     * @param phoneNumber 待验证的手机号码
+     * @return 验证结果
      */
     private boolean isMobile(String phoneNumber) {
         String MOBLIE_PHONE_PATTERN = "^((13[0-9])|(15[0-9])|(18[0-9])|(14[7])|(17[0|6|7|8]))\\d{8}$";
@@ -253,30 +237,42 @@ public class CSLeaveMessageActivity extends Activity {
         return m.matches();
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        if (intent.getBooleanExtra("csTerminal", false)) {
-            String text = intent.getStringExtra("msg");
-            showDialog(text);
-        }
-        super.onNewIntent(intent);
-    }
-
-    private void showDialog(String text) {
+    final public void onEventMainThread(final Event.CSTerminateEvent event) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setCancelable(false);
         final AlertDialog alertDialog = builder.create();
         alertDialog.show();
         Window window = alertDialog.getWindow();
-        window.setContentView(R.layout.rc_cs_alert_warning);
-        TextView tv = (TextView) window.findViewById(R.id.rc_cs_msg);
-        tv.setText(text);
-        window.findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-                finish();
-            }
-        });
+        if(window != null) {
+            window.setContentView(R.layout.rc_cs_alert_warning);
+            TextView tv = (TextView) window.findViewById(R.id.rc_cs_msg);
+            tv.setText(event.getText());
+
+            window.findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    alertDialog.dismiss();
+                    hideSoftInputKeyboard();
+                    event.getActivity().finish();
+                    finish();
+                }
+            });
+        }
     }
+
+    private void hideSoftInputKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm.isActive() && getCurrentFocus() != null) {
+            if (getCurrentFocus().getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
 }

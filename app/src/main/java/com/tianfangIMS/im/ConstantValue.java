@@ -53,4 +53,8 @@ public class ConstantValue {
 
     public static final String SINGOUTUSER = Urls +  "system!logOut";//登出
 
+    public static final String GETALLPERSONINFO = Urls +  "member!getAllMemberInfo";//获取全部人员信息
+
+    public static final String DISSGROUP = Urls +  "group!disslovedGroup";//解散群组
+
 }

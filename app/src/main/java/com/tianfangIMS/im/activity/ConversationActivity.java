@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -37,7 +38,9 @@ import io.rong.imkit.fragment.ConversationFragment;
 import io.rong.imkit.fragment.UriFragment;
 import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imkit.plugin.location.AMapRealTimeActivity;
+import io.rong.imkit.plugin.location.LocationManager;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
+import io.rong.imkit.utilities.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Discussion;
@@ -480,30 +483,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         transaction.commitAllowingStateLoss();
     }
 
-//    private void GetLocation(final Context currentFragment) {
-//        String[] permissions = new String[]{"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION", "android.permission.ACCESS_NETWORK_STATE"};
-//        if (PermissionCheckUtil.requestPermissions(currentFragment, permissions)) {
-//            String[] items = new String[]{currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_message), currentFragment.getString(io.rong.imkit.R.string.rc_plugin_location_sharing)};
-//            OptionsPopupDialog.newInstance(currentFragment, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-//                public void onOptionsItemClicked(int which) {
-//                    Intent intent;
-//                    if (which == 0) {
-//                        intent = new Intent(currentFragment, AMapLocationActivity.class);
-////                        extension.startActivityForPluginResult(intent, 1, ConversationActivity.this);
-//                    } else if (which == 1) {
-//                        if (LocationManager.getInstance().joinLocationSharing()) {
-//                            intent = new Intent(currentFragment, AMapRealTimeActivity.class);
-//                            currentFragment.startActivity(intent);
-//                        } else {
-//                            Toast.makeText(currentFragment, io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//
-//                }
-//            }).show();
-//        }
-//    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -511,8 +490,20 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 enterSettingActivity();
                 break;
             case R.id.iv_conversation_location:
-                Intent intent = new Intent(mContext, AMapRealTimeActivity.class);
-                startActivity(intent);
+                String[] items = {"位置共享"};
+                OptionsPopupDialog.newInstance(mContext, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                    @Override
+                    public void onOptionsItemClicked(int i) {
+                        if (i == 0) {
+                            if (LocationManager.getInstance().joinLocationSharing() == 0) {
+                                Intent intent = new Intent(mContext, AMapRealTimeActivity.class);
+                                mContext.startActivity(intent);
+                            } else {
+                                Toast.makeText(mContext, io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }).show();
                 break;
         }
 

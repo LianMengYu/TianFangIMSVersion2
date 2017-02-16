@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -17,7 +18,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import io.rong.common.RLog;
 import io.rong.eventbus.EventBus;
@@ -51,7 +52,7 @@ import io.rong.imkit.RongContext;
 import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.RongKitIntent;
-import io.rong.imkit.activity.CSLeaveMessageActivity;
+import io.rong.imkit.RongKitReceiver;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.manager.InternalModuleManager;
@@ -155,6 +156,8 @@ public class ConversationFragment extends UriFragment implements
     private CustomServiceConfig mCustomServiceConfig;
     private CSEvaluateDialog mEvaluateDialg;
 
+    private RongKitReceiver mKitReceiver;
+
     private final int CS_HUMAN_MODE_CUSTOMER_EXPIRE = 0;
     private final int CS_HUMAN_MODE_SEAT_EXPIRE = 1;
 
@@ -164,7 +167,7 @@ public class ConversationFragment extends UriFragment implements
         RLog.i(TAG, "onCreate");
         InternalModuleManager.getInstance().onLoaded();
         try {
-            mEnableMention = RongContext.getInstance().getResources().getBoolean(R.bool.rc_enable_mentioned_message);
+            mEnableMention = getActivity().getResources().getBoolean(R.bool.rc_enable_mentioned_message);
         } catch (Resources.NotFoundException e) {
             RLog.e(TAG, "rc_enable_mentioned_message not found in rc_config.xml");
         }
@@ -174,6 +177,17 @@ public class ConversationFragment extends UriFragment implements
             mSyncReadStatus = getResources().getBoolean(R.bool.rc_enable_sync_read_status);
         } catch (Resources.NotFoundException e) {
             RLog.e(TAG, "rc_read_receipt not found in rc_config.xml");
+            e.printStackTrace();
+        }
+
+        mKitReceiver = new RongKitReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.PHONE_STATE");
+        filter.addAction(Intent.ACTION_NEW_OUTGOING_CALL);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        try {
+            getActivity().registerReceiver(mKitReceiver, filter);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -224,7 +238,7 @@ public class ConversationFragment extends UriFragment implements
                     }
                     return true;
                 }
-                if (event.getAction() == MotionEvent.ACTION_UP && mRongExtension.isExtensionExpanded()) {
+                if (event.getAction() == MotionEvent.ACTION_UP && mRongExtension != null && mRongExtension.isExtensionExpanded()) {
                     mRongExtension.collapseExtension();
                 }
                 return false;
@@ -345,7 +359,7 @@ public class ConversationFragment extends UriFragment implements
     protected void initFragment(final Uri uri) {
         RLog.d(TAG, "initFragment : " + uri + ",this=" + this);
         if (uri != null) {
-            String typeStr = uri.getLastPathSegment().toUpperCase();
+            String typeStr = uri.getLastPathSegment().toUpperCase(Locale.US);
             mConversationType = Conversation.ConversationType.valueOf(typeStr);
             mTargetId = uri.getQueryParameter("targetId");
 
@@ -402,12 +416,18 @@ public class ConversationFragment extends UriFragment implements
                                     dialog.setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
                                         @Override
                                         public void onPositiveButtonClicked() {
-                                            LocationManager.getInstance().joinLocationSharing();
-                                            Intent intent = new Intent(ConversationFragment.this.getActivity(), AMapRealTimeActivity.class);
-                                            if (mLocationShareParticipants != null) {
-                                                intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                                            int result = LocationManager.getInstance().joinLocationSharing();
+                                            if(result == 0) {
+                                                Intent intent = new Intent(ConversationFragment.this.getActivity(), AMapRealTimeActivity.class);
+                                                if (mLocationShareParticipants != null) {
+                                                    intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                                                }
+                                                startActivity(intent);
+                                            }else if(result == 1){
+                                                Toast.makeText(getActivity(), R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+                                            }else if((result == 2)){
+                                                Toast.makeText(getActivity(), R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT).show();
                                             }
-                                            startActivity(intent);
                                         }
                                     });
                                     dialog.show();
@@ -467,7 +487,11 @@ public class ConversationFragment extends UriFragment implements
                         public void onError(RongIMClient.ErrorCode errorCode) {
                             RLog.e(TAG, "joinChatRoom onError : " + errorCode);
                             if (getActivity() != null) {
-                                onWarningDialog(getString(R.string.rc_join_chatroom_failure));
+                                if (errorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE || errorCode == RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID) {
+                                    onWarningDialog(getString(R.string.rc_notice_network_unavailable));
+                                } else {
+                                    onWarningDialog(getString(R.string.rc_join_chatroom_failure));
+                                }
                             }
                         }
                     });
@@ -482,7 +506,11 @@ public class ConversationFragment extends UriFragment implements
                         public void onError(RongIMClient.ErrorCode errorCode) {
                             RLog.e(TAG, "joinExistChatRoom onError : " + errorCode);
                             if (getActivity() != null) {
-                                onWarningDialog(getString(R.string.rc_join_chatroom_failure));
+                                if (errorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE || errorCode == RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID) {
+                                    onWarningDialog(getString(R.string.rc_notice_network_unavailable));
+                                } else {
+                                    onWarningDialog(getString(R.string.rc_join_chatroom_failure));
+                                }
                             }
                         }
                     });
@@ -554,7 +582,17 @@ public class ConversationFragment extends UriFragment implements
                 if (conversation != null && getActivity() != null) {
                     final int unreadCount = conversation.getUnreadMessageCount();
                     if (unreadCount > 0) {
-                        sendReadReceiptAndSyncUnreadStatus(mConversationType, mTargetId, conversation.getSentTime());
+                        if (mReadRec
+                                && mConversationType == Conversation.ConversationType.PRIVATE
+                                && RongContext.getInstance().isReadReceiptConversationType(Conversation.ConversationType.PRIVATE)) {
+                            RongIMClient.getInstance().sendReadReceiptMessage(mConversationType, mTargetId, conversation.getSentTime());
+                        }
+
+                        if (mSyncReadStatus && (mConversationType == Conversation.ConversationType.PRIVATE
+                                || mConversationType == Conversation.ConversationType.GROUP
+                                || mConversationType == Conversation.ConversationType.DISCUSSION)) {
+                            RongIMClient.getInstance().syncConversationReadStatus(mConversationType, mTargetId, conversation.getSentTime(), null);
+                        }
                     }
                     if (conversation.getMentionedCount() > 0) {
                         getLastMentionedMessageId(mConversationType, mTargetId);
@@ -660,7 +698,7 @@ public class ConversationFragment extends UriFragment implements
             return;
         }
         View view = mNotificationContainer.findViewById(notificationView.getId());
-        if (view != null){
+        if (view != null) {
             mNotificationContainer.removeView(view);
             if (mNotificationContainer.getChildCount() == 0) {
                 mNotificationContainer.setVisibility(View.GONE);
@@ -677,11 +715,9 @@ public class ConversationFragment extends UriFragment implements
         if (notificationView == null) {
             return;
         }
-        Log.e("jyj", "showNotificationView");
         View view = mNotificationContainer.findViewById(notificationView.getId());
         if (view != null) {
             // do nothing, we already add the view, and the view would update automatically
-            Log.e("jyj", "already added");
             return;
         }
         mNotificationContainer.addView(notificationView);
@@ -769,7 +805,7 @@ public class ConversationFragment extends UriFragment implements
             mCustomServiceConfig = config;
 
             if (config.isBlack) {
-                onCustomServiceWarning(getString(R.string.rc_blacklist_prompt), false);
+                onCustomServiceWarning(getString(R.string.rc_blacklist_prompt), false, robotType);
             }
             if (config.robotSessionNoEva) {
                 csEvaluate = false;
@@ -816,7 +852,7 @@ public class ConversationFragment extends UriFragment implements
 
         @Override
         public void onError(int code, String msg) {
-            onCustomServiceWarning(msg, false);
+            onCustomServiceWarning(msg, false, robotType);
         }
 
         @Override
@@ -844,17 +880,17 @@ public class ConversationFragment extends UriFragment implements
         @Override
         public void onQuit(String msg) {
             RLog.i(TAG, "CustomService onQuit.");
+            stopTimer(CS_HUMAN_MODE_CUSTOMER_EXPIRE);
+            stopTimer(CS_HUMAN_MODE_SEAT_EXPIRE);
             if (mEvaluateDialg == null) {
-                onCustomServiceWarning(msg, mCustomServiceConfig.quitSuspendType == CustomServiceConfig.CSQuitSuspendType.NONE);
+                onCustomServiceWarning(msg, mCustomServiceConfig.quitSuspendType == CustomServiceConfig.CSQuitSuspendType.NONE, robotType);
             } else {
                 mEvaluateDialg.destroy();
             }
-            //如果留言界面已启动，需要将客服结束事件通知给留言界面。
-            //如果留言界面未启动，留言界面在启动后，会立即结束。
-            Intent intent = new Intent(getActivity(), CSLeaveMessageActivity.class);
-            intent.putExtra("msg", msg);
-            intent.putExtra("csTerminal", true);
-            startActivityForResult(intent, REQUEST_CS_LEAVEL_MESSAGE);
+
+            if (!mCustomServiceConfig.quitSuspendType.equals(CustomServiceConfig.CSQuitSuspendType.NONE)) {
+                RongContext.getInstance().getEventBus().post(new Event.CSTerminateEvent(getActivity(), msg));
+            }
         }
 
         @Override
@@ -905,6 +941,13 @@ public class ConversationFragment extends UriFragment implements
             EventBus.getDefault().unregister(this);
             AudioPlayManager.getInstance().stopPlay();
             AudioRecordManager.getInstance().destroyRecord();
+            try {
+                if (mKitReceiver != null) {
+                    getActivity().unregisterReceiver(mKitReceiver);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             RongContext.getInstance().unregisterConversationInfo(mCurrentConversationInfo);
             LocationManager.getInstance().quitLocationSharing();
@@ -966,11 +1009,17 @@ public class ConversationFragment extends UriFragment implements
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case CS_HUMAN_MODE_CUSTOMER_EXPIRE: {
+                if (getActivity() == null) {
+                    return true;
+                }
                 InformationNotificationMessage info = new InformationNotificationMessage(mCustomServiceConfig.userTipWord);
                 RongIM.getInstance().insertMessage(Conversation.ConversationType.CUSTOMER_SERVICE, mTargetId, mTargetId, info, System.currentTimeMillis(), null);
                 return true;
             }
             case CS_HUMAN_MODE_SEAT_EXPIRE: {
+                if (getActivity() == null) {
+                    return true;
+                }
                 InformationNotificationMessage info = new InformationNotificationMessage(mCustomServiceConfig.adminTipWord);
                 RongIM.getInstance().insertMessage(Conversation.ConversationType.CUSTOMER_SERVICE, mTargetId, mTargetId, info, System.currentTimeMillis(), null);
                 return true;
@@ -1017,10 +1066,11 @@ public class ConversationFragment extends UriFragment implements
      * <p>弹出客服提示信息</p>
      * 通过重写此方法可以自定义弹出提示的窗口
      *
-     * @param msg      提示的内容
-     * @param evaluate 是否需要评价. true 表示还需要弹出评价窗口进行评价, false 表示仅需要提示不需要评价
+     * @param msg       提示的内容
+     * @param evaluate  是否需要评价. true 表示还需要弹出评价窗口进行评价, false 表示仅需要提示不需要评价
+     * @param robotType 是否是机器人模式
      */
-    public void onCustomServiceWarning(String msg, final boolean evaluate) {
+    public void onCustomServiceWarning(String msg, final boolean evaluate, final boolean robotType) {
         if (getActivity() == null)
             return;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -1068,7 +1118,7 @@ public class ConversationFragment extends UriFragment implements
             long currentTime = System.currentTimeMillis();
             int interval = 60;
             try {
-                interval = RongContext.getInstance().getResources().getInteger(R.integer.rc_custom_service_evaluation_interval);
+                interval = getActivity().getResources().getInteger(R.integer.rc_custom_service_evaluation_interval);
             } catch (Resources.NotFoundException e) {
                 e.printStackTrace();
             }
@@ -1089,6 +1139,14 @@ public class ConversationFragment extends UriFragment implements
             } else {
                 mEvaluateDialg = new CSEvaluateDialog(getContext(), mTargetId);
                 mEvaluateDialg.setClickListener(this);
+                mEvaluateDialg.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        if (mEvaluateDialg != null) {
+                            mEvaluateDialg = null;
+                        }
+                    }
+                });
                 if (mCustomServiceConfig.evaluateType.equals(CustomServiceConfig.CSEvaType.EVA_UNIFIED)) {
                     mEvaluateDialg.showStarMessage(mCustomServiceConfig.isReportResolveStatus);
                 } else if (robotType) {
@@ -1573,7 +1631,11 @@ public class ConversationFragment extends UriFragment implements
                         && message.getMessageDirection().equals(io.rong.imlib.model.Message.MessageDirection.RECEIVE)) {
                     if (mReadRec) {
                         RongIMClient.getInstance().sendReadReceiptMessage(message.getConversationType(), message.getTargetId(), message.getSentTime());
-                    } else if (mSyncReadStatus) {
+                    }
+                    /**
+                     * 只在单聊中同步多端未读数，是为了减少群组和讨论组中的消息量。会在会话页面销毁的时候同步未读消息数
+                     */
+                    if (mSyncReadStatus) {
                         RongIMClient.getInstance().syncConversationReadStatus(message.getConversationType(), message.getTargetId(), message.getSentTime(), null);
                     }
                 }
@@ -1793,6 +1855,12 @@ public class ConversationFragment extends UriFragment implements
 
     private void getHistoryMessage(final Conversation.ConversationType conversationType, final String targetId, final int reqCount, final int scrollMode) {
         mList.onRefreshStart(AutoRefreshListView.Mode.START);
+        if (conversationType.equals(Conversation.ConversationType.CHATROOM)) {
+            mList.onRefreshComplete(0, 0, false);
+            RLog.w(TAG, "Should not get local message in chatroom");
+            return;
+        }
+        mList.onRefreshStart(AutoRefreshListView.Mode.START);
         int last = mListAdapter.getCount() == 0 ? -1 : mListAdapter.getItem(0).getMessageId();
         getHistoryMessage(conversationType, targetId, last, reqCount, new IHistoryDataResultCallback<List<io.rong.imlib.model.Message>>() {
             @Override
@@ -1884,6 +1952,7 @@ public class ConversationFragment extends UriFragment implements
         mList.onRefreshStart(AutoRefreshListView.Mode.START);
         if (mConversationType.equals(Conversation.ConversationType.CHATROOM)) {
             mList.onRefreshComplete(0, 0, false);
+            RLog.w(TAG, "Should not get remote message in chatroom");
             return;
         }
         long dateTime = mListAdapter.getCount() == 0 ? 0 : mListAdapter.getItem(0).getSentTime();
@@ -1941,18 +2010,6 @@ public class ConversationFragment extends UriFragment implements
             destList = srcList;
         }
         return destList;
-    }
-
-    private void sendReadReceiptAndSyncUnreadStatus(Conversation.ConversationType conversationType, String targetId, long timeStamp) {
-        if (conversationType == Conversation.ConversationType.PRIVATE) {
-            if (mReadRec && RongContext.getInstance().isReadReceiptConversationType(Conversation.ConversationType.PRIVATE)) {
-                RongIMClient.getInstance().sendReadReceiptMessage(conversationType, targetId, timeStamp);
-            } else if (mSyncReadStatus) {
-                RongIMClient.getInstance().syncConversationReadStatus(conversationType, targetId, timeStamp, null);
-            }
-        } else if (conversationType.equals(Conversation.ConversationType.GROUP) || conversationType.equals(Conversation.ConversationType.DISCUSSION)) {
-            RongIMClient.getInstance().syncConversationReadStatus(conversationType, targetId, timeStamp, null);
-        }
     }
 
     private void getLastMentionedMessageId(Conversation.ConversationType conversationType, String targetId) {
@@ -2037,7 +2094,9 @@ public class ConversationFragment extends UriFragment implements
             mEvaluateDialg.destroy();
             mEvaluateDialg = null;
         }
-        getActivity().finish();
+        if (mCustomServiceConfig.quitSuspendType.equals(CustomServiceConfig.CSQuitSuspendType.NONE)) {
+            getActivity().finish();
+        }
     }
 
     @Override
@@ -2046,7 +2105,10 @@ public class ConversationFragment extends UriFragment implements
             mEvaluateDialg.destroy();
             mEvaluateDialg = null;
         }
-        getActivity().finish();
+        if (mCustomServiceConfig.quitSuspendType.equals(CustomServiceConfig.CSQuitSuspendType.NONE)) {
+            getActivity().finish();
+        }
+
     }
 
     private void startTimer(int event, int interval) {

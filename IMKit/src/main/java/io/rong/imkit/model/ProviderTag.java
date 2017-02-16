@@ -43,7 +43,7 @@ public @interface ProviderTag {
     boolean showWarning() default true;
 
     /**
-     * 是否现实发送进度。
+     * 是否显示发送进度。
      *
      * @return 是否现实发送进度。
      */

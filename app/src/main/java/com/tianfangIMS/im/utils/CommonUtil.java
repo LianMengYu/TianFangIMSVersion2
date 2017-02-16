@@ -107,21 +107,21 @@ public class CommonUtil {
                     }
                 });
         return mbitmap;
-
     }
 
-    public void getImageBitmap(Context context, String filename, String ImageName) {
-
-//        Bitmap bitmap = null;
-//        try {
-//            File filePath = new File(path + File.separator + "Images" + File.separator+ ImageName);
-//            if(file.exists()){
-//                bitmap = BitmapFactory.decodeFile(filePath);
-//            }else {
-//                GetImage(context,filename);
-//                bitmap = BitmapFactory.decodeFile(filePath);
-//            }
-//        }
+    public static Bitmap getImageBitmap(Context context, final String filename, final ImageView view) {
+        Bitmap mbitmap = null;
+        OkGo.post(filename)
+                .tag(context)
+                .cacheKey("imagecache")
+                .cacheMode(CacheMode.FIRST_CACHE_THEN_REQUEST)
+                .execute(new BitmapCallback() {
+                    @Override
+                    public void onSuccess(Bitmap bitmap, Call call, Response response) {
+                        view.setImageBitmap(bitmap);
+                    }
+                });
+        return mbitmap;
     }
 
     /**

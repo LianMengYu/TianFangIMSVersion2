@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.tianfangIMS.im.R;
  */
 
 public class Login_Welcome extends Activity {
+    private Context mContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +27,7 @@ public class Login_Welcome extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //定义全屏参数
         int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+        mContext = this;
         //获取当前窗体
         Window window = Login_Welcome.this.getWindow();
         //设置当前窗体为全屏显示
@@ -45,16 +48,30 @@ public class Login_Welcome extends Activity {
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(userPwd)) {
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
+//                if (!TextUtils.isEmpty(token)) {
+//                    RongIM.connect(token, new RongIMClient.ConnectCallback() {
+//                        @Override
+//                        public void onTokenIncorrect() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onSuccess(String s) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onError(RongIMClient.ErrorCode errorCode) {
+//                            NToast.shortToast(mContext,"Connect连接失败");
+//                            return;
+//                        }
+//                    });
+//                }
             } else {
-
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
                 finish();
             }
-//            Intent intent = new Intent();
-//            intent.setClass(Login_Welcome.this, LoginActivity.class);
-//            startActivity(intent);
-//            finish();
         }
     };
 

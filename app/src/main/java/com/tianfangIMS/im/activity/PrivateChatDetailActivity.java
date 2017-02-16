@@ -1,11 +1,17 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.R;
 
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
@@ -25,6 +31,11 @@ public class PrivateChatDetailActivity extends BaseActivity {
     private TextView tv_user_name;
     private Context mContext;
     private ImageView iv_createGroup;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,9 @@ public class PrivateChatDetailActivity extends BaseActivity {
 
 //        String str = mUserInfo.getPortraitUri().toString();
 //        System.out.println("看看userinfo里都有什么:"+);
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     private void init() {
@@ -52,10 +66,49 @@ public class PrivateChatDetailActivity extends BaseActivity {
 
     private void updateUI() {
         if (mUserInfo != null) {
-            iv_user_photo.setImageURI(mUserInfo.getPortraitUri());
+            Picasso.with(mContext)
+                    .load(mUserInfo.getPortraitUri())
+                    .into(iv_user_photo);
+//            iv_user_photo.setImageURI(mUserInfo.getPortraitUri());
             tv_user_name.setText(mUserInfo.getName());
 //            initData();
 //            getState(mUserInfo.getUserId());
         }
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("PrivateChatDetail Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 }

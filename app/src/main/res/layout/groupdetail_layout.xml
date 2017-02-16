@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,48 +7,25 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/ll_userinfo"
         android:layout_width="match_parent"
-        android:layout_height="118dp"
-        android:background="@color/White">
-
-        <GridView
-            android:id="@+id/gv_userinfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"></GridView>
-    </LinearLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_changeGroupName"
-        android:layout_width="match_parent"
-        android:layout_height="59dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/White">
-
-        <TextView
-            style="@style/Contacts_company_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="群名称" />
-
-        <TextView
-            android:id="@+id/tv_group_groupname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="15dp"
-            android:text="未命名" />
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
+
+        <LinearLayout
+            android:id="@+id/ll_userinfo"
+            android:layout_width="match_parent"
+            android:layout_height="118dp"
+            android:background="@color/White">
+
+            <GridView
+                android:id="@+id/gv_userinfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"></GridView>
+        </LinearLayout>
+
         <RelativeLayout
-            android:id="@+id/rl_group_file"
+            android:id="@+id/rl_changeGroupName"
             android:layout_width="match_parent"
             android:layout_height="59dp"
             android:layout_marginTop="10dp"
@@ -59,21 +36,95 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="聊天文件" />
+                android:text="群名称" />
 
-            <ImageView
+            <TextView
+                android:id="@+id/tv_group_groupname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/icon_right_jiao" />
+                android:layout_marginRight="15dp"
+                android:text="未命名" />
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/rl_group_file"
+                android:layout_width="match_parent"
+                android:layout_height="59dp"
+                android:layout_marginTop="10dp"
+                android:background="@color/White">
+
+                <TextView
+                    style="@style/Contacts_company_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="聊天文件" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/icon_right_jiao" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_group_findFile"
+                android:layout_width="match_parent"
+                android:layout_height="59dp"
+                android:background="@color/White">
+
+                <TextView
+                    style="@style/Contacts_company_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="查找聊天内容" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/icon_right_jiao" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_group_clean"
+                android:layout_width="match_parent"
+                android:layout_height="59dp"
+                android:background="@color/White">
+
+                <TextView
+                    style="@style/Contacts_company_txt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="清空聊天记录" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="centerCrop"
+                    android:src="@mipmap/icon_right_jiao" />
+            </RelativeLayout>
+        </LinearLayout>
+
         <RelativeLayout
-            android:id="@+id/rl_group_findFile"
             android:layout_width="match_parent"
             android:layout_height="59dp"
+            android:layout_marginTop="10dp"
             android:background="@color/White">
 
             <TextView
@@ -81,85 +132,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="查找聊天内容" />
+                android:text="消息免打扰" />
 
-            <ImageView
+            <com.tianfangIMS.im.switchbutton.SwitchButton
+                android:id="@+id/sw_conversationdetail_notfaction"
+                style="@style/SwitchButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/icon_right_jiao" />
+                android:layout_gravity="center_vertical"
+                android:padding="10dp"
+                app:kswAnimationDuration="300"
+                app:kswBackDrawable="@drawable/switchbtn_selector"
+                app:kswBackMeasureRatio="1.7"
+                app:kswThumbDrawable="@mipmap/icon_switch_boll"
+                app:kswThumbMarginBottom="0.5dp"
+                app:kswThumbMarginLeft="0.5dp"
+                app:kswThumbMarginRight="0.5dp"
+                app:kswThumbMarginTop="0.5dp" />
         </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/rl_group_clean"
+            android:id="@+id/rl_signout"
             android:layout_width="match_parent"
             android:layout_height="59dp"
-            android:background="@color/White">
+            android:layout_marginTop="10dp"
+            android:background="#FFFFFF">
 
             <TextView
-                style="@style/Contacts_company_txt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="清空聊天记录" />
+                android:layout_centerInParent="true"
+                android:text="删除并退出"
+                android:textColor="#FFA256"
+                android:textSize="14dp" />
+        </RelativeLayout>
 
-            <ImageView
+        <RelativeLayout
+            android:id="@+id/rl_breakGroup"
+            android:layout_width="match_parent"
+            android:layout_height="59dp"
+            android:layout_marginTop="10dp"
+            android:background="#FFFFFF"
+            android:visibility="gone">
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:scaleType="centerCrop"
-                android:src="@mipmap/icon_right_jiao" />
+                android:layout_centerInParent="true"
+                android:text="解散群组"
+                android:textColor="#FFA256"
+                android:textSize="14dp" />
         </RelativeLayout>
     </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="59dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/White">
-
-        <TextView
-            style="@style/Contacts_company_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="消息免打扰" />
-
-        <com.tianfangIMS.im.switchbutton.SwitchButton
-            android:id="@+id/sw_conversationdetail_notfaction"
-            style="@style/SwitchButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:padding="10dp"
-            app:kswAnimationDuration="300"
-            app:kswBackDrawable="@drawable/switchbtn_selector"
-            app:kswBackMeasureRatio="1.7"
-            app:kswThumbDrawable="@mipmap/icon_switch_boll"
-            app:kswThumbMarginBottom="0.5dp"
-            app:kswThumbMarginLeft="0.5dp"
-            app:kswThumbMarginRight="0.5dp"
-            app:kswThumbMarginTop="0.5dp" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/rl_signout"
-        android:layout_width="match_parent"
-        android:layout_height="59dp"
-        android:layout_marginTop="10dp"
-        android:background="#FFFFFF">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="删除并退出"
-            android:textColor="#FFA256"
-            android:textSize="14dp" />
-    </RelativeLayout>
-</LinearLayout>
+</ScrollView>

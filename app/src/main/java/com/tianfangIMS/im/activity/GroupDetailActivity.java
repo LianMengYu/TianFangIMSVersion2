@@ -1,6 +1,8 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,12 +23,19 @@ import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import io.rong.imkit.RongIM;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
+import io.rong.message.ImageMessage;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -44,12 +53,14 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
     private int requestCode;//返回值
     private OneGroupBean oneGroupBean;
     private String GroupName;
+    private RelativeLayout rl_group_file,rl_breakGroup;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.groupdetail_layout);
-
+        mContext = this;
         init();
         //群组会话界面点进群组详情
         fromConversationId = getIntent().getStringExtra("TargetId");
@@ -58,17 +69,46 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
 
             userInfo = RongUserInfoManager.getInstance().getUserInfo(fromConversationId);
 //            updateUI();
-            Log.e(TAG, "看看UserInfo有什么：" + userInfo);
+            Log.e(TAG, "看看UserInfo有什么：" + fromConversationId);
         }
         GroupInfo();
+    }
+
+    private void GetHistoryMessages() {
+        List<Message> list = RongIMClient.getInstance().getHistoryMessages(mConversationType, fromConversationId, -1, Integer.MAX_VALUE);
+        List<ImageMessage> msg = new ArrayList<>();
+        List<Uri> urilist = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+//            Log.e(TAG, "回去消息:" + list.get(i).getObjectName()+"====消息类型id："+list.get(i).get);
+            MessageContent messageContent = list.get(i).getContent();
+            if (messageContent instanceof ImageMessage) {
+                ImageMessage imageMessage = (ImageMessage) messageContent;
+                msg.add(imageMessage);
+            }
+        }
+        for (int j = 0; j < msg.size(); j++) {
+            Uri aa = msg.get(j).getRemoteUri();
+            urilist.add(aa);
+        }
+        if (urilist != null && urilist.size() > 0) {
+            Intent intent = new Intent(mContext, SelectPhoteActivity.class);
+            intent.putExtra("photouri", (Serializable) urilist);
+            startActivity(intent);
+        }else {
+            NToast.shortToast(mContext,"没有数据");
+        }
     }
 
     private void init() {
         rl_signout = (RelativeLayout) this.findViewById(R.id.rl_signout);
         tv_group_groupname = (TextView) this.findViewById(R.id.tv_group_groupname);
         rl_changeGroupName = (RelativeLayout) this.findViewById(R.id.rl_changeGroupName);
+        rl_group_file = (RelativeLayout) this.findViewById(R.id.rl_group_file);
+        rl_breakGroup = (RelativeLayout)this.findViewById(R.id.rl_breakGroup);
         rl_signout.setOnClickListener(this);
         rl_changeGroupName.setOnClickListener(this);
+        rl_group_file.setOnClickListener(this);
+        rl_breakGroup.setOnClickListener(this);
     }
 
     private void GroupInfo() {
@@ -86,6 +126,12 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             oneGroupBean = gson.fromJson(s, OneGroupBean.class);
                             IsLongGroupName(oneGroupBean.getText().getName());
                             setTitle("群信息" + "(" + oneGroupBean.getText().getVolumeuse() + "人)");
+                            LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
+                            if(oneGroupBean.getText().getMid().equals(loginBean.getText().getId())){
+                                rl_breakGroup.setVisibility(View.VISIBLE);
+                            }else{
+                                rl_breakGroup.setVisibility(View.GONE);
+                            }
                         }
                     }
                 });
@@ -150,6 +196,43 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    private void BreakGroupUser(){
+        Gson gson = new Gson();
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
+        String userid = loginBean.getText().getId();
+        OkGo.post(ConstantValue.DISSGROUP)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid",userid)
+                .params("groupid",fromConversationId)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Gson gson1 = new Gson();
+                            Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            if ((map.get("code").toString()).equals("1.0")) {
+                                Intent intent = new Intent(mContext, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else {
+                                NToast.shortToast(mContext,"解散群组失败");
+                            }
+                        }
+                    }
+                });
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -165,16 +248,22 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                 intent.putExtras(bundle);
                 startActivityForResult(intent, requestCode);
                 break;
+            case R.id.rl_group_file:
+                GetHistoryMessages();
+                break;
+            case R.id.rl_breakGroup:
+                BreakGroupUser();
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(data != null){
+        if (data != null) {
             String change01 = data.getStringExtra("change01");
             tv_group_groupname.setText(change01);
-        }else{
+        } else {
             return;
         }
     }

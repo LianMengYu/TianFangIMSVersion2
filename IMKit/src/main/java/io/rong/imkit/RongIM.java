@@ -192,7 +192,6 @@ public class RongIM {
 
         RLog.i(TAG, "init with appKey : " + current);
         SingletonHolder.sRongIM.mAppKey = appKey;
-        RongContext.init(context);
         init(context);
     }
 
@@ -662,7 +661,7 @@ public class RongIM {
      *
      * @param context      应用上下文。
      * @param targetUserId 要与之聊天的用户 Id。
-     * @param title        聊天的标题，如果传入空值，则默认显示与之聊天的用户名称。
+     * @param title        聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值, 再手动设置为聊天界面的标题。
      */
     public void startPrivateChat(Context context, String targetUserId, String title) {
 
@@ -689,7 +688,7 @@ public class RongIM {
      * @param context          应用上下文。
      * @param conversationType 会话类型。
      * @param targetId         根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param title            聊天的标题，如果传入空值，则默认显示会话的名称。
+     * @param title            聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值, 再手动设置为聊天界面的标题。
      */
     public void startConversation(Context context, Conversation.ConversationType conversationType, String targetId, String title) {
 
@@ -782,7 +781,7 @@ public class RongIM {
      *
      * @param context            应用上下文。
      * @param targetDiscussionId 要聊天的讨论组 Id。
-     * @param title              聊天的标题，如果传入空值，则默认显示讨论组名称。
+     * @param title              聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值, 再手动设置为聊天界面的标题。
      */
     public void startDiscussionChat(Context context, String targetDiscussionId, String title) {
 
@@ -802,7 +801,7 @@ public class RongIM {
      *
      * @param context       应用上下文。
      * @param targetGroupId 要聊天的群组 Id。
-     * @param title         聊天的标题，如果传入空值，则默认显示群组名称。
+     * @param title         聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值, 再手动设置为聊天界面的标题。
      */
     public void startGroupChat(Context context, String targetGroupId, String title) {
 
@@ -856,7 +855,7 @@ public class RongIM {
      *
      * @param context           应用上下文。
      * @param customerServiceId 要与之聊天的客服 Id。
-     * @param title             聊天的标题，如果传入空值，则默认显示与之聊天的客服名称。
+     * @param title             聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值, 再手动设置为聊天界面的标题。
      * @param customServiceInfo 当前使用客服者的用户信息。{@link io.rong.imlib.model.CSCustomServiceInfo}
      */
     public void startCustomerServiceChat(Context context, String customerServiceId, String title, CSCustomServiceInfo customServiceInfo) {
@@ -3296,14 +3295,12 @@ public class RongIM {
             @Override
             public void onSuccess() {
                 RongContext.getInstance().getEventBus().post(new Event.JoinChatRoomEvent(chatroomId, defMessageCount));
-
                 if (callback != null)
                     callback.onSuccess();
             }
 
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
-
                 if (callback != null)
                     callback.onError(errorCode);
             }
@@ -3645,6 +3642,7 @@ public class RongIM {
      *
      * @param listener 权限监听器。
      **/
+    @Deprecated
     public void setRequestPermissionListener(RequestPermissionsListener listener) {
         RongContext.getInstance().setRequestPermissionListener(listener);
     }
@@ -3664,7 +3662,9 @@ public class RongIM {
     /**
      * 请求权限监听器。
      **/
+    @Deprecated
     public interface RequestPermissionsListener {
+        @Deprecated
         void onPermissionRequest(String[] permissions, int requestCode);
     }
 

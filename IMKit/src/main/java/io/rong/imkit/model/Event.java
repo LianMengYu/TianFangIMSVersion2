@@ -963,4 +963,19 @@ public class Event {
             return content;
         }
     }
+
+    public static class CSTerminateEvent{
+        private String text;
+        private Activity activity;
+        public CSTerminateEvent(Activity activity, String content){
+            this.activity = activity;
+            this.text = content;
+        }
+        public String getText() {
+            return text;
+        }
+        public Activity getActivity() {
+            return activity;
+        }
+    }
 }

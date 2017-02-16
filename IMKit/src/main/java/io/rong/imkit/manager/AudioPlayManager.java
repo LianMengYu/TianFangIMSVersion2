@@ -49,6 +49,8 @@ public class AudioPlayManager implements SensorEventListener {
 
         if (_mediaPlayer.isPlaying()) {
             if (range > 0.0) {
+                //处理 sensor 出现异常后，持续回调 sensor 变化，导致声音播放卡顿
+                if(_audioManager.getMode() == AudioManager.MODE_NORMAL) return;
                 _audioManager.setMode(AudioManager.MODE_NORMAL);
                 _audioManager.setSpeakerphoneOn(true);
                 final int positions = _mediaPlayer.getCurrentPosition();
@@ -78,8 +80,10 @@ public class AudioPlayManager implements SensorEventListener {
             } else {
                 setScreenOff();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    if(_audioManager.getMode() == AudioManager.MODE_IN_COMMUNICATION) return;
                     _audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
                 } else {
+                    if(_audioManager.getMode() == AudioManager.MODE_IN_CALL) return;
                     _audioManager.setMode(AudioManager.MODE_IN_CALL);
                 }
                 _audioManager.setSpeakerphoneOn(false);
@@ -91,6 +95,7 @@ public class AudioPlayManager implements SensorEventListener {
             }
         } else {
             if (range > 0.0) {
+                if(_audioManager.getMode() == AudioManager.MODE_NORMAL) return;
                 _audioManager.setMode(AudioManager.MODE_NORMAL);
                 _audioManager.setSpeakerphoneOn(true);
                 setScreenOn();

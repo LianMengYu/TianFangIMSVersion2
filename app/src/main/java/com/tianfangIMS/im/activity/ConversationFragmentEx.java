@@ -7,6 +7,4 @@ import io.rong.imkit.fragment.ConversationFragment;
  */
 public class ConversationFragmentEx extends ConversationFragment {
 
-
-
 }

@@ -2,7 +2,6 @@ package io.rong.imkit.widget;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -11,9 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
-import java.util.zip.Inflater;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imlib.CustomServiceConfig;
@@ -31,6 +27,7 @@ public class CSEvaluateDialog extends AlertDialog {
 
     public CSEvaluateDialog(Context context, String targetId) {
         super(context);
+        setCanceledOnTouchOutside(false);
         mTargetId = targetId;
     }
 
@@ -267,6 +264,11 @@ public class CSEvaluateDialog extends AlertDialog {
 
     public void destroy() {
         dismiss();
+    }
+
+    @Override
+    public void setOnCancelListener(OnCancelListener listener) {
+        super.setOnCancelListener(listener);
     }
 
     public interface EvaluateClickListener {

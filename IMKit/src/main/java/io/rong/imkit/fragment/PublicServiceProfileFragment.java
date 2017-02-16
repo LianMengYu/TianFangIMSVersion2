@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.RongContext;
@@ -55,7 +57,7 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
 
         if (uri != null) {
             if (mPublicAccountInfo == null) {
-                String typeStr = !TextUtils.isEmpty(uri.getLastPathSegment()) ? uri.getLastPathSegment().toUpperCase() : "";
+                String typeStr = !TextUtils.isEmpty(uri.getLastPathSegment()) ? uri.getLastPathSegment().toUpperCase(Locale.US) : "";
                 mConversationType = Conversation.ConversationType.valueOf(typeStr);
                 mTargetId = uri.getQueryParameter("targetId");
                 name = uri.getQueryParameter("name");
