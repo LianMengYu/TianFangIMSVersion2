@@ -7,6 +7,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.utils.CommonUtil;
@@ -54,6 +56,9 @@ public class TopContactsAdapter extends BaseAdapter {
             viewHodler = (ViewHodler)convertView.getTag();
         }
         CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
+        Picasso.with(mContext)
+                .load(ConstantValue.ImageFile+list.getText().get(position).getLogo())
+                .into(viewHodler.img);
         viewHodler.name.setText(list.getText().get(position).getFullname());
         viewHodler.level.setText(list.getText().get(position).getWorkno());
         return convertView;

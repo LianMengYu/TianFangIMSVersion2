@@ -9,10 +9,10 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
+import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.UserInfoBean;
-import com.tianfangIMS.im.utils.CommonUtil;
 
 import io.rong.imlib.model.Conversation;
 import okhttp3.Call;
@@ -65,11 +65,13 @@ public class FriendPersonInfoActivity extends BaseActivity {
                                 userInfoBean.getEmail(),
                                 userInfoBean.getMobile(),
                                 userInfoBean.getTelephone(),
-                                null,
+                                userInfoBean.getOrganname(),
                                 userInfoBean.getAddress(),
-                                userInfoBean.getName(),
-                                userInfoBean.getOrganname());
-                        CommonUtil.GetImages(mContext, userInfoBean.getLogo(), iv_friendinfo_photo);
+                                userInfoBean.getBranchname(),
+                                userInfoBean.getPositionname());
+                        Picasso.with(mContext)
+                                .load(ConstantValue.ImageFile + userInfoBean.getLogo())
+                                .into(iv_friendinfo_photo);
                     }
                 });
     }
@@ -89,7 +91,7 @@ public class FriendPersonInfoActivity extends BaseActivity {
         friendinfo_jingli = (TextView) this.findViewById(R.id.friendinfo_jingli);
     }
 
-    private void SetUserInfo(String uesrname,String eMail, String phone, String telephone, String company, String address, String chanpin, String jingli) {
+    private void SetUserInfo(String uesrname, String eMail, String phone, String telephone, String company, String address, String chanpin, String jingli) {
         tv_friendinfo_name.setText(uesrname);
         friendinfo_email.setText(eMail);
         tx_frienduserinfo_phonenumber.setText(phone);

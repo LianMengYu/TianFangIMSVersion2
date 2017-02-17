@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -159,7 +160,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClick(AdapterView<?> parent, View view, final int position, final long id) {
 //                                    HashMap<Integer, Boolean> list = addTopContactsAdapter.isSelectedCheck;
 //                                    for (int j = 0; j < addTopContactsAdapter.getCount(); j++) {
 //                                        Log.e("qqqqqqqqqqqqqq","state.get("+j+")=="+list.get(j));
@@ -167,12 +168,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
 
         Log.e("是否点击了 ", "是");
         AddTopContactsAdapter.Holder holder = (AddTopContactsAdapter.Holder) view.getTag();
-        holder.cb_addfrien.toggle();
+//        holder.cb_addfrien.toggle();
+        holder.cb_addfrien.setChecked(true);
+        holder.cb_addfrien.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                NToast.shortToast(mContext, isChecked ? "选中了" + id : "取消了选中" + id);
+//                if(isChecked = true){
+//                }
+            }
+        });
         rl_selectAddContacts_background.setVisibility(View.VISIBLE);
-//        gridView_adapter = new AddTopContacts_GridView_Adapter(mContext,list);
         getCount();
 //        IsBoolean();
     }
+
 
     //对GridView 显示的宽高经行设置
     private void SettingGridView(List<AddFriendBean> list) {
@@ -209,6 +219,18 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         SettingGridView(allChecked);
         gv_addContacts.setAdapter(gridView_adapter);
         gridView_adapter.notifyDataSetChanged();
+
+        gv_addContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                allChecked.remove(position);
+                NToast.shortToast(mContext, "checkMap:" + checkedMap.get(position) + " ");
+
+                gridView_adapter.notifyDataSetChanged();
+                addTopContactsAdapter.notifyDataSetChanged();
+            }
+        });
+
     }
 
     private void SettingAddTopContacts() {
@@ -220,7 +242,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         String str = list.toString();
-        Log.e(TAG,"打印好友参数："+UID+"---:"+str);
+        Log.e(TAG, "打印好友参数：" + UID + "---:" + str);
         OkGo.post(ConstantValue.ADDTOPCONTACTS)
                 .tag(this)
                 .connTimeOut(10000)

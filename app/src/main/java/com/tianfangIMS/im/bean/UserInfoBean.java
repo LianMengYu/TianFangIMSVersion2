@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 
 public class UserInfoBean implements Serializable {
+
     private String id;
     private String account;
     private String name;
@@ -14,6 +15,8 @@ public class UserInfoBean implements Serializable {
     private String telephone;
     private String email;
     private String address;
+    private String token;
+    private String sex;
     private String birthday;
     private String workno;
     private String mobile;
@@ -23,9 +26,8 @@ public class UserInfoBean implements Serializable {
     private String branchname;
     private String positionname;
     private String organname;
-    private String sex;
 
-    public UserInfoBean(String account, String address, String birthday, String branchname, String email, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String name, String organname, String positionname, String sex, String telephone, String workno) {
+    public UserInfoBean(String account, String address, String birthday, String branchname, String email, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String name, String organname, String positionname, String sex, String telephone, String token, String workno) {
         this.account = account;
         this.address = address;
         this.birthday = birthday;
@@ -42,9 +44,8 @@ public class UserInfoBean implements Serializable {
         this.positionname = positionname;
         this.sex = sex;
         this.telephone = telephone;
+        this.token = token;
         this.workno = workno;
-
-
     }
 
     public String getAccount() {
@@ -175,6 +176,14 @@ public class UserInfoBean implements Serializable {
         this.telephone = telephone;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public String getWorkno() {
         return workno;
     }
@@ -193,6 +202,8 @@ public class UserInfoBean implements Serializable {
                 ", telephone='" + telephone + '\'' +
                 ", email='" + email + '\'' +
                 ", address='" + address + '\'' +
+                ", token='" + token + '\'' +
+                ", sex='" + sex + '\'' +
                 ", birthday='" + birthday + '\'' +
                 ", workno='" + workno + '\'' +
                 ", mobile='" + mobile + '\'' +
@@ -202,7 +213,6 @@ public class UserInfoBean implements Serializable {
                 ", branchname='" + branchname + '\'' +
                 ", positionname='" + positionname + '\'' +
                 ", organname='" + organname + '\'' +
-                ", sex='" + sex + '\'' +
                 '}';
     }
 }

@@ -7,9 +7,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.List;
 
@@ -55,7 +56,10 @@ public class GroupTopContacts_GridView_Adapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        CommonUtil.GetImages(mContext, mList.get(position).getText().get(position).getLogo(), viewHolder.img);
+//        CommonUtil.GetImages(mContext, mList.get(position).getText().get(position).getLogo(), viewHolder.img);
+        Picasso.with(mContext)
+                .load(ConstantValue.ImageFile+mList.get(position).getText().get(position).getLogo())
+                .into(viewHolder.img);
         viewHolder.text.setText(mList.get(position).getText().get(position).getFullname());
         return convertView;
     }

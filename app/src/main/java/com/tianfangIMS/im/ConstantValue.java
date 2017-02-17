@@ -57,4 +57,9 @@ public class ConstantValue {
 
     public static final String DISSGROUP = Urls +  "group!disslovedGroup";//解散群组
 
+    public static final String UPDATEUSERPHOTONOTCUT = Urls +  "upload!uploadUserLogoNotCut";//上传头像非裁剪
+
+    public static final String SUBLOCATION = Urls +"map!subLocation";//上传位置信息
+
+    public static final String GROUPALLUSERINFO = Urls +"group!listGroupMemebersData";//上传位置信息
 }

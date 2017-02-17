@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -17,6 +20,9 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.adapter.GroupDetailInfo_GridView_Adapter;
+import com.tianfangIMS.im.bean.GroupBean;
+import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.OneGroupBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
@@ -24,6 +30,7 @@ import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +60,10 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
     private int requestCode;//返回值
     private OneGroupBean oneGroupBean;
     private String GroupName;
-    private RelativeLayout rl_group_file,rl_breakGroup;
+    private RelativeLayout rl_group_file, rl_breakGroup;
     private Context mContext;
+    private GridView gv_userinfo;
+    private GroupDetailInfo_GridView_Adapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +81,59 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
             Log.e(TAG, "看看UserInfo有什么：" + fromConversationId);
         }
         GroupInfo();
+        GetGroupUserInfo();
+    }
+    //对GridView 显示的宽高经行设置
+    private void SettingGridView(ArrayList<GroupBean> list) {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        float density = dm.density;
+        int size = list.size();//要显示数据的个数
+        //gridview的layout_widht,要比每个item的宽度多出2个像素，解决不能完全显示item的问题
+        int allWidth = (int) (82 * size * density);
+        //int allWidth = (int) ((width / 3 ) * size + (size-1)*3);//也可以这样使用，item的总的width加上horizontalspacing
+        int itemWidth = (int) (65 * density);//每个item宽度
+        LinearLayout.LayoutParams params = new
+                LinearLayout.LayoutParams(allWidth, LinearLayout.LayoutParams.MATCH_PARENT);
+        gv_userinfo.setLayoutParams(params);
+        gv_userinfo.setColumnWidth(itemWidth);
+        gv_userinfo.setHorizontalSpacing(3);
+        gv_userinfo.setStretchMode(GridView.NO_STRETCH);
+        gv_userinfo.setNumColumns(size);
+    }
+
+    private void GetGroupUserInfo() {
+        OkGo.post(ConstantValue.GROUPALLUSERINFO)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("groupid", fromConversationId)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Type listType1 = new TypeToken<GroupListBean>() {
+                            }.getType();
+                            Gson gson1 = new Gson();
+                            GroupListBean GroupAllBean = gson1.fromJson(s, listType1);
+                            ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
+
+                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList);
+                            SettingGridView(GroupBeanList);
+                            gv_userinfo.setAdapter(adapter);
+                            gv_userinfo.deferNotifyDataSetChanged();
+                        }
+                    }
+                });
+
     }
 
     private void GetHistoryMessages() {
@@ -94,8 +156,8 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
             Intent intent = new Intent(mContext, SelectPhoteActivity.class);
             intent.putExtra("photouri", (Serializable) urilist);
             startActivity(intent);
-        }else {
-            NToast.shortToast(mContext,"没有数据");
+        } else {
+            NToast.shortToast(mContext, "没有数据");
         }
     }
 
@@ -104,7 +166,9 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         tv_group_groupname = (TextView) this.findViewById(R.id.tv_group_groupname);
         rl_changeGroupName = (RelativeLayout) this.findViewById(R.id.rl_changeGroupName);
         rl_group_file = (RelativeLayout) this.findViewById(R.id.rl_group_file);
-        rl_breakGroup = (RelativeLayout)this.findViewById(R.id.rl_breakGroup);
+        rl_breakGroup = (RelativeLayout) this.findViewById(R.id.rl_breakGroup);
+        gv_userinfo = (GridView) this.findViewById(R.id.gv_userinfo);
+
         rl_signout.setOnClickListener(this);
         rl_changeGroupName.setOnClickListener(this);
         rl_group_file.setOnClickListener(this);
@@ -127,9 +191,9 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             IsLongGroupName(oneGroupBean.getText().getName());
                             setTitle("群信息" + "(" + oneGroupBean.getText().getVolumeuse() + "人)");
                             LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
-                            if(oneGroupBean.getText().getMid().equals(loginBean.getText().getId())){
+                            if (oneGroupBean.getText().getMid().equals(loginBean.getText().getId())) {
                                 rl_breakGroup.setVisibility(View.VISIBLE);
-                            }else{
+                            } else {
                                 rl_breakGroup.setVisibility(View.GONE);
                             }
                         }
@@ -196,7 +260,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
-    private void BreakGroupUser(){
+    private void BreakGroupUser() {
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String userid = loginBean.getText().getId();
@@ -205,8 +269,8 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                 .connTimeOut(10000)
                 .readTimeOut(10000)
                 .writeTimeOut(10000)
-                .params("userid",userid)
-                .params("groupid",fromConversationId)
+                .params("userid", userid)
+                .params("groupid", fromConversationId)
                 .execute(new StringCallback() {
                     @Override
                     public void onBefore(BaseRequest request) {
@@ -225,8 +289,8 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                                 Intent intent = new Intent(mContext, MainActivity.class);
                                 startActivity(intent);
                                 finish();
-                            }else {
-                                NToast.shortToast(mContext,"解散群组失败");
+                            } else {
+                                NToast.shortToast(mContext, "解散群组失败");
                             }
                         }
                     }

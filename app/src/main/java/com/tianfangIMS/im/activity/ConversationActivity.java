@@ -490,6 +490,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 enterSettingActivity();
                 break;
             case R.id.iv_conversation_location:
+
                 String[] items = {"位置共享"};
                 OptionsPopupDialog.newInstance(mContext, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
                     @Override
@@ -505,6 +506,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                     }
                 }).show();
                 break;
+//                startActivity(new Intent(mContext, AMapShareActivity.class));
         }
 
     }

@@ -10,14 +10,13 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
 
 import java.util.List;
 import java.util.Map;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by Titan on 2017/2/7.
@@ -131,7 +130,10 @@ public class InfoAdapter extends BaseAdapter {
                     }
                 });
                 mWorkerHolder.cb_addfrien.setChecked(checkedMap.get(position));
-                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
+//                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
+                Picasso.with(mContext)
+                        .load(ConstantValue.ImageFile+mInfos.get(position).getLogo())
+                        .into(mWorkerHolder.adapter_info_item_worker_header);
                 mWorkerHolder.adapter_info_item_worker_name.setText(mTreeInfo.getName());
                 mWorkerHolder.adapter_info_item_worker_job.setText(mTreeInfo.getPostitionname());
                 break;

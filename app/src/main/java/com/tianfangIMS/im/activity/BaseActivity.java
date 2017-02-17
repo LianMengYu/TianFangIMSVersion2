@@ -281,20 +281,6 @@ public class BaseActivity extends FragmentActivity {
 
     //将Android状态栏改变为沉浸样式
     private void SystemBarTranslucentType(Activity activity) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            //状态栏透明
-//            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-//            setTranslucentStatus(true);
-//
-//            ViewGroup rootView = (ViewGroup) ((ViewGroup) activity.findViewById(android.R.id.content)).getChildAt(0);
-//            rootView.setFitsSystemWindows(true);
-//            rootView.setClipToPadding(true);
-//        }
-//
-//        SystemBarTintManager tintManager = new SystemBarTintManager(this);
-////        tintManager.setStatusBarAlpha(Color.TRANSPARENT);
-//        tintManager.setStatusBarTintEnabled(true);
-//        tintManager.setStatusBarTintResource(R.mipmap.navigation_top_bar);//通知栏所需颜色
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();

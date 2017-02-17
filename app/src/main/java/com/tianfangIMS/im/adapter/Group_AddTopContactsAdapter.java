@@ -9,9 +9,10 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommonUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +79,10 @@ public class Group_AddTopContactsAdapter  extends BaseAdapter{
             }
         });
         viewHodler.cb_addfrien.setChecked(checkedMap.get(position));
-        CommonUtil.GetImages(mContext,mList.getText().get(position).getLogo(),viewHodler.img);
+//        CommonUtil.GetImages(mContext,mList.getText().get(position).getLogo(),viewHodler.img);
+        Picasso.with(mContext)
+                .load(ConstantValue.ImageFile+mList.getText().get(position).getLogo())
+                .into(viewHodler.img);
         viewHodler.name.setText(mList.getText().get(position).getFullname());
         viewHodler.level.setText(mList.getText().get(position).getSex());
         return convertView;

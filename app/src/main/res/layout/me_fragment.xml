@@ -13,7 +13,7 @@
         android:background="#FFFFFF">
 
         <com.tianfangIMS.im.view.CircleImageViews
-            android:id="@+id/iv_me_icon_photo"
+            android:id="@+id/iv_setting_photo"
             android:layout_width="56dp"
             android:layout_height="58dp"
             android:layout_centerVertical="true"
@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/iv_me_icon_photo"
+            android:layout_toRightOf="@+id/iv_setting_photo"
             android:text="连梦雨" />
 
         <ImageView

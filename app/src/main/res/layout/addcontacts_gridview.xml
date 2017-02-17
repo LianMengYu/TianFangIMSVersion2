@@ -22,6 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:maxLength="9"
+        android:ellipsize="end"
+        android:maxEms="8"
+        android:singleLine="true"
         android:textSize="14dp" />
 </LinearLayout>

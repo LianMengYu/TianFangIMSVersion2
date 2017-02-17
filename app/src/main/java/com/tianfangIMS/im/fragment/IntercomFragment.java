@@ -80,10 +80,10 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
         main_call_blur.setImageBitmap(blur(BitmapFactory.decodeResource(getResources(), R.drawable.heiyan), 25f));
         mConversationType = Conversation.ConversationType.valueOf(intent.getData()
                 .getLastPathSegment().toUpperCase(Locale.getDefault()));
-        RongExtension extension = new RongExtension(getActivity());
-        pttClient = PTTClient.getInstance();
-        PTTSession pttSession = pttClient.getCurrentPttSession();
-        userid = RongIM.getInstance().getCurrentUserId();
+//        RongExtension extension = new RongExtension(getActivity());
+//        pttClient = PTTClient.getInstance();
+//        PTTSession pttSession = pttClient.getCurrentPttSession();
+//        userid = RongIM.getInstance().getCurrentUserId();
 //        pttClient.joinSession(mConversationType, userid, new JoinSessionCallback() {
 //            @Override
 //            public void onSuccess(List<String> list) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#f0f0f0"
@@ -42,16 +43,23 @@
                 android:src="@mipmap/icon_right_jiao" />
 
 
-            <ImageView
-                android:id="@+id/iv_useinfo_photo"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+            <com.tianfangIMS.im.view.CircleImageViews
+                android:id="@+id/iv_userinfo_photo"
+                android:layout_width="56dp"
+                android:layout_height="58dp"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/iv_useinfo_jiaotou"
-                android:src="@mipmap/me_icon_photo" />
+                android:layout_gravity="center"
+                android:layout_marginRight="15dp"
+                android:background="@android:color/transparent"
+                android:scaleType="centerCrop"
+                app:RCCornerRadius="3dp"
+                app:RCDefDrawable="@mipmap/me_icon_photo"
+                app:RCShape="circle" />
 
 
         </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,6 +80,7 @@
                     android:text="邮箱" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_email"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -80,7 +89,7 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/rl_useinfo_phone"
+                android:id="@+id/rl_useinfo_telephone"
                 android:layout_width="match_parent"
                 android:layout_height="60dp">
 
@@ -92,7 +101,7 @@
                     android:text="手机" />
 
                 <TextView
-                    android:id="@+id/tx_userinfo_phonenumber"
+                    android:id="@+id/tv_userinfo_phonenumber"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -112,6 +121,7 @@
                     android:text="电话" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_telephone"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -140,6 +150,7 @@
                     android:text="公司" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_company"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -159,6 +170,7 @@
                     android:text="地址" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_address"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -186,6 +198,7 @@
                     android:text="部门" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_department"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -205,6 +218,7 @@
                     android:text="职位" />
 
                 <TextView
+                    android:id="@+id/tv_userinfo_position"
                     style="@style/userinfo_fragment_infotext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -7,6 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.MineGroupParentBean;
 import com.tianfangIMS.im.utils.CommonUtil;

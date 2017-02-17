@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
+        android:layout_height="66dp"
         android:background="@color/White"
         android:orientation="horizontal">
 
@@ -24,7 +24,6 @@
                 android:layout_height="48dp"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center"
-                android:layout_marginLeft="25dp"
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 app:RCCornerRadius="3dp"
@@ -35,7 +34,6 @@
                 android:id="@+id/tv_conversationdetail_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="秦时风"
                 android:textColor="#808080"
                 android:textSize="14dp" />
         </LinearLayout>

@@ -8,14 +8,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.view.FrameView;
 
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by Titan on 2017/2/9.
@@ -90,7 +89,11 @@ public class GroupAdapter extends BaseAdapter {
                     mDetailHolder = (DetailHolder) convertView.getTag();
                 }
 
-                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + getItem(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mDetailHolder.groupHeader);
+//                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + getItem(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mDetailHolder.groupHeader);
+                Picasso.with(mContext)
+                        .load(ConstantValue.ImageFile + getItem(position).getLogo())
+                        .into(mDetailHolder.groupHeader);
+
                 mDetailHolder.groupName.setText(getItem(position).getName());
                 mDetailHolder.groupIndex.setText(getItem(position).getName().substring(1, 2));
                 break;
