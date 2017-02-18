@@ -36,6 +36,8 @@ public class TreeInfo implements Serializable {
     private String sexid;
     private String sexname;
 
+    private boolean isChecked;
+
     public int getFlag() {
         return flag;
     }
@@ -202,5 +204,13 @@ public class TreeInfo implements Serializable {
 
     public void setSexname(String sexname) {
         this.sexname = sexname;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 }

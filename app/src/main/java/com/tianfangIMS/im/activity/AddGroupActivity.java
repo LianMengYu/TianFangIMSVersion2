@@ -16,6 +16,7 @@ import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.ViewMode;
 import com.tianfangIMS.im.dialog.LoadDialog;
 
 import java.util.ArrayList;
@@ -53,6 +54,8 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
     int currentLevel;
 
     Intent mIntent;
+
+    HashMap<Integer, Boolean> prepare;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,7 +137,7 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                                 clickHistory = new ArrayList<TreeInfo>();
                                 mTreeInfos = new ArrayList<>();
                                 childCount = new ArrayList<Integer>();
-                                mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount,flag);
+                                mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
                                 lv_addGroup_company.setAdapter(mAdapter);
                                 transfer();
                             }
@@ -213,7 +216,7 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
 //                Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
                 mIntent = new Intent(mContext, InfoActivity.class);
                 mIntent.putExtra("maps", maps);
-                mIntent.putExtra("IsBoolean",flag);
+                mIntent.putExtra("IsBoolean", flag);
                 mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);

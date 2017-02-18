@@ -20,7 +20,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
-import com.tianfangIMS.im.adapter.GroupDetailInfo_GridView_Adapter;
+////import com.tianfangIMS.im.adapter.GroupDetailInfo_GridView_Adapter;
 import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
@@ -63,7 +63,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
     private RelativeLayout rl_group_file, rl_breakGroup;
     private Context mContext;
     private GridView gv_userinfo;
-    private GroupDetailInfo_GridView_Adapter adapter;
+////    private GroupDetailInfo_GridView_Adapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,9 +126,9 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             GroupListBean GroupAllBean = gson1.fromJson(s, listType1);
                             ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
 
-                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList);
+//                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList);
                             SettingGridView(GroupBeanList);
-                            gv_userinfo.setAdapter(adapter);
+//                            gv_userinfo.setAdapter(adapter);
                             gv_userinfo.deferNotifyDataSetChanged();
                         }
                     }

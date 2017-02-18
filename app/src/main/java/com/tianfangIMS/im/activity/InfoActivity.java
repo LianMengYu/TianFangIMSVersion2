@@ -1,5 +1,6 @@
 package com.tianfangIMS.im.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,10 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.ViewMode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,17 +30,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import io.rong.imkit.RongIM;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 
 /**
- * Created by LianMengYu on 2017/2/7.
- * 组织结构列表页
+ * Created by Titan on 2017/2/7.
  */
 
-public class InfoActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class InfoActivity extends Activity implements AdapterView.OnItemClickListener, InfoAdapter.OnDepartmentCheckedChangeListener {
 
     Gson mGson;
     OkHttpClient mClient;
@@ -52,19 +58,23 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     InfoAdapter mAdapter;
 
     //树节点深度
-    int currentLevel, parentLevel;
-    Boolean flag;
+    int currentLevel;
+
     List<TreeInfo> clickHistory;
     LinearLayout activity_info_ll_indicator;
+
+    LinearLayout activity_info_ll_header;
+    TextView activity_info_tv_header;
 
     int workerCount;
 
     TreeInfo mTreeInfo;
 
-    LinearLayout activity_info_ll_header;
-    TextView activity_info_tv_header;
-
     Button activity_info_btn_tree;
+
+    boolean isChecked;
+
+    int oldLevel, selectedCount;
 
     Handler mHandler = new Handler() {
         @Override
@@ -73,6 +83,49 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
             transfer();
         }
     };
+    HashMap<Integer, Integer> mInfoMap;
+    HashMap<Integer, Boolean> prepare;
+
+    ViewMode mMode;
+
+    int parentLevel;
+
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_info);
+//        activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
+//        activity_info_ll_indicator = (LinearLayout) findViewById(R.id.activity_info_ll_indicator);
+//        activity_info_btn_tree = (Button) findViewById(R.id.activity_info_btn_tree);
+//        activity_info_btn_tree.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
+////                mIntent.putExtra("map", maps);
+////                startActivityForResult(mIntent, 100);
+//                List<TreeInfo> results = new ArrayList<TreeInfo>();
+//                for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
+//                    for (TreeInfo info : hashMap.values()) {
+//                        if (info.isChecked() && info.getFlag() == 1) {
+//                            Log.d("InfoActivity", info.getName());
+//                            results.add(info);
+//                        }
+//                    }
+//                }
+//                Log.d("InfoActivity", "共计" + results.size() + "人");
+//
+//            }
+//        });
+//        activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
+//        activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
+//        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//            }
+//        });
+//        activity_info_lv_part.setOnItemClickListener(this);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,15 +134,24 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
-        flag = getIntent().getBooleanExtra("IsBoolean",false);
-        Log.e("打印传递数据:","aaaaa:"+flag);
+        mMode = (ViewMode) getIntent().getSerializableExtra("viewMode");
         activity_info_btn_tree = (Button) findViewById(R.id.activity_info_btn_tree);
         activity_info_btn_tree.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
-                mIntent.putExtra("map", maps);
-                startActivityForResult(mIntent, 100);
+//                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
+//                mIntent.putExtra("map", maps);
+//                startActivityForResult(mIntent, 100);
+                List<TreeInfo> results = new ArrayList<TreeInfo>();
+                for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
+                    for (TreeInfo info : hashMap.values()) {
+                        if (info.isChecked() && info.getFlag() == 1) {
+                            Log.d("InfoActivity", info.getName());
+                            results.add(info);
+                        }
+                    }
+                }
+                Log.d("InfoActivity", "共计" + results.size() + "人");
             }
         });
 
@@ -108,11 +170,12 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         clickHistory = new ArrayList<TreeInfo>();
         mTreeInfos = new ArrayList<>();
         childCount = new ArrayList<Integer>();
-        mAdapter = new InfoAdapter(InfoActivity.this, mTreeInfos, childCount,flag);
-        if(flag == true){
-
+        if (mMode == ViewMode.CHECK) {
+            prepare = new HashMap<>();
         }
+        mAdapter = new InfoAdapter(InfoActivity.this, mTreeInfos, childCount, mMode, prepare);
         activity_info_lv_part.setAdapter(mAdapter);
+        mAdapter.setOnDepartmentCheckedChangeListener(this);
         for (TreeInfo info : maps.get(parentLevel).values()) {
             if (info.getId() == currentLevel) {
                 clickHistory.add(info);
@@ -182,8 +245,12 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         }
         //将Map数据集合转换为List
         for (TreeInfo treeInfo : map.values()) {
+            if (isChecked) {
+                treeInfo.setChecked(isChecked);
+            }
             mTreeInfos.add(treeInfo);
         }
+        isChecked = false;
         //根据部门编号 进行排序
         Collections.sort(mTreeInfos, new Comparator<TreeInfo>() {
             @Override
@@ -211,9 +278,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         mTreeInfo = mTreeInfos.get(position);
         //点击的选项为员工类型
         if (mTreeInfo.getFlag() == 1) {
-            RongIM.getInstance().startPrivateChat(mContext, String.valueOf(mTreeInfo.getId()), mTreeInfo.getName());
+            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
             return;
         }
+        isChecked = mTreeInfos.get(position).isChecked();
         //记录下一级部门的PID(当前部门的ID即为下一级的PID)
         currentLevel = mTreeInfos.get(position).getId();
         //将点击记录存入回退集合中
@@ -228,7 +296,15 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
             if (clickHistory.size() == 1) {
                 super.onBackPressed();
             } else {
+                oldLevel = currentLevel;
+                selectedCount = 0;
+                for (TreeInfo info : mTreeInfos) {
+                    if (info.isChecked()) {
+                        selectedCount++;
+                    }
+                }
                 currentLevel = clickHistory.get(clickHistory.size() - 1).getPid();
+                maps.get(currentLevel).get(oldLevel).setChecked(selectedCount == mTreeInfos.size() ? true : false);
                 clickHistory.remove(clickHistory.size() - 1);
                 transfer();
             }
@@ -269,6 +345,22 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                     currentLevel = data.getIntExtra("currentLevel", -1);
                     transfer();
                     break;
+            }
+        }
+    }
+
+    @Override
+    public void onCheckedChange(int pid, int id, TreeInfo info) {
+        maps.get(pid).put(id, info);
+        boolean tmpBool = info.isChecked();
+        //部门类型
+        if (info.getFlag() == 0) {
+            //只要为True 就表明有子部门
+            if (maps.containsKey(info.getId())) {
+                for (TreeInfo treeInfo : maps.get(info.getId()).values()) {
+                    treeInfo.setChecked(tmpBool);
+                    onCheckedChange(treeInfo.getPid(), treeInfo.getId(), treeInfo);
+                }
             }
         }
     }

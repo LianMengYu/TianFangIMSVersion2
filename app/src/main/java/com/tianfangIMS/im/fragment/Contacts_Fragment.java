@@ -25,6 +25,7 @@ import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.ViewMode;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.JSONUtils;
 
@@ -68,10 +69,8 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
 
     Intent mIntent;
 
+    HashMap<Integer, Boolean> prepare;
 
-    public static Contacts_Fragment getInstance() {
-        return contacts_fragment;
-    }
 
     @Nullable
     @Override
@@ -82,6 +81,10 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         contacts_fragment = this;
         jsonUtils = new JSONUtils();
         return view;
+    }
+
+    public static Contacts_Fragment getInstance() {
+        return contacts_fragment;
     }
 
     private void initView(View view) {
@@ -156,7 +159,8 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                                 clickHistory = new ArrayList<TreeInfo>();
                                 mTreeInfos = new ArrayList<>();
                                 childCount = new ArrayList<Integer>();
-                                mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount,flag);
+                                prepare = new HashMap<Integer, Boolean>();
+                                mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount, ViewMode.NORMAL, null);
                                 fragment_contacts_lv_departments.setAdapter(mAdapter);
                                 transfer();
                             }
@@ -243,10 +247,10 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
         mIntent = new Intent(getActivity(), InfoActivity.class);
         mIntent.putExtra("maps", maps);
-        mIntent.putExtra("IsBoolean",flag);
+        mIntent.putExtra("viewMode", ViewMode.CHECK);
         mIntent.putExtra("currentLevel", mTreeInfos.get(position).getId());
         mIntent.putExtra("parentLevel", mTreeInfos.get(position).getPid());
-        Log.e("打印传递的数据:", "getContacts：" + mTreeInfos.get(position).getId() + "--Pid:" + mTreeInfos.get(position).getPid()+"---pos:"+position);
+        Log.e("打印传递的数据:", "getContacts：" + mTreeInfos.get(position).getId() + "--Pid:" + mTreeInfos.get(position).getPid() + "---pos:" + position);
         startActivity(mIntent);
     }
 }

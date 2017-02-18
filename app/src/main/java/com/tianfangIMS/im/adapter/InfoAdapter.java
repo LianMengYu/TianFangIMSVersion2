@@ -5,18 +5,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-import com.tianfangIMS.im.ConstantValue;
+import com.bumptech.glide.Glide;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.ViewMode;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by Titan on 2017/2/7.
@@ -28,25 +28,25 @@ public class InfoAdapter extends BaseAdapter {
     List<TreeInfo> mInfos;
     List<Integer> childCount;
     TreeInfo mTreeInfo;
-    private Map<Integer, Boolean> checkedMap;
-    private boolean flag;
-    public InfoAdapter(Context context, List<TreeInfo> treeInfos, List<Integer> childCount,boolean flag) {
+    HashMap<Integer, Boolean> prepare;
+
+    OnDepartmentCheckedChangeListener mListener;
+
+    ViewMode mMode;
+
+    /**
+     * @param context
+     * @param treeInfos
+     * @param childCount
+     * @param mode
+     * @param prepare    mode值为ViewMode.NORMAL时 prepare可传空
+     */
+    public InfoAdapter(Context context, List<TreeInfo> treeInfos, List<Integer> childCount, ViewMode mode, HashMap<Integer, Boolean> prepare) {
         mContext = context;
         this.mInfos = treeInfos;
         this.childCount = childCount;
-        this.flag = flag;
-        initCheckBox(false);
-    }
-
-    /**
-     * 初始化Map集合
-     *
-     * @param isChecked CheckBox状态
-     */
-    public void initCheckBox(boolean isChecked) {
-        for (int i = 0; i < mInfos.size(); i++) {
-            checkedMap.put(i, isChecked);
-        }
+        this.mMode = mode;
+        this.prepare = prepare;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class InfoAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        mTreeInfo = mInfos.get(position);
+        mTreeInfo = getItem(position);
         BranchHolder mBranchHolder = null;
         WorkerHolder mWorkerHolder = null;
         switch (getItemViewType(position)) {
@@ -84,19 +84,29 @@ public class InfoAdapter extends BaseAdapter {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.adapter_info_item_banch, null);
                     mBranchHolder = new BranchHolder();
-                    mBranchHolder.cb_addfrien = (CheckBox) convertView.findViewById(R.id.cb_addfrien);
                     mBranchHolder.adapter_info_item_branch_name = (TextView) convertView.findViewById(R.id.adapter_info_item_branch_name);
                     mBranchHolder.adapter_info_item_branch_count = (TextView) convertView.findViewById(R.id.adapter_info_item_branch_count);
+                    mBranchHolder.adapter_info_item_branch_iv = (ImageView) convertView.findViewById(R.id.adapter_info_item_branch_iv);
                     convertView.setTag(mBranchHolder);
                 } else {
                     mBranchHolder = (BranchHolder) convertView.getTag();
                 }
-                if (flag == true){
-                    mBranchHolder.cb_addfrien.setVisibility(View.VISIBLE);
-                }else {
-                    mBranchHolder.cb_addfrien.setVisibility(View.INVISIBLE);
-                }
                 mBranchHolder.adapter_info_item_branch_name.setText(getItem(position).getName());
+                if (mMode == ViewMode.CHECK) {
+                    mBranchHolder.adapter_info_item_branch_iv.setVisibility(View.VISIBLE);
+                    mBranchHolder.adapter_info_item_branch_iv.setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
+                    mBranchHolder.adapter_info_item_branch_iv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mTreeInfo = getItem(position);
+                            mTreeInfo.setChecked(mTreeInfo.isChecked() ? false : true);
+                            ((ImageView) v).setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
+                            mListener.onCheckedChange(mTreeInfo.getPid(), mTreeInfo.getId(), mTreeInfo);
+                        }
+                    });
+                } else {
+                    mBranchHolder.adapter_info_item_branch_iv.setVisibility(View.GONE);
+                }
                 //部门类型才显示子部门及人员数量
                 if (mInfos.get(position).getFlag() == 0) {
                     mBranchHolder.adapter_info_item_branch_count.setVisibility(View.VISIBLE);
@@ -109,31 +119,30 @@ public class InfoAdapter extends BaseAdapter {
                 if (convertView == null) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.adapter_info_item_worker, null);
                     mWorkerHolder = new WorkerHolder();
-                    mWorkerHolder.cb_addfrien = (CheckBox) convertView.findViewById(R.id.cb_addfrien);
                     mWorkerHolder.adapter_info_item_worker_header = (ImageView) convertView.findViewById(R.id.adapter_info_item_worker_header);
                     mWorkerHolder.adapter_info_item_worker_name = (TextView) convertView.findViewById(R.id.adapter_info_item_worker_name);
                     mWorkerHolder.adapter_info_item_worker_job = (TextView) convertView.findViewById(R.id.adapter_info_item_worker_job);
+                    mWorkerHolder.adapter_info_item_worker_iv = (ImageView) convertView.findViewById(R.id.adapter_info_item_worker_iv);
                     convertView.setTag(mWorkerHolder);
                 } else {
                     mWorkerHolder = (WorkerHolder) convertView.getTag();
                 }
-                if (flag == true){
-                    mWorkerHolder.cb_addfrien.setVisibility(View.VISIBLE);
-                }else {
-                    mWorkerHolder.cb_addfrien.setVisibility(View.INVISIBLE);
+                if (mMode == ViewMode.CHECK) {
+                    mWorkerHolder.adapter_info_item_worker_iv.setVisibility(View.VISIBLE);
+                    mWorkerHolder.adapter_info_item_worker_iv.setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
+                    mWorkerHolder.adapter_info_item_worker_iv.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mTreeInfo = getItem(position);
+                            mTreeInfo.setChecked(mTreeInfo.isChecked() ? false : true);
+                            ((ImageView) v).setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
+                            mListener.onCheckedChange(mTreeInfo.getPid(), mTreeInfo.getId(), mTreeInfo);
+                        }
+                    });
+                } else {
+                    mWorkerHolder.adapter_info_item_worker_iv.setVisibility(View.GONE);
                 }
-                mWorkerHolder.cb_addfrien.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                    @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        // 当勾选框状态发生改变时,重新存入map集合
-                        checkedMap.put(position, isChecked);
-                    }
-                });
-                mWorkerHolder.cb_addfrien.setChecked(checkedMap.get(position));
-//                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
-                Picasso.with(mContext)
-                        .load(ConstantValue.ImageFile+mInfos.get(position).getLogo())
-                        .into(mWorkerHolder.adapter_info_item_worker_header);
+                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
                 mWorkerHolder.adapter_info_item_worker_name.setText(mTreeInfo.getName());
                 mWorkerHolder.adapter_info_item_worker_job.setText(mTreeInfo.getPostitionname());
                 break;
@@ -141,23 +150,40 @@ public class InfoAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public class BranchHolder {
-        public CheckBox cb_addfrien;
-        TextView adapter_info_item_branch_name, adapter_info_item_branch_count;
+    public void setOnDepartmentCheckedChangeListener(OnDepartmentCheckedChangeListener mListener) {
+        this.mListener = mListener;
     }
 
-    public class WorkerHolder {
-        public CheckBox cb_addfrien;
+    public interface OnDepartmentCheckedChangeListener {
+//        /**
+//         * 被选中
+//         *
+//         * @param pid          所选项的PID
+//         * @param id           所选项ID
+//         * @param isDepartment 是否为部门类型
+//         */
+//        void onChecked(int pid, int id, int position, boolean isDepartment);
+//
+//        /**
+//         * 被取消选中
+//         *
+//         * @param pid
+//         * @param id
+//         * @param isDepartment
+//         */
+//        void onCancel(int pid, int id, int position, boolean isDepartment);
+
+        void onCheckedChange(int pid, int id, TreeInfo mInfo);
+    }
+
+    private class BranchHolder {
+        TextView adapter_info_item_branch_name, adapter_info_item_branch_count;
+        ImageView adapter_info_item_branch_iv;
+    }
+
+    private class WorkerHolder {
         ImageView adapter_info_item_worker_header;
         TextView adapter_info_item_worker_name, adapter_info_item_worker_job;
-    }
-
-    /**
-     * 得到勾选状态的集合
-     *
-     * @return
-     */
-    public Map<Integer, Boolean> getCheckedMap() {
-        return checkedMap;
+        ImageView adapter_info_item_worker_iv;
     }
 }
