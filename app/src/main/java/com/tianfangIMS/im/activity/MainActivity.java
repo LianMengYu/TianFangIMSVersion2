@@ -34,11 +34,13 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.bean.TopContactsBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
+import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
 import com.tianfangIMS.im.fragment.Jobs_Fragment;
 import com.tianfangIMS.im.fragment.Message_Fragment;
 import com.tianfangIMS.im.fragment.Mine_Fragment;
+import com.tianfangIMS.im.service.FloatService;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -94,6 +96,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TopContactsBean topContactsBean;
     private List<TopContactsBean> topContactsList;
     private ImageView main_tree;
+    private ArrayList<TreeInfo> mTreeInfos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +138,19 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         RemoveSignOutGroupConversation();
+
+
+        mTreeInfos = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            TreeInfo mInfo = new TreeInfo();
+            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
+            mInfo.setName(String.valueOf(i * 100));
+            mTreeInfos.add(mInfo);
+        }
+        Intent mIntent = new Intent(this, FloatService.class);
+        mIntent.putExtra("data", mTreeInfos);
+        startService(mIntent);
+
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
 
