@@ -28,6 +28,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.adapter.ConversationAdapter;
 import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
@@ -37,6 +38,7 @@ import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
+import com.tianfangIMS.im.fragment.ConversationListDynamicActivtiy;
 import com.tianfangIMS.im.fragment.Jobs_Fragment;
 import com.tianfangIMS.im.fragment.Message_Fragment;
 import com.tianfangIMS.im.fragment.Mine_Fragment;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
 import io.rong.imkit.model.UIConversation;
@@ -75,7 +78,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private LinearLayout ly_set_firstFragment;
 
-    private ConversationListDynamicActivtiy conversationListDynamicActivtiy;
     private Message_Fragment message_fragment;
     private Jobs_Fragment Jobs_Fragment;
     private Contacts_Fragment Contacts_Fragment;
@@ -153,18 +155,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         RemoveSignOutGroupConversation();
-
-
-        mTreeInfos = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            TreeInfo mInfo = new TreeInfo();
-            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
-            mInfo.setName(String.valueOf(i * 100));
-            mTreeInfos.add(mInfo);
-        }
-        Intent mIntent = new Intent(this, FloatService.class);
-        mIntent.putExtra("data", mTreeInfos);
-        startService(mIntent);
 
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
@@ -750,7 +740,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (RongIM.getInstance() != null)
                 RongIM.getInstance().disconnect(true);
 
-            android.os.Process.killProcess(Process.myPid());
+            android.os.Process.killProcess(android.os.Process.myPid());
 //            finish();
 //            System.exit(0);
 //            RongIM.getInstance().disconnect();
