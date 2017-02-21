@@ -1,6 +1,7 @@
 package io.rong.imkit.widget.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.model.ConversationProviderTag;
 import io.rong.imkit.model.UIConversation;
+import io.rong.imkit.utils.FrameViewForRongIM;
 import io.rong.imkit.widget.AsyncImageView;
 import io.rong.imkit.widget.ProviderContainerView;
 import io.rong.imkit.widget.provider.IContainerItemProvider;
@@ -41,7 +43,7 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
         TextView unReadMsgCountRight;
         ImageView unReadMsgCountRightIcon;
         ProviderContainerView contentView;
-
+        FrameViewForRongIM frameViewForRongIM;//为群组头像随机生成一个透明色块
     }
 
     public ConversationListAdapter(Context context) {
@@ -91,7 +93,9 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
         holder.unReadMsgCountRight = findViewById(result, R.id.rc_unread_message_right);
         holder.unReadMsgCountIcon = findViewById(result, R.id.rc_unread_message_icon);
         holder.unReadMsgCountRightIcon = findViewById(result, R.id.rc_unread_message_icon_right);
+        holder.frameViewForRongIM = findViewById(result, R.id.conversationlist_item_detail_index);
         result.setTag(holder);
+
         return result;
     }
 
@@ -120,7 +124,12 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
 
 
         ConversationProviderTag tag = RongContext.getInstance().getConversationProviderTag(data.getConversationType().getName());
-
+        String portrait = "";
+        if (!TextUtils.isEmpty(data.getUIConversationTitle()) && data.getUIConversationTitle().length() > 2) {
+            portrait = data.getUIConversationTitle().substring(1, 2);
+        } else {
+            portrait = data.getUIConversationTitle();
+        }
         // 1:图像靠左显示。2：图像靠右显示。3：不显示图像。
         int defaultId = 0;
         if (tag.portraitPosition() == 1) {
@@ -128,10 +137,13 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
 
             if (data.getConversationType().equals(Conversation.ConversationType.GROUP)) {
                 defaultId = R.drawable.rc_default_group_portrait;
+                holder.frameViewForRongIM.setVisibility(View.VISIBLE);
+                holder.frameViewForRongIM.setText(portrait);
             } else if (data.getConversationType().equals(Conversation.ConversationType.DISCUSSION)) {
                 defaultId = R.drawable.rc_default_discussion_portrait;
             } else {
                 defaultId = R.drawable.rc_default_portrait;
+                holder.frameViewForRongIM.setVisibility(View.GONE);
             }
             holder.leftImageLayout.setOnClickListener(new View.OnClickListener() {
                 @Override

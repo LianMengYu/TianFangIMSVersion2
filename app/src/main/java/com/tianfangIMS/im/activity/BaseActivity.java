@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -43,6 +44,7 @@ public class BaseActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.layout_base);
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);// 使得音量键控制媒体声音
         SystemBarTranslucentType(this);
         mContext = this;
         init();

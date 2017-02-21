@@ -17,8 +17,4 @@ public class NewMessageNotice_Activity extends BaseActivity {
         setTitle("新消息通知设置");
     }
 
-//    @Override
-//    public void initView() {
-//
-//    }
 }

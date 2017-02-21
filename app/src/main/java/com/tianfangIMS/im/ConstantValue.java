@@ -62,4 +62,9 @@ public class ConstantValue {
     public static final String SUBLOCATION = Urls +"map!subLocation";//上传位置信息
 
     public static final String GROUPALLUSERINFO = Urls +"group!listGroupMemebersData";//上传位置信息
+
+    public static final String ISFRIEND = Urls +"friend!getFriendsRelation";//判断是否为好友
+
+    public static final String DELTETFRIEND = Urls +" friend!delFriend";//删除好友
+
 }
