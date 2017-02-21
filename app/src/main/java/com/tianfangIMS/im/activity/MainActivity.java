@@ -98,9 +98,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private ImageView main_tree;
     private ArrayList<TreeInfo> mTreeInfos;
 
+    Intent mIntent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mTreeInfos = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            TreeInfo mInfo = new TreeInfo();
+            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
+            mInfo.setName(String.valueOf(i * 100));
+            mTreeInfos.add(mInfo);
+        }
+        mIntent = new Intent(this, FloatService.class);
+        mIntent.putExtra("data", mTreeInfos);
+        startService(mIntent);
         SetSyncUserGroup();
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
@@ -139,17 +151,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         RemoveSignOutGroupConversation();
 
-
-        mTreeInfos = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            TreeInfo mInfo = new TreeInfo();
-            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
-            mInfo.setName(String.valueOf(i * 100));
-            mTreeInfos.add(mInfo);
-        }
-        Intent mIntent = new Intent(this, FloatService.class);
-        mIntent.putExtra("data", mTreeInfos);
-        startService(mIntent);
 
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
@@ -705,9 +706,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mExitTime = System.currentTimeMillis();
         } else {
 //            MyConfig.clearSharePre(this, "users");
+            mIntent = new Intent(this, FloatService.class);
+            stopService(mIntent);
             finish();
             System.exit(0);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        mIntent = new Intent(this, FloatService.class);
+        stopService(mIntent);
+        super.onDestroy();
     }
 
     @Override

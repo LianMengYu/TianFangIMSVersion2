@@ -46,7 +46,13 @@ public class FloatService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (mFloatView == null) {
             final int density = (int) getResources().getDisplayMetrics().density;
-            mTreeInfos = (List<TreeInfo>) intent.getSerializableExtra("data");
+            if (mTreeInfos == null) {
+                try {
+                    mTreeInfos = (List<TreeInfo>) intent.getSerializableExtra("data");
+                } catch (NullPointerException e) {
+                    Toast.makeText(this, "服务异常,无法启动", Toast.LENGTH_SHORT).show();
+                }
+            }
             mWindowManager = (WindowManager) getApplication().getSystemService(Context.WINDOW_SERVICE);
             mFloatView = new FloatView(getApplicationContext());
             mFloatView.btn.setOnClickListener(new View.OnClickListener() {
@@ -111,17 +117,17 @@ public class FloatService extends Service {
             wl = new WindowManager.LayoutParams();
             wl.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
             wl.format = PixelFormat.RGBA_8888;
+            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
+            lp.rightMargin = 25 * density;
+            mFloatView.btn.setLayoutParams(lp);
             wl.width = WindowManager.LayoutParams.WRAP_CONTENT;
             wl.height = WindowManager.LayoutParams.WRAP_CONTENT;
             wl.gravity = Gravity.TOP | Gravity.LEFT;
             wl.dimAmount = 0.3f;
-            wl.x = getResources().getDisplayMetrics().widthPixels - 300 * density / 2;
-            wl.y = (getResources().getDisplayMetrics().heightPixels - 300 * density) / 2;
+            wl.x = getResources().getDisplayMetrics().widthPixels - 75 * density / 2;
+            wl.y = (getResources().getDisplayMetrics().heightPixels - 50 * density) / 2;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
-            lp.addRule(RelativeLayout.CENTER_VERTICAL);
-            lp.leftMargin = 150 * density - 70 * density;
-            mFloatView.btn.setLayoutParams(lp);
+            wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mWindowManager.addView(mFloatView, wl);
             Log.d(TAG, "添加完成");
         }
