@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,6 +29,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.adapter.ConversationAdapter;
 import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
@@ -37,10 +39,9 @@ import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
+import com.tianfangIMS.im.fragment.ConversationListDynamicActivtiy;
 import com.tianfangIMS.im.fragment.Jobs_Fragment;
-import com.tianfangIMS.im.fragment.Message_Fragment;
 import com.tianfangIMS.im.fragment.Mine_Fragment;
-import com.tianfangIMS.im.service.FloatService;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
 import io.rong.imkit.model.UIConversation;
@@ -75,8 +77,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     private LinearLayout ly_set_firstFragment;
 
-    private ConversationListDynamicActivtiy conversationListDynamicActivtiy;
-    private Message_Fragment message_fragment;
     private Jobs_Fragment Jobs_Fragment;
     private Contacts_Fragment Contacts_Fragment;
     private Mine_Fragment Me_Fragment;
@@ -97,6 +97,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private List<TopContactsBean> topContactsList;
     private ImageView main_tree;
     private ArrayList<TreeInfo> mTreeInfos;
+    private ConversationListDynamicActivtiy conversationListDynamicActivtiy;//会话列表
+    private Map<String, Boolean> supportedConversation;
+    private LinearLayout search_layout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,17 +142,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         RemoveSignOutGroupConversation();
 
-
-        mTreeInfos = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            TreeInfo mInfo = new TreeInfo();
-            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
-            mInfo.setName(String.valueOf(i * 100));
-            mTreeInfos.add(mInfo);
-        }
-        Intent mIntent = new Intent(this, FloatService.class);
-        mIntent.putExtra("data", mTreeInfos);
-        startService(mIntent);
+//
+//        mTreeInfos = new ArrayList<>();
+//        for (int i = 0; i < 5; i++) {
+//            TreeInfo mInfo = new TreeInfo();
+//            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
+//            mInfo.setName(String.valueOf(i * 100));
+//            mTreeInfos.add(mInfo);
+//        }
+//        Intent mIntent = new Intent(this, com.tianfangIMS.im.service.FloatService.class);
+//        mIntent.putExtra("data", mTreeInfos);
+//        startService(mIntent);
 
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
@@ -199,6 +202,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         img_tab_menu_setting_partner = (ImageView) this.findViewById(R.id.img_tab_menu_setting_partner);
         main_plus = (ImageView) this.findViewById(R.id.main_plus);
 
+        search_layout = (LinearLayout) this.findViewById(R.id.search_layout);
 
         ly_set_firstFragment.setOnClickListener(this);
         ly_tab_menu_job.setOnClickListener(this);
@@ -274,6 +278,25 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
                             Log.e(TAG, "获取所有好友的信息:" + s);
+//                            Gson gson = new Gson();
+//                            Type listType = new TypeToken<TopContactsListBean>() {
+//                            }.getType();
+//                            TopContactsListBean bean = gson.fromJson(s, listType);
+//                            FriendDB friendDB = new FriendDB();
+//                            for (int i = 0; i < bean.getText().size(); i++) {
+//                                Friend friendName = new Friend("name",bean.getText().get(i).getFullname());
+//                                Friend friendphoto = new Friend("logo",bean.getText().get(i).getLogo());
+//                                Friend friendposition = new Friend("position",bean.getText().get(i).getWorkno());
+//                                friendDB.savePerson(friendName);
+//                                friendDB.savePerson(friendphoto);
+//                                friendDB.savePerson(friendposition);
+//                                List<Friend> list = FriendDB.loadPerson();
+//                                if (list!=null) {
+//                                    for (Friend person : list) {
+//                                        Log.d("xyz", person.toString());
+//                                    }
+//                                }
+//                            }
                             CommonUtil.saveFrientUserInfo(mContext, s);
                         } else {
                             return;
@@ -330,7 +353,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         tv_tab_menu_job.setSelected(false);
         tv_tab_menu_contacts.setSelected(false);
         tv_tab_menu_me.setSelected(false);
-
 
         tv_tab_menu_msg.setTextColor(this.getResources().getColor(R.color.colorNavigation));
         tv_tab_menu_job.setTextColor(this.getResources().getColor(R.color.colorNavigation));
@@ -474,22 +496,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         switch (i) {
             case 1:
                 if (mConversationList == null) {
-//                    message_fragment = new Message_Fragment();
                     mConversationList = initConversationList();
                     transaction.add(R.id.fragment_container, mConversationList);
+                    search_layout.setVisibility(View.VISIBLE);
                 } else {
                     transaction.show(mConversationList);
+                    search_layout.setVisibility(View.VISIBLE);
                 }
-
                 Log.i("TAG", "进入message");
                 break;
             case 2:
                 if (Jobs_Fragment == null) {
                     Jobs_Fragment = new Jobs_Fragment();
 //                    transaction.hide(Jobs_Fragment);
+                    search_layout.setVisibility(View.GONE);
                     transaction.add(R.id.fragment_container, Jobs_Fragment);
                 } else {
                     transaction.show(Jobs_Fragment);
+                    search_layout.setVisibility(View.GONE);
                 }
 
                 Log.i("TAG", "进入jobs");
@@ -497,9 +521,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case 3:
                 if (Contacts_Fragment == null) {
                     Contacts_Fragment = new Contacts_Fragment();
+                    search_layout.setVisibility(View.GONE);
                     transaction.add(R.id.fragment_container, Contacts_Fragment);
                 } else {
                     transaction.show(Contacts_Fragment);
+                    search_layout.setVisibility(View.GONE);
                 }
 
                 Log.i("TAG", "进入jobs");
@@ -507,8 +533,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case 4:
                 if (Me_Fragment == null) {
                     Me_Fragment = new Mine_Fragment();
+                    search_layout.setVisibility(View.GONE);
                     transaction.add(R.id.fragment_container, Me_Fragment);
                 } else {
+                    search_layout.setVisibility(View.GONE);
                     transaction.show(Me_Fragment);
                 }
 
@@ -548,6 +576,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         if (mConversationList == null) {
             mConversationList = initConversationList();
+//            conversationListDynamicActivtiy = new ConversationListDynamicActivtiy();
 //            mConversationList = new Message_Fragment();
             transaction.add(R.id.fragment_container, mConversationList);
             main_tree.setVisibility(View.GONE);
@@ -581,7 +610,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private Fragment initConversationList() {
         if (mConversationListFragment == null) {
             ConversationListFragment listFragment = new ConversationListFragment();
-//            listFragment.setAdapter(new ConversationAdapter(RongContext.getInstance()));
+            listFragment.setAdapter(new ConversationAdapter(RongContext.getInstance()));
             Uri uri;
 //            if (isDebug) {
             uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
@@ -637,7 +666,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             Log.e(TAG, "打印code：" + (double) map.get("code"));
             return null;
         } else {
-
             Gson gson = new Gson();
             Type listType = new TypeToken<TopContactsListBean>() {
             }.getType();
@@ -705,8 +733,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             mExitTime = System.currentTimeMillis();
         } else {
 //            MyConfig.clearSharePre(this, "users");
-            finish();
-            System.exit(0);
+            if (RongIM.getInstance() != null)
+                RongIM.getInstance().disconnect(true);
+
+            android.os.Process.killProcess(Process.myPid());
+//            finish();
+//            System.exit(0);
+//            RongIM.getInstance().disconnect();
         }
     }
 

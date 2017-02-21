@@ -159,28 +159,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                 });
     }
 
+    AddTopContactsAdapter.Holder holder;
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, final long id) {
-//                                    HashMap<Integer, Boolean> list = addTopContactsAdapter.isSelectedCheck;
-//                                    for (int j = 0; j < addTopContactsAdapter.getCount(); j++) {
-//                                        Log.e("qqqqqqqqqqqqqq","state.get("+j+")=="+list.get(j));
-//                                    }
 
         Log.e("是否点击了 ", "是");
         AddTopContactsAdapter.Holder holder = (AddTopContactsAdapter.Holder) view.getTag();
-//        holder.cb_addfrien.toggle();
-        holder.cb_addfrien.setChecked(true);
-        holder.cb_addfrien.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                NToast.shortToast(mContext, isChecked ? "选中了" + id : "取消了选中" + id);
-//                if(isChecked = true){
-//                }
-            }
-        });
+        holder.cb_addfrien.toggle();
         rl_selectAddContacts_background.setVisibility(View.VISIBLE);
+        holder = (AddTopContactsAdapter.Holder) view.getTag();
+        holder.cb_addfrien.toggle();
         getCount();
-//        IsBoolean();
+        setGridView();
+        rl_selectAddContacts_background.setVisibility(View.VISIBLE);
+        gridView_adapter.notifyDataSetChanged();
     }
 
 
@@ -205,16 +198,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
 
     private void getCount() {
         checkedMap = addTopContactsAdapter.getCheckedMap();//获取选中的人，true是选中的，false是没选中的
+        Log.e(TAG, "checkedMap：" + checkedMap);
         allChecked = new ArrayList<AddFriendBean>();//创建一个存储选中的人的集合
-        for (int i = 0; i < checkedMap.size(); i++) {
+        for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
             if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
                 continue;
-            } else if (checkedMap.get(i)) {
+            } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
                 AddFriendBean testCheckBean = list.get(i);
                 allChecked.add(testCheckBean);
                 tv_addfriend_submit.setText("添加（" + (allChecked.size()) + "）");
             }
         }
+
+    }
+
+    private void setGridView() {
         gridView_adapter = new AddTopContacts_GridView_Adapter(mContext, allChecked);
         SettingGridView(allChecked);
         gv_addContacts.setAdapter(gridView_adapter);
@@ -224,13 +222,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 allChecked.remove(position);
-                NToast.shortToast(mContext, "checkMap:" + checkedMap.get(position) + " ");
-
+                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
+                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
+                        continue;
+                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
+                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
+                            Log.e(TAG, "I---:" + i);
+                            checkedMap.put(i, false);
+                            addTopContactsAdapter.notifyDataSetChanged();
+                            gridView_adapter.notifyDataSetChanged();
+                        }
+                    }
+                }
                 gridView_adapter.notifyDataSetChanged();
-                addTopContactsAdapter.notifyDataSetChanged();
             }
         });
-
     }
 
     private void SettingAddTopContacts() {

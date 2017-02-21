@@ -11,16 +11,19 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:gravity="center_vertical"
-        app:layout_heightPercent="7%w"
         android:textColor="#333333"
         android:textSize="14dp"
+        app:layout_heightPercent="5%w"
+        app:layout_marginLeftPercent="10%w"
         app:layout_marginPercent="2%w" />
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:gravity="center_vertical"
         android:scaleType="centerCrop"
-        android:src="@mipmap/icon_right_jiao" />
+        android:src="@mipmap/icon_right_jiao"
+        app:layout_heightPercent="7%w"
+        app:layout_marginPercent="2%w" />
 
 </com.zhy.android.percent.support.PercentLinearLayout>

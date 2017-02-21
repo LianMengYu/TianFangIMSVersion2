@@ -57,6 +57,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
     private Group_AddTopContactsAdapter group_addTopContactsAdapter;
     private GroupTopContacts_GridView_Adapter groupTopContacts_gridView_adapter;
     private TopContactsListBean bean;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +73,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
         rl_selectAddGroupContacts_background = (RelativeLayout) this.findViewById(R.id.rl_selectAddContacts_background);
         gv_addContacts = (GridView) this.findViewById(R.id.gv_addContacts);
         tv_addfriend_submit = (TextView) this.findViewById(R.id.tv_addfriend_submit);
-
+        gv_addContacts.setOnItemClickListener(this);
         tv_addfriend_submit.setOnClickListener(this);
         lv_topContacts.setOnItemClickListener(this);
     }
@@ -123,10 +124,25 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
                 });
     }
 
+    Group_AddTopContactsAdapter.ViewHodler hodler;
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Group_AddTopContactsAdapter.ViewHodler hodler = (Group_AddTopContactsAdapter.ViewHodler) view.getTag();
+        hodler = (Group_AddTopContactsAdapter.ViewHodler) view.getTag();
         hodler.cb_addfrien.toggle();
+        Log.e(TAG, "点击ListView后的：" + group_addTopContactsAdapter.getCheckedMap().get(position));
+//        hodler.cb_addfrien.isChecked();
+//        hodler.cb_addfrien.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                if(hodler.cb_addfrien.isChecked()){
+//                    hodler.cb_addfrien.setChecked(false);
+//                }
+//                else {
+//                    hodler.cb_addfrien.setChecked(true);
+//                }
+//            }
+//        });
         rl_selectAddGroupContacts_background.setVisibility(View.VISIBLE);
         getCount();
     }
@@ -170,6 +186,14 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
         SettingGridView(allChecked);
         gv_addContacts.setAdapter(groupTopContacts_gridView_adapter);
         groupTopContacts_gridView_adapter.notifyDataSetChanged();
+        gv_addContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                allChecked.remove(position);
+                Log.e(TAG, "点击GridView后的：" + group_addTopContactsAdapter.getCheckedMap().get(position));
+                gv_addContacts.deferNotifyDataSetChanged();
+            }
+        });
 //        gridView_adapter = new AddTopContacts_GridView_Adapter(mContext, allChecked);
 //        SettingGridView(allChecked);
 //        gv_addContacts.setAdapter(gridView_adapter);

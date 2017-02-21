@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -24,9 +25,13 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.gson.Gson;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.fragment.CallPhoneFragment;
 import com.tianfangIMS.im.fragment.IntercomFragment;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
@@ -61,9 +66,9 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
      * 对方id
      */
     private String mTargetId;
-
+    private boolean isFromPush = false;
     private String ImageLogo;//对方头像
-
+    private LoadDialog mDialog;
     /**
      * 位置与聊天资料Button
      */
@@ -92,7 +97,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         final Intent intent = getIntent();
         mTargetId = intent.getData().getQueryParameter("targetId");
 
-        //10000 为 Demo Server 加好友的 id，若 targetId 为 10000，则为加好友消息，默认跳转到 NewFriendListActivity  18610203981
+        //10000 为 Demo Server 加好友的 id，若 targetId 为 10000，则为加好友消息，默认跳转到 NewFriendListActivity
         // Demo 逻辑
         if (mTargetId != null && mTargetId.equals("10000")) {
 //            startActivity(new Intent(ConversationActivity.this, NewFriendListActivity.class));
@@ -107,6 +112,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         /**
          * 设置右边Button
          */
+        isPushMessage(intent);
         if (mConversationType.equals(Conversation.ConversationType.GROUP)) {
             contactsButton.setBackground(getResources().getDrawable(R.mipmap.conversation_contacts));
             contactsButton.setBackgroundDrawable(getResources().getDrawable(R.mipmap.conversation_contacts));
@@ -412,6 +418,107 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         client.connect();
         AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
+
+    /**
+     * 判断是否是 Push 消息，判断是否需要做 connect 操作
+     */
+    private void isPushMessage(Intent intent) {
+
+        if (intent == null || intent.getData() == null)
+            return;
+        //push
+        if (intent.getData().getScheme().equals("rong") && intent.getData().getQueryParameter("isFromPush") != null) {
+
+            //通过intent.getData().getQueryParameter("push") 为true，判断是否是push消息
+            if (intent.getData().getQueryParameter("isFromPush").equals("true")) {
+                //只有收到系统消息和不落地 push 消息的时候，pushId 不为 null。而且这两种消息只能通过 server 来发送，客户端发送不了。
+                //RongIM.getInstance().getRongIMClient().recordNotificationEvent(id);
+                if (mDialog != null && !mDialog.isShowing()) {
+                    mDialog.show();
+                }
+                isFromPush = true;
+                enterActivity();
+            } else if (RongIM.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.DISCONNECTED)) {
+                if (mDialog != null && !mDialog.isShowing()) {
+                    mDialog.show();
+                }
+                if (intent.getData().getPath().contains("conversation/system")) {
+                    Intent intent1 = new Intent(mContext, MainActivity.class);
+                    intent1.putExtra("systemconversation", true);
+                    startActivity(intent1);
+                    return;
+                }
+                enterActivity();
+            } else {
+                if (intent.getData().getPath().contains("conversation/system")) {
+                    Intent intent1 = new Intent(mContext, MainActivity.class);
+                    intent1.putExtra("systemconversation", true);
+                    startActivity(intent1);
+                    return;
+                }
+                enterFragment(mConversationType, mTargetId);
+            }
+
+        } else {
+            if (RongIM.getInstance().getCurrentConnectionStatus().equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.DISCONNECTED)) {
+                if (mDialog != null && !mDialog.isShowing()) {
+                    mDialog.show();
+                }
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        enterActivity();
+                    }
+                }, 300);
+            } else {
+                enterFragment(mConversationType, mTargetId);
+            }
+        }
+    }
+
+    private void enterActivity() {
+
+
+        Gson gson = new Gson();
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
+        String token = loginBean.getText().getToken();
+        if (token.equals("default")) {
+            startActivity(new Intent(ConversationActivity.this, LoginActivity.class));
+        } else {
+            reconnect(token);
+        }
+    }
+
+    private void reconnect(String token) {
+        RongIM.connect(token, new RongIMClient.ConnectCallback() {
+            @Override
+            public void onTokenIncorrect() {
+
+                Log.e(TAG, "---onTokenIncorrect--");
+            }
+
+            @Override
+            public void onSuccess(String s) {
+                Log.i(TAG, "---onSuccess--" + s);
+                if (mDialog != null)
+                    mDialog.dismiss();
+
+                enterFragment(mConversationType, mTargetId);
+
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode e) {
+                Log.e(TAG, "---onError--" + e);
+                if (mDialog != null)
+                    mDialog.dismiss();
+
+                enterFragment(mConversationType, mTargetId);
+            }
+        });
+
+    }
+
 
     @Override
     public void onStop() {

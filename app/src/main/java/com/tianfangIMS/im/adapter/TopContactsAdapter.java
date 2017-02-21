@@ -11,7 +11,6 @@ import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.utils.CommonUtil;
 
 /**
  * Created by LianMengYu on 2017/2/3.
@@ -55,7 +54,7 @@ public class TopContactsAdapter extends BaseAdapter {
         }else {
             viewHodler = (ViewHodler)convertView.getTag();
         }
-        CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
+//        CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+list.getText().get(position).getLogo())
                 .into(viewHodler.img);

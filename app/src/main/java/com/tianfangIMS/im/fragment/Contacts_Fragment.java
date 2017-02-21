@@ -8,9 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ import com.tianfangIMS.im.activity.InfoActivity;
 import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
 import com.tianfangIMS.im.adapter.InfoAdapter;
+import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.bean.ViewMode;
 import com.tianfangIMS.im.dialog.LoadDialog;
@@ -70,6 +73,11 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     Intent mIntent;
 
     HashMap<Integer, Boolean> prepare;
+    private EditText rl_Search;
+    private TextView tv_clean;
+
+
+    private TopContactsListBean listbean;
 
 
     @Nullable
@@ -86,6 +94,7 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     public static Contacts_Fragment getInstance() {
         return contacts_fragment;
     }
+
 
     private void initView(View view) {
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
@@ -247,7 +256,7 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
         mIntent = new Intent(getActivity(), InfoActivity.class);
         mIntent.putExtra("maps", maps);
-        mIntent.putExtra("viewMode", ViewMode.CHECK);
+        mIntent.putExtra("viewMode", ViewMode.NORMAL);
         mIntent.putExtra("currentLevel", mTreeInfos.get(position).getId());
         mIntent.putExtra("parentLevel", mTreeInfos.get(position).getPid());
         Log.e("打印传递的数据:", "getContacts：" + mTreeInfos.get(position).getId() + "--Pid:" + mTreeInfos.get(position).getPid() + "---pos:" + position);

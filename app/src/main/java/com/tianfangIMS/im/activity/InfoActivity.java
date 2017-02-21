@@ -1,28 +1,38 @@
 package com.tianfangIMS.im.activity;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.lzy.okgo.OkGo;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.request.BaseRequest;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.adapter.CreateGroup_GridView_Adapter;
 import com.tianfangIMS.im.adapter.InfoAdapter;
+import com.tianfangIMS.im.bean.LoginBean;
+import com.tianfangIMS.im.bean.TopContactsRequestBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.bean.ViewMode;
+import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.utils.CommonUtil;
+import com.tianfangIMS.im.utils.NToast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,10 +40,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
+import io.rong.imkit.RongIM;
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -42,7 +51,7 @@ import okhttp3.Response;
  * Created by Titan on 2017/2/7.
  */
 
-public class InfoActivity extends Activity implements AdapterView.OnItemClickListener, InfoAdapter.OnDepartmentCheckedChangeListener {
+public class InfoActivity extends BaseActivity implements AdapterView.OnItemClickListener, InfoAdapter.OnDepartmentCheckedChangeListener, View.OnClickListener {
 
     Gson mGson;
     OkHttpClient mClient;
@@ -89,7 +98,7 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
     ViewMode mMode;
 
     int parentLevel;
-
+    private TextView tv_creategroup_submit;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -127,6 +136,8 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
 //        activity_info_lv_part.setOnItemClickListener(this);
 //    }
 
+    private GridView gv_create;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,29 +153,23 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
 //                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
 //                mIntent.putExtra("map", maps);
 //                startActivityForResult(mIntent, 100);
-                List<TreeInfo> results = new ArrayList<TreeInfo>();
-                for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
-                    for (TreeInfo info : hashMap.values()) {
-                        if (info.isChecked() && info.getFlag() == 1) {
-                            Log.d("InfoActivity", info.getName());
-                            results.add(info);
-                        }
-                    }
-                }
-                Log.d("InfoActivity", "共计" + results.size() + "人");
+                GetInfo();
             }
         });
-
+        gv_create = (GridView) this.findViewById(R.id.gv_create);
+        gv_create.setOnItemClickListener(this);
         activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
         activity_info_ll_indicator = (LinearLayout) findViewById(R.id.activity_info_ll_indicator);
         activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
         activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
-        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        tv_creategroup_submit = (TextView) this.findViewById(R.id.tv_creategroup_submit);
+        tv_creategroup_submit.setOnClickListener(this);
+//        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                finish();
+//            }
+//        });
         activity_info_lv_part.setOnItemClickListener(this);
 
         clickHistory = new ArrayList<TreeInfo>();
@@ -183,6 +188,7 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
             }
         }
         transfer();
+
     }
 
     private void transfer() {
@@ -349,6 +355,44 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
         }
     }
 
+    //对GridView 显示的宽高经行设置
+    private void SettingGridView(List<TreeInfo> list) {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        float density = dm.density;
+        int size = list.size();//要显示数据的个数
+        //gridview的layout_widht,要比每个item的宽度多出2个像素，解决不能完全显示item的问题
+        int allWidth = (int) (82 * size * density);
+        //int allWidth = (int) ((width / 3 ) * size + (size-1)*3);//也可以这样使用，item的总的width加上horizontalspacing
+        int itemWidth = (int) (65 * density);//每个item宽度
+        LinearLayout.LayoutParams params = new
+                LinearLayout.LayoutParams(allWidth, LinearLayout.LayoutParams.MATCH_PARENT);
+        gv_create.setLayoutParams(params);
+        gv_create.setColumnWidth(itemWidth);
+        gv_create.setHorizontalSpacing(3);
+        gv_create.setStretchMode(GridView.NO_STRETCH);
+        gv_create.setNumColumns(size);
+    }
+
+    private List<TreeInfo> results = new ArrayList<>();
+
+    private void GetInfo() {
+        results = new ArrayList<TreeInfo>();
+        for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
+            for (TreeInfo info : hashMap.values()) {
+                if (info.isChecked() && info.getFlag() == 1) {
+                    Log.d("InfoActivity", info.getName());
+                    results.add(info);
+                }
+            }
+        }
+        CreateGroup_GridView_Adapter adapter = new CreateGroup_GridView_Adapter(InfoActivity.this, results);
+        SettingGridView(results);
+        gv_create.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        Log.e("InfoActivity", "共计" + results.size() + "人");
+    }
+
     @Override
     public void onCheckedChange(int pid, int id, TreeInfo info) {
         maps.get(pid).put(id, info);
@@ -360,8 +404,74 @@ public class InfoActivity extends Activity implements AdapterView.OnItemClickLis
                 for (TreeInfo treeInfo : maps.get(info.getId()).values()) {
                     treeInfo.setChecked(tmpBool);
                     onCheckedChange(treeInfo.getPid(), treeInfo.getId(), treeInfo);
+                    GetInfo();
                 }
             }
         }
+    }
+
+    /**
+     * 创建群组
+     */
+    private void AddGroup() {
+        List<String> list = new ArrayList<String>();
+
+        for (int i = 0; i < results.size(); i++) {
+            String id = results.get(i).getId() + "";
+            list.add(id);
+        }
+        Gson gson = new Gson();
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
+        list.add(loginBean.getText().getId());
+        String UID = loginBean.getText().getId();
+        String aa = list.toString();
+        OkGo.post(ConstantValue.CREATEGROUP)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", UID)
+                .params("groupids", aa)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s)) {
+                            Gson gson = new Gson();
+                            TopContactsRequestBean bean = gson.fromJson(s, TopContactsRequestBean.class);
+                            if (bean.getCode().equals("200")) {
+                                NToast.shortToast(mContext, "创建成功");
+                                RongIM.getInstance().startGroupChat(mContext, bean.getText().getId(), bean.getText().getName());
+//                                RongIM.getInstance().getRongIMClient().joinGroup(bean.getText().getId(), bean.getText().getName(), new RongIMClient.OperationCallback() {
+//                                    @Override
+//                                    public void onSuccess() {
+//
+//                                    }
+//                                    @Override
+//                                    public void onError(RongIMClient.ErrorCode errorCode) {
+//
+//                                    }
+//                                });
+                            } else {
+                                NToast.shortToast(mContext, "创建失败");
+                            }
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_creategroup_submit:
+                AddGroup();
+                break;
+            }
     }
 }

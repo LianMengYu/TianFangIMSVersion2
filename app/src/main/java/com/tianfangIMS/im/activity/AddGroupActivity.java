@@ -217,6 +217,7 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                 mIntent = new Intent(mContext, InfoActivity.class);
                 mIntent.putExtra("maps", maps);
                 mIntent.putExtra("IsBoolean", flag);
+                mIntent.putExtra("viewMode", ViewMode.CHECK);
                 mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);

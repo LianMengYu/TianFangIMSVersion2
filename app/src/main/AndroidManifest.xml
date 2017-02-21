@@ -100,7 +100,8 @@
         </activity>
         <activity
             android:name=".activity.MainActivity"
-            android:theme="@style/TranslucentTheme">
+            android:theme="@style/TranslucentTheme"
+            android:windowSoftInputMode="adjustPan|stateHidden">
 
         </activity>
         <activity
@@ -179,11 +180,11 @@
         </activity>
         <activity android:name=".activity.SelectPhoteActivity"></activity>
         <activity android:name=".activity.VideoActivity"></activity>
-        <activity android:name=".activity.InfoActivity"></activity>
         <activity android:name=".activity.TreeActivity"></activity>
         <activity android:name=".activity.Group_AddTopContactsActivity">
 
         </activity>
+        <activity android:name=".activity.InfoActivity" />
         <!--会话页面-->
         <activity
             android:name=".activity.ConversationActivity"
@@ -205,23 +206,23 @@
 
         </activity>
         <activity android:name=".activity.ChangeGroupNameActivity"></activity>
-        <!--会话列表-->
-        <activity
-            android:name=".activity.ConversationListDynamicActivtiy"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize">
+        <!--&lt;!&ndash;会话列表&ndash;&gt;-->
+        <!--<activity-->
+        <!--android:name=".activity.ConversationListDynamicActivtiy"-->
+        <!--android:screenOrientation="portrait"-->
+        <!--android:windowSoftInputMode="stateHidden|adjustResize">-->
 
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
+        <!--<intent-filter>-->
+        <!--<action android:name="android.intent.action.VIEW" />-->
 
-                <category android:name="android.intent.category.DEFAULT" />
+        <!--<category android:name="android.intent.category.DEFAULT" />-->
 
-                <data
-                    android:host="com.tianfangIMS.im"
-                    android:pathPrefix="/conversationlist"
-                    android:scheme="rong" />
-            </intent-filter>
-        </activity>
+        <!--<data-->
+        <!--android:host="com.tianfangIMS.im"-->
+        <!--android:pathPrefix="/conversationlist"-->
+        <!--android:scheme="rong" />-->
+        <!--</intent-filter>-->
+        <!--</activity>-->
         <activity android:name=".activity.AMapShareActivity" />
         <!--聚合会话-->
         <activity
@@ -262,9 +263,18 @@
             android:name="com.amap.api.v2.apikey"
             android:value="d23e3db8d2b5c453e35e0bc37a1bc37a" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService" >
-        </service>
-
+        <service android:name="com.amap.api.location.APSService"></service>
+        <receiver
+            android:name=".receiver.SealNotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
+            </intent-filter>
+        </receiver>
+>>>>>>> Stashed changes
     </application>
 
 </manifest>

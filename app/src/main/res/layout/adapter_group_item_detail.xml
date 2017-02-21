@@ -9,22 +9,35 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_heightPercent="15%w"
+        app:layout_marginLeftPercent="6%w"
         app:layout_marginPercent="2%w"
         app:layout_widthPercent="15%w">
 
-        <ImageView
+        <!--<ImageView-->
+        <!--android:id="@+id/adapter_group_item_detail_header"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:alpha="0.5" />-->
+        <com.tianfangIMS.im.view.CircleImageViews
             android:id="@+id/adapter_group_item_detail_header"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.5" />
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            android:background="@android:color/transparent"
+            android:scaleType="centerCrop"
+            app:RCCornerRadius="3dp"
+            app:RCDefDrawable="@mipmap/me_icon_photo"
+            app:RCShape="circle" />
 
         <com.tianfangIMS.im.view.FrameView
             android:id="@+id/adapter_group_item_detail_index"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="21sp" />
+            android:textColor="#FFFEFE"
+            android:textSize="24sp" />
     </com.zhy.android.percent.support.PercentRelativeLayout>
 
     <LinearLayout
@@ -39,8 +52,8 @@
             android:layout_height="0dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:maxLength="20"
             android:gravity="center_vertical"
+            android:maxLength="20"
             android:textColor="#333333"
             android:textSize="16dp" />
 

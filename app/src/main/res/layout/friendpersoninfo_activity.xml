@@ -40,15 +40,57 @@
                 android:layout_toRightOf="@id/iv_friendinfo_photo"
                 android:text="名字" />
 
-
-            <ImageView
-                android:id="@+id/iv_friendinfo_addordel"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+            <FrameLayout
+                android:id="@+id/fl_friendinfo_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@+id/iv_useinfo_jiaotou"
-                android:src="@mipmap/me_icon_photo" />
+                android:onClick="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_friendinfo_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="4dp"
+                    android:src="@mipmap/isfriend_add" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="40dp"
+                    android:text="加联系人" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/fl_friendinfo_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:onClick="true"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/iv_friendinfo_del"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="4dp"
+                    android:src="@mipmap/isfriend_delete" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="40dp"
+                    android:text="删联系人" />
+            </FrameLayout>
 
 
         </RelativeLayout>
