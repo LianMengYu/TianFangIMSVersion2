@@ -2,7 +2,6 @@ package com.tianfangIMS.im.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -13,8 +12,6 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import com.tianfangIMS.im.R;
-
 /**
  * Created by Titan on 2017/2/6.
  */
@@ -22,7 +19,7 @@ import com.tianfangIMS.im.R;
 public class CircleImage extends ImageView {
 
     Paint mPaint;
-
+    Bitmap bitmap;
     public CircleImage(Context context) {
         super(context);
         init();
@@ -45,8 +42,8 @@ public class CircleImage extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.heiyan);
-        setImageBitmap(drawCircle(mBitmap));
+//        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.heiyan);
+//        setImageBitmap(drawCircle(mBitmap));
         mPaint.setColor(Color.parseColor("#6BDDC3"));
         //被注释的两行代码只渲染圆形的边 将其注释掉就会将整个圆进行指定颜色的渲染
         mPaint.setStrokeWidth(10);

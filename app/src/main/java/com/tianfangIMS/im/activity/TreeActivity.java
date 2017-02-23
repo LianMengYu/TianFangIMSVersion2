@@ -53,7 +53,7 @@ public class TreeActivity extends BaseActivity {
         activity_tree_ll_view = (LinearLayout) findViewById(R.id.activity_tree_ll_view);
         //屏幕宽度的一半
         nodeWidth = getResources().getDisplayMetrics().widthPixels / 2;
-        maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("map");
+        maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         //获取首节点 测试环境下的Json数据首节点ID为0
         keys.add(0);
         mInfoMap = new HashMap<>();
@@ -127,6 +127,7 @@ public class TreeActivity extends BaseActivity {
                                 TreeInfo mInfo = (TreeInfo) v.getTag();
                                 Toast.makeText(TreeActivity.this, "PID :" + mInfo.getPid() + " / ID : " + mInfo.getId(), Toast.LENGTH_SHORT).show();
                                 int currentLevel = mInfo.getId();
+                                int parentLevel = mInfo.getPid();
                                 mTreeInfos.add(mInfo);
                                 //倒溯父部门
                                 while (true) {
@@ -139,6 +140,8 @@ public class TreeActivity extends BaseActivity {
                                 }
                                 Collections.reverse(mTreeInfos);
                                 Intent mIntent = new Intent();
+                                mIntent.putExtra("parentLevel", parentLevel);
+
                                 mIntent.putExtra("clickHistory", mTreeInfos);
                                 mIntent.putExtra("currentLevel", currentLevel);
                                 setResult(RESULT_OK, mIntent);

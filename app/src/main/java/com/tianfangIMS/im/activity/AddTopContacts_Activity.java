@@ -10,7 +10,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -71,7 +70,6 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         Intent intent = getIntent();
         Bundle bundle = intent.getExtras();
         String flag = (String) bundle.get("MainPlusDialog");
-
         mContext = this;
         init();
         setTitle("添加常用联系人");
@@ -163,16 +161,12 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, final long id) {
-
-        Log.e("是否点击了 ", "是");
         AddTopContactsAdapter.Holder holder = (AddTopContactsAdapter.Holder) view.getTag();
+
         holder.cb_addfrien.toggle();
         rl_selectAddContacts_background.setVisibility(View.VISIBLE);
-        holder = (AddTopContactsAdapter.Holder) view.getTag();
-        holder.cb_addfrien.toggle();
         getCount();
         setGridView();
-        rl_selectAddContacts_background.setVisibility(View.VISIBLE);
         gridView_adapter.notifyDataSetChanged();
     }
 
@@ -222,18 +216,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 allChecked.remove(position);
-                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
-                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
-                        continue;
-                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
-                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
-                            Log.e(TAG, "I---:" + i);
-                            checkedMap.put(i, false);
-                            addTopContactsAdapter.notifyDataSetChanged();
-                            gridView_adapter.notifyDataSetChanged();
-                        }
-                    }
-                }
+                /**
+                 * 通过for循环筛选出想要去掉的成员，就可以解决此bug
+                 */
+//                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
+//                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
+//                        continue;
+//                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
+//                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
+//                            Log.e(TAG, "I---:" + i);
+//                            checkedMap.put(i, false);
+//                            addTopContactsAdapter.notifyDataSetChanged();
+//                            gridView_adapter.notifyDataSetChanged();
+//                        }
+//                    }
+//                }
                 gridView_adapter.notifyDataSetChanged();
             }
         });

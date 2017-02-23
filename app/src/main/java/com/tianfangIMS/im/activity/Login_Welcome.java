@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.tianfangIMS.im.R;
 
@@ -35,6 +38,13 @@ public class Login_Welcome extends Activity {
         setContentView(R.layout.activity_welcome);
         //启动一个handler来限定3秒，然后调整Activity
         new Handler().postDelayed(runnable, 5000);
+
+        if (! Settings.canDrawOverlays(Login_Welcome.this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent,10);
+        }
+
     }
 
     Runnable runnable = new Runnable() {
@@ -48,25 +58,6 @@ public class Login_Welcome extends Activity {
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(userPwd)) {
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
-//                if (!TextUtils.isEmpty(token)) {
-//                    RongIM.connect(token, new RongIMClient.ConnectCallback() {
-//                        @Override
-//                        public void onTokenIncorrect() {
-//
-//                        }
-//
-//                        @Override
-//                        public void onSuccess(String s) {
-//
-//                        }
-//
-//                        @Override
-//                        public void onError(RongIMClient.ErrorCode errorCode) {
-//                            NToast.shortToast(mContext,"Connect连接失败");
-//                            return;
-//                        }
-//                    });
-//                }
             } else {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 startActivity(intent);
@@ -75,4 +66,13 @@ public class Login_Welcome extends Activity {
         }
     };
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 10) {
+            if (!Settings.canDrawOverlays(this)) {
+                Toast.makeText(Login_Welcome.this,"not granted",Toast.LENGTH_SHORT);
+            }
+        }
+    }
 }

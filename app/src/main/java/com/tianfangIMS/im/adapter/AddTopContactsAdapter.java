@@ -87,6 +87,7 @@ public class AddTopContactsAdapter extends BaseAdapter {
 //        CommonUtil.GetImages(mContext, mList.get(position).getLogo(), holder.AddFriendPhoto);
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.get(position).getLogo())
+                .resize(500, 500)
                 .into(holder.AddFriendPhoto);
         holder.AddFriendName.setText(mList.get(position).getName());
         holder.AddFriendLevel.setText(mList.get(position).getSex());

@@ -20,7 +20,6 @@ import com.lzy.imagepicker.view.CropImageView;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
-import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
@@ -189,7 +188,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
 //                ImagePicker.getInstance().getImageLoader().displayImage(UserInfo_Activity.this, images.get(0).path, iv_userinfo_photo, 800, 800);
                 Picasso.with(mContext)
                         .load(new File(images.get(0).path))
-                        .memoryPolicy(MemoryPolicy.NO_CACHE)
+                        .resize(500, 500)
                         .into(iv_userinfo_photo);
             } else {
                 Toast.makeText(this, "没有数据", Toast.LENGTH_SHORT).show();

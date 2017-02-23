@@ -63,7 +63,6 @@
                 android:hint="@string/edittext_login"
                 android:imeOptions="actionGo"
                 android:maxLines="1"
-                android:text="15910832272"
                 android:textColor="#373E61"
                 android:textColorHint="#BFC9D9" />
 
@@ -108,7 +107,6 @@
                 android:layout_toRightOf="@+id/img_icon_password"
                 android:background="@null"
                 android:hint="@string/edittext_password"
-                android:text="123"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:textColor="#373E61"

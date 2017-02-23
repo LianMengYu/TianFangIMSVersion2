@@ -35,7 +35,6 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.bean.TopContactsBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
-import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
 import com.tianfangIMS.im.fragment.ConversationListDynamicActivtiy;
@@ -54,6 +53,8 @@ import java.util.Map;
 import io.rong.imkit.RongContext;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
+import io.rong.imkit.manager.IUnReadMessageObserver;
+import io.rong.imkit.manager.UnReadMessageManager;
 import io.rong.imkit.model.UIConversation;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -68,7 +69,7 @@ import okhttp3.Response;
  * 主要作为所有fragment的基类来使用
  */
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, RongIMClient.OnReceiveMessageListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, RongIMClient.OnReceiveMessageListener, IUnReadMessageObserver {
     private static final String TAG = "MainActivity";
     private LinearLayout ly_tab_menu_msg, ly_tab_menu_job, ly_tab_menu_contacts, ly_tab_menu_me;
     private TextView tv_tab_menu_msg, tv_tab_menu_job, tv_tab_menu_contacts, tv_tab_menu_me;
@@ -98,7 +99,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private TopContactsBean topContactsBean;
     private List<TopContactsBean> topContactsList;
     private ImageView main_tree;
-    private ArrayList<TreeInfo> mTreeInfos;
     private ConversationListDynamicActivtiy conversationListDynamicActivtiy;//会话列表
     private Map<String, Boolean> supportedConversation;
     private LinearLayout search_layout;
@@ -108,16 +108,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTreeInfos = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            TreeInfo mInfo = new TreeInfo();
-            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
-            mInfo.setName(String.valueOf(i * 100));
-            mTreeInfos.add(mInfo);
-        }
-        mIntent = new Intent(this, FloatService.class);
-        mIntent.putExtra("data", mTreeInfos);
-        startService(mIntent);
         SetSyncUserGroup();
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
@@ -154,16 +144,34 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.getInstance().setMessageAttachedUserInfo(true);
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
+        UnReadMessageManager.getInstance().addObserver(
+                new Conversation.ConversationType[]{
+                        Conversation.ConversationType.PRIVATE,
+                        Conversation.ConversationType.CUSTOMER_SERVICE},
+                this);
         RemoveSignOutGroupConversation();
-
+//        <<<<<<<HEAD
+//                =======
+//
+//        mTreeInfos = new ArrayList<>();
+//        for (int i = 0; i < 5; i++) {
+//            TreeInfo mInfo = new TreeInfo();
+//            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
+//            mInfo.setName(String.valueOf(i * 100));
+//            mTreeInfos.add(mInfo);
+//        }
+//        Intent mIntent = new Intent(this, FloatService.class);
+//        mIntent.putExtra("data", mTreeInfos);
+//        startService(mIntent);
+//
+//        >>>>>>>intercom, PrivateChatDetail, MessageNumber
 //        RongIM.startActivity
 //        PTTClient pttClient = PTTClient.getInstance();
-
-
+//
+//
 //        startActivity(new Intent(MainActivity.this, ConversationListDynamicActivtiy.class));
 //        CommonUtil.GetImage(this,GetUesrBean().getText().getLogo());
     }
-
     /**
      * 设置头部+号是否可见
      *
@@ -187,6 +195,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //    }
 
 
+
     private void init() {
         ly_set_firstFragment = (LinearLayout) this.findViewById(R.id.main_ly_tab_menu_msg_new);
         ly_tab_menu_job = (LinearLayout) this.findViewById(R.id.ly_tab_menu_job);
@@ -205,6 +214,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         main_plus = (ImageView) this.findViewById(R.id.main_plus);
 
         search_layout = (LinearLayout) this.findViewById(R.id.search_layout);
+        tv_tab_menu_msg_num = (TextView) this.findViewById(R.id.tv_tab_menu_msg_num);
 
         ly_set_firstFragment.setOnClickListener(this);
         ly_tab_menu_job.setOnClickListener(this);
@@ -486,9 +496,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 mainPlusDialog.setFocusable(true);
                 mainPlusDialog.showPopupWindow(main_plus);
                 break;
-            case R.id.main_tree:
-                startActivity(new Intent(mContext, TreeActivity.class));
-                break;
         }
     }
 
@@ -697,6 +704,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }.getType();
         Gson gson = new Gson();
         Map<String, Object> jsonData = gson.fromJson(str, listType);
+        Log.e(TAG, "群组数据:" + jsonData + "---返回的数据：" + jsonData.get("code"));
         if (jsonData.get("code").equals("0.0")) {
             Map<String, String> textData = (Map<String, String>) jsonData.get("text");
             Log.e(TAG, "群组信息提供者:" + textData);
@@ -753,9 +761,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         mIntent = new Intent(this, FloatService.class);
         stopService(mIntent);
         super.onDestroy();
+    }
+
+    @Override
+    public void onCountChanged(int count) {
+        Log.e(TAG, "打印数量:" + count);
+        if (count == 0) {
+            tv_tab_menu_msg_num.setVisibility(View.GONE);
+        } else if (count > 0 && count < 100) {
+            tv_tab_menu_msg_num.setVisibility(View.VISIBLE);
+            tv_tab_menu_msg_num.setText(String.valueOf(count));
+        } else {
+            tv_tab_menu_msg_num.setVisibility(View.VISIBLE);
+            tv_tab_menu_msg_num.setText("···");
+        }
     }
 
     @Override

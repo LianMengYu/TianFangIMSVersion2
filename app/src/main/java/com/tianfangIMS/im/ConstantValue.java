@@ -57,6 +57,8 @@ public class ConstantValue {
 
     public static final String DISSGROUP = Urls +  "group!disslovedGroup";//解散群组
 
+    public static final String ADDGROUPUSRT = Urls +"group!joinGroup";//添加群组成员
+
     public static final String UPDATEUSERPHOTONOTCUT = Urls +  "upload!uploadUserLogoNotCut";//上传头像非裁剪
 
     public static final String SUBLOCATION = Urls +"map!subLocation";//上传位置信息
@@ -65,6 +67,7 @@ public class ConstantValue {
 
     public static final String ISFRIEND = Urls +"friend!getFriendsRelation";//判断是否为好友
 
-    public static final String DELTETFRIEND = Urls +" friend!delFriend";//删除好友
+    public static final String DELTETFRIEND = Urls +"friend!delFriend";//删除好友
 
+    public static final String SREACHGROUPUSER = Urls +"group!listGroupMemebers";//删除好友
 }

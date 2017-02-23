@@ -71,6 +71,8 @@
     <!--用于申请获取蓝牙信息进行室内定位-->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--用于悬浮球点击HOME按键退出之后显示与周末的权限-->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
         android:name=".TianFangIMSApplication"
@@ -206,23 +208,6 @@
 
         </activity>
         <activity android:name=".activity.ChangeGroupNameActivity"></activity>
-        <!--&lt;!&ndash;会话列表&ndash;&gt;-->
-        <!--<activity-->
-        <!--android:name=".activity.ConversationListDynamicActivtiy"-->
-        <!--android:screenOrientation="portrait"-->
-        <!--android:windowSoftInputMode="stateHidden|adjustResize">-->
-
-        <!--<intent-filter>-->
-        <!--<action android:name="android.intent.action.VIEW" />-->
-
-        <!--<category android:name="android.intent.category.DEFAULT" />-->
-
-        <!--<data-->
-        <!--android:host="com.tianfangIMS.im"-->
-        <!--android:pathPrefix="/conversationlist"-->
-        <!--android:scheme="rong" />-->
-        <!--</intent-filter>-->
-        <!--</activity>-->
         <activity android:name=".activity.AMapShareActivity" />
         <!--聚合会话-->
         <activity
@@ -264,7 +249,8 @@
             android:value="d23e3db8d2b5c453e35e0bc37a1bc37a" />
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService"></service>
-        <receiver
+
+        <receivers
             android:name=".receiver.SealNotificationReceiver"
             android:exported="true">
             <intent-filter>
@@ -273,8 +259,10 @@
                 <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
                 <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
             </intent-filter>
-        </receiver>
->>>>>>> Stashed changes
+        </receivers>
+
+        <!--悬浮权限-->
+        <service android:name=".service.FloatService"></service>
     </application>
 
 </manifest>

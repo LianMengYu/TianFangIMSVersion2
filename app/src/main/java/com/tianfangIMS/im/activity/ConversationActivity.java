@@ -85,6 +85,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     private ImageView tag_message, tag_intercom, tag_call;
     private List<ImageView> imageViewList = new ArrayList<>();
     private LinearLayout ll_talk;
+    private UserInfo mUserInfo;
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
@@ -103,6 +104,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
 //            startActivity(new Intent(ConversationActivity.this, NewFriendListActivity.class));
             return;
         }
+
         mConversationType = Conversation.ConversationType.valueOf(intent.getData()
                 .getLastPathSegment().toUpperCase(Locale.getDefault()));
 

@@ -81,7 +81,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:background="@android:color/white" />
+                android:background="@android:color/white"
+                android:divider="@color/fengexian" />
 
             <ListView
                 android:id="@+id/fragment_contacts_search"

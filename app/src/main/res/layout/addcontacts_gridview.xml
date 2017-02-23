@@ -24,7 +24,6 @@
         android:gravity="center_horizontal"
         android:ellipsize="end"
         android:maxEms="8"
-        android:text="为什么显示不出来"
         android:singleLine="true"
         android:textSize="14dp" />
 </LinearLayout>

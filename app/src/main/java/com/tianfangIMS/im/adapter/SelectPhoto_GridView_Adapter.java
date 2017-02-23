@@ -2,6 +2,7 @@ package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -42,22 +43,21 @@ public class SelectPhoto_GridView_Adapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHodler hodler = null;
-        if (convertView == null) {
-            hodler = new ViewHodler();
-            convertView = View.inflate(mContext, R.layout.item_select_gridview_photo, null);
-            hodler.imgeview = (ImageView)convertView.findViewById(R.id.image_item);
-            convertView.setTag(hodler);
-        }else{
-            convertView.getTag();
-        }
-//        CommonUtil.getImageBitmap(mContext,list.get(position).toString(),hodler.imgeview);
+//        ViewHodler hodler = new ViewHodler();
+        convertView = View.inflate(mContext, R.layout.item_select_gridview_photo, null);
+        ImageView img = (ImageView) convertView.findViewById(R.id.select_imageView_GridView);
+//        Glide.with(mContext).load("http://content.52pk.com/files/100623/2230_102437_1_lit.jpg")
+//                .bitmapTransform(new CropCircleTransformation(mContext))
+//                .into(img);
+        Log.e("选择照片的Adapter：", "---:" + list.get(position));
         Picasso.with(mContext)
                 .load(list.get(position))
-                .into(hodler.imgeview);
+                .resize(500, 500)
+                .into(img);
         return convertView;
     }
-    class ViewHodler{
-        ImageView imgeview;
-    }
+
+//    class ViewHodler {
+//        ImageView img;
+//    }
 }

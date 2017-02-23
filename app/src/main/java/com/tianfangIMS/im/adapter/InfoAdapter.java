@@ -41,6 +41,7 @@ public class InfoAdapter extends BaseAdapter {
      * @param mode
      * @param prepare    mode值为ViewMode.NORMAL时 prepare可传空
      */
+
     public InfoAdapter(Context context, List<TreeInfo> treeInfos, List<Integer> childCount, ViewMode mode, HashMap<Integer, Boolean> prepare) {
         mContext = context;
         this.mInfos = treeInfos;

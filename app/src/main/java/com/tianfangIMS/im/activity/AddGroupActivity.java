@@ -3,6 +3,7 @@ package com.tianfangIMS.im.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -56,12 +57,15 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
     Intent mIntent;
 
     HashMap<Integer, Boolean> prepare;
-
+    private String GroupID ;
+    private String PrivateId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.addgroup_layout);
         mContext = this;
+        GroupID = getIntent().getStringExtra("GroupId");
+        PrivateId = getIntent().getStringExtra("PrivateChat");
         setTitle("选择联系人");
         init();
         GetData();
@@ -211,16 +215,24 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                 bundle.putString("MainPlusDialog", TAG);
                 intent.putExtras(bundle);
                 startActivity(intent);
+                finish();
                 break;
             case R.id.rl_allContacts:
 //                Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
                 mIntent = new Intent(mContext, InfoActivity.class);
+                if(!TextUtils.isEmpty(GroupID)){
+                    mIntent.putExtra("Groupid", GroupID);
+                }
+                if(!TextUtils.isEmpty(PrivateId)){
+                    mIntent.putExtra("PrivateChat", PrivateId);
+                }
                 mIntent.putExtra("maps", maps);
                 mIntent.putExtra("IsBoolean", flag);
                 mIntent.putExtra("viewMode", ViewMode.CHECK);
                 mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);
+                finish();
                 break;
         }
     }

@@ -18,31 +18,20 @@ import java.util.ArrayList;
  * Created by LianMengYu on 2017/2/17.
  */
 
-public class GroupDetailInfo_GridView_Adapter extends BaseAdapter {
+public class GroupDetailInfo_GridView_Adapter extends BaseAdapter implements View.OnClickListener {
     private Context mContext;
     private ArrayList<GroupBean> mList;
-    private boolean isAdded;   //是否额外添加了最后一个图片
-    private int maxImgCount;
+    private MyClickListener mListener;
 
-    public GroupDetailInfo_GridView_Adapter(Context mContext, ArrayList<GroupBean> mList) {
+    public GroupDetailInfo_GridView_Adapter(Context mContext, ArrayList<GroupBean> mList, MyClickListener mListener) {
         this.mContext = mContext;
         this.mList = mList;
+        this.mListener = mListener;
     }
-
-//    private void setImages(ArrayList<GroupBean> List) {
-//        mList = new ArrayList<>();
-//        if (getCount() < maxImgCount) {
-//            mList.add();
-//            isAdded = true;
-//        } else {
-//            isAdded = false;
-//        }
-//        notifyDataSetChanged();
-//    }
 
     @Override
     public int getCount() {
-        return mList.size();
+        return mList.size() + 1;
     }
 
     @Override
@@ -67,18 +56,30 @@ public class GroupDetailInfo_GridView_Adapter extends BaseAdapter {
         } else {
             viewHolder = (Hodler) convertView.getTag();
         }
-//        if (position == getCount() + 1) {
-//            viewHolder.iv_photo.setBackgroundResource(R.mipmap.add);
-//        }
-        Picasso.with(mContext)
-                .load(ConstantValue.ImageFile + mList.get(position).getLogo())
-                .into(viewHolder.iv_photo);
-        viewHolder.tv_userName.setText(mList.get(position).getFullname());
+        if (position < mList.size()) {
+            Picasso.with(mContext)
+                    .load(ConstantValue.ImageFile + mList.get(position).getLogo())
+                    .into(viewHolder.iv_photo);
+            viewHolder.tv_userName.setText(mList.get(position).getFullname());
+        } else {
+            viewHolder.iv_photo.setBackgroundResource(R.mipmap.add);
+            viewHolder.iv_photo.setOnClickListener(this);
+        }
         return convertView;
     }
 
     class Hodler {
         ImageView iv_photo;
         TextView tv_userName;
+    }
+
+    //自定义接口，用于回调按钮点击事件到Activity
+    public interface MyClickListener {
+        public void clickListener(View v);
+    }
+
+    @Override
+    public void onClick(View v) {
+        mListener.clickListener(v);
     }
 }

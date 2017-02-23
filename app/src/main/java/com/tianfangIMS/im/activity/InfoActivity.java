@@ -14,10 +14,12 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -96,9 +98,11 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     HashMap<Integer, Boolean> prepare;
 
     ViewMode mMode;
-
+    String Groupid;//从群组详情页面传递过来的群组ID
+    String PrivateID;//从好友详情页面传递过来的好友ID
     int parentLevel;
     private TextView tv_creategroup_submit;
+    private RelativeLayout rl_selectAddContacts_background;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -142,6 +146,8 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
+        Groupid = getIntent().getStringExtra("Groupid");
+        PrivateID = getIntent().getStringExtra("PrivateChat");
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
@@ -163,6 +169,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
         activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
         tv_creategroup_submit = (TextView) this.findViewById(R.id.tv_creategroup_submit);
+        rl_selectAddContacts_background = (RelativeLayout) this.findViewById(R.id.rl_selectAddContacts_background);
         tv_creategroup_submit.setOnClickListener(this);
 //        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -405,15 +412,64 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                     treeInfo.setChecked(tmpBool);
                     onCheckedChange(treeInfo.getPid(), treeInfo.getId(), treeInfo);
                     GetInfo();
+                    rl_selectAddContacts_background.setVisibility(View.VISIBLE);
                 }
             }
         }
     }
 
     /**
-     * 创建群组
+     * 单聊好友详情创建群组
      */
-    private void AddGroup() {
+    private void CreatePrivateChatforGroup() {
+        List<String> list = new ArrayList<String>();
+
+        for (int i = 0; i < results.size(); i++) {
+            String id = results.get(i).getId() + "";
+            list.add(id);
+        }
+        list.add(PrivateID);
+        Gson gson = new Gson();
+        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
+        list.add(loginBean.getText().getId());
+        String UID = loginBean.getText().getId();
+        String aa = list.toString();
+        Log.e("哈哈哈", "打印list:" + list + "--传入的字符串:" + aa + "--传过来的ID:" + PrivateID + "--登录ID:" + UID);
+        OkGo.post(ConstantValue.CREATEGROUP)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", UID)
+                .params("groupids", aa)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s)) {
+                            Gson gson = new Gson();
+                            TopContactsRequestBean bean = gson.fromJson(s, TopContactsRequestBean.class);
+                            if (bean.getCode().equals("200")) {
+                                NToast.shortToast(mContext, "创建成功");
+                                RongIM.getInstance().startGroupChat(mContext, bean.getText().getId(), bean.getText().getName());
+                            } else {
+                                NToast.shortToast(mContext, "创建失败");
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 常规创建群组创建群组
+     */
+    private void CreateGroup() {
         List<String> list = new ArrayList<String>();
 
         for (int i = 0; i < results.size(); i++) {
@@ -466,12 +522,66 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 });
     }
 
+    /**
+     * 添加群组联系人
+     */
+    private void AddGroupUser() {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < results.size(); i++) {
+            String id = String.valueOf(results.get(i).getId());
+            list.add(id.toString().trim());
+        }
+        String ids = "[" + CommonUtil.listToString(list) + "]";
+        OkGo.post(ConstantValue.ADDGROUPUSRT)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("groupids", ids)
+                .params("groupid", Groupid)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        Log.e("Info", "meiyou" + s);
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Gson gson = new Gson();
+                            Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            if (map.get("code").equals("1")) {
+                                Log.e("哈哈", "添加成员是否承诺" + map.get("code"));
+                                startActivity(new Intent(mContext, MainActivity.class));
+                                Log.e("哈哈", "添加成员是跳转是否执行" + map.get("code"));
+                            }
+                        } else {
+                            Log.e("Info", "没有数据");
+                        }
+                    }
+                });
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_creategroup_submit:
-                AddGroup();
+                if (!TextUtils.isEmpty(Groupid)) {
+                    AddGroupUser();
+                } else {
+                    if (!TextUtils.isEmpty(PrivateID)) {
+                        NToast.longToast(mContext, "执行单聊创建群组");
+                        CreatePrivateChatforGroup();
+                    } else {
+                        CreateGroup();
+                    }
+
+                }
                 break;
-            }
+        }
     }
 }

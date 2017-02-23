@@ -1,8 +1,11 @@
 package com.tianfangIMS.im.fragment;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,11 +13,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.promeg.pinyinhelper.Pinyin;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
@@ -23,15 +28,21 @@ import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.activity.InfoActivity;
+import com.tianfangIMS.im.activity.MainActivity;
 import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
+import com.tianfangIMS.im.activity.TreeActivity;
 import com.tianfangIMS.im.adapter.InfoAdapter;
+import com.tianfangIMS.im.adapter.SearchAdapter;
+import com.tianfangIMS.im.bean.SearchUserBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.bean.ViewMode;
 import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.JSONUtils;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,10 +64,11 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     private String name;
     private int pid;
     public static Contacts_Fragment contacts_fragment;
-
+    private ListView fragment_contacts_search;
+    private LinearLayout search_layout;
     ListView fragment_contacts_lv_departments;
     private Boolean flag = false;
-
+    private EditText et_search;
     Gson mGson;
 
     ArrayList<Integer> childCount;
@@ -76,9 +88,10 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     private EditText rl_Search;
     private TextView tv_clean;
 
-
+    private List<SearchUserBean> searchList;//获取所搜源
+    private List<SearchUserBean> searchData = new ArrayList<>();//得到搜索后的集合
     private TopContactsListBean listbean;
-
+    SearchAdapter searchAdapter;
 
     @Nullable
     @Override
@@ -86,8 +99,18 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         View view = inflater.inflate(R.layout.contacts_fragment, container, false);
         initView(view);
         GetData();
+        SearchUserInfo();
         contacts_fragment = this;
         jsonUtils = new JSONUtils();
+        MainTree = ((MainActivity) getActivity()).getIv_MainTree();
+        MainTree.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = new Intent(getActivity(), TreeActivity.class);
+                mIntent.putExtra("maps", maps);
+                startActivityForResult(mIntent, 100);
+            }
+        });
         return view;
     }
 
@@ -95,16 +118,80 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         return contacts_fragment;
     }
 
-
     private void initView(View view) {
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
         rl_mine_topcontacts = (RelativeLayout) view.findViewById(R.id.rl_mine_topcontacts);
+        fragment_contacts_search = (ListView) view.findViewById(R.id.fragment_contacts_search);
+        et_search = (EditText) view.findViewById(R.id.et_search);
 
         fragment_contacts_lv_departments = (ListView) view.findViewById(R.id.fragment_contacts_lv_departments);
         fragment_contacts_lv_departments.setOnItemClickListener(this);
 
         rl_mine_topcontacts.setOnClickListener(this);
         rl_mine_contacts.setOnClickListener(this);
+        et_search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchData.clear();
+                String input = s.toString();
+                if (input.length() > 0) {
+                    for (int i = 0; i < input.length(); i++) {
+                        char a = input.charAt(i);
+                        if (Pinyin.isChinese(a)) {
+                            for (int j = 0; j < searchList.size(); j++) {
+                                if (searchList.get(j).getName().indexOf(a) >= 0 || searchList.get(j).getPhoneNumber().indexOf(a) >= 0) {
+                                    if (!searchData.contains(searchList.get(j))) {
+                                        searchData.add(searchList.get(j));
+                                    }
+                                }
+                            }
+                        } else {
+                            for (int j = 0; j < searchList.size(); j++) {
+                                if (searchList.get(j).getName().indexOf(a) >= 0 || searchList.get(j).getPhoneNumber().indexOf(a) >= 0) {
+                                    searchData.add(searchList.get(j));
+                                }
+                            }
+                        }
+                    }
+                }
+                searchAdapter = new SearchAdapter(getActivity(), searchData);
+                fragment_contacts_search.setVisibility(View.VISIBLE);
+                fragment_contacts_search.setAdapter(searchAdapter);
+                searchAdapter.notifyDataSetChanged();
+                for (int i = 0; i < searchList.size(); i++) {
+                    boolean flag = false;
+                    for (int j = 0; j < input.length(); j++) {
+                        char a = input.charAt(j);
+                        if (Pinyin.isChinese(a)) {
+                            if (searchList.get(j).getName().indexOf(a) >= 0) {
+                                flag = true;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void SearchUserInfo() {
+        searchList = new ArrayList<SearchUserBean>();
+        Gson gson = new Gson();
+        Type listType = new TypeToken<TopContactsListBean>() {
+        }.getType();
+        TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(getActivity()), listType);
+        for (int i = 0; i < bean.getText().size(); i++) {
+            searchList.add(new SearchUserBean(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), bean.getText().get(i).getFullname(), bean.getText().get(i).getLogo()));
+        }
     }
 
     private void GetData() {
@@ -237,6 +324,16 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == 100) {
+                mIntent = new Intent(getActivity(), InfoActivity.class);
+                mIntent.putExtra("maps", maps);
+                mIntent.putExtra("viewMode", ViewMode.NORMAL);
+                mIntent.putExtra("currentLevel", data.getIntExtra("currentLevel", -1));
+                mIntent.putExtra("parentLevel", data.getIntExtra("parentLevel", -1));
+                startActivity(mIntent);
+            }
+        }
     }
 
     @Override

@@ -14,8 +14,8 @@
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_marginTop="10dp"
         android:layout_height="0dp"
+        android:layout_marginTop="10dp"
         android:layout_weight="1" />
 
     <TextView
@@ -56,7 +56,9 @@
                     android:id="@+id/tv_tab_menu_msg_num"
                     style="@style/tab_menu_bgnum"
                     android:layout_toRightOf="@id/tv_tabmenu_msg"
-                    android:text="99+"
+                    android:background="@drawable/rc_unread_count_bg1"
+                    android:text="9"
+                    android:textColor="@color/White"
                     android:visibility="gone" />
             </RelativeLayout>
         </LinearLayout>

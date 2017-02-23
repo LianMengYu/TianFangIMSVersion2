@@ -52,7 +52,7 @@ import okhttp3.Response;
  * 登录页
  */
 
-public class LoginActivity extends Activity implements View.OnClickListener, RongIM.UserInfoProvider {
+public class LoginActivity extends Activity implements View.OnClickListener, RongIM.UserInfoProvider{
     private final static String TAG = "LoginActivity";
     private static final int LOGIN = 5;
     private static final int GET_TOKEN = 6;

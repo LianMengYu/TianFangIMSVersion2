@@ -13,24 +13,25 @@
         android:orientation="vertical">
 
 
-        <LinearLayout
-            android:id="@+id/ll_userinfo"
+        <GridView
+            android:id="@+id/gv_userinfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/White">
-
-            <GridView
-                android:id="@+id/gv_userinfo"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"></GridView>
-        </LinearLayout>
+            android:background="@color/White"
+            android:columnWidth="50dp"
+            android:horizontalSpacing="10dp"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:verticalSpacing="10dp" />
 
         <RelativeLayout
             android:id="@+id/rl_changeGroupName"
             android:layout_width="match_parent"
             android:layout_height="59dp"
             android:layout_marginTop="10dp"
-            android:background="@color/White">
+            android:background="@color/White"
+            android:fadeScrollbars="true"
+            android:scrollbars="none">
 
             <TextView
                 style="@style/Contacts_company_txt"

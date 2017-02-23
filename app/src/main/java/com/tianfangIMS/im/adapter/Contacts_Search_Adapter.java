@@ -57,6 +57,7 @@ public class Contacts_Search_Adapter extends BaseAdapter {
         }
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mlist.getText().get(position).getLogo())
+                .resize(500, 500)
                 .into(viewhodler.userphoto);
         viewhodler.username.setText(mlist.getText().get(position).getFullname());
         viewhodler.pos.setText(mlist.getText().get(position).getWorkno());

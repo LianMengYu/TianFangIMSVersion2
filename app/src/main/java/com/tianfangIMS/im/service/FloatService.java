@@ -14,13 +14,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.view.FloatView;
 
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by Titan on 2017/2/19.
@@ -89,7 +87,7 @@ public class FloatService extends Service {
                         wl.gravity = Gravity.TOP | Gravity.LEFT;
                         wl.dimAmount = 0.3f;
                         wl.x = getResources().getDisplayMetrics().widthPixels - 75 * density / 2;
-                        wl.y = (getResources().getDisplayMetrics().heightPixels - 50 * density) / 2;
+                        wl.y = (getResources().getDisplayMetrics().heightPixels - 100 * density) / 2;
                         wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
                         wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
 //                        mFloatView.setBackgroundColor(Color.TRANSPARENT);
@@ -97,7 +95,8 @@ public class FloatService extends Service {
                     mWindowManager.updateViewLayout(mFloatView, wl);
                 }
             });
-            Glide.with(getApplicationContext()).load("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg").bitmapTransform(new CropCircleTransformation(getApplicationContext())).into(mFloatView.btn);
+//            Glide.with(getApplicationContext()).load("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg").bitmapTransform(new CropCircleTransformation(getApplicationContext())).into(mFloatView.btn);
+            mFloatView.btn.setImageResource(R.mipmap.icon_float);
             for (int i = 0; i < mTreeInfos.size(); i++) {
                 ImageView mImageView = new ImageView(this);
                 mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -125,7 +124,7 @@ public class FloatService extends Service {
             wl.gravity = Gravity.TOP | Gravity.LEFT;
             wl.dimAmount = 0.3f;
             wl.x = getResources().getDisplayMetrics().widthPixels - 75 * density / 2;
-            wl.y = (getResources().getDisplayMetrics().heightPixels - 50 * density) / 2;
+            wl.y = (getResources().getDisplayMetrics().heightPixels - 100 * density) / 2;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
             mWindowManager.addView(mFloatView, wl);

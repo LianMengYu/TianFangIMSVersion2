@@ -26,6 +26,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation;
 public class GroupAdapter extends BaseAdapter {
 
     List<GroupBean> mGroupBeen;
+
     Context mContext;
 
     public GroupAdapter(List<GroupBean> groupBeen, Context context) {
