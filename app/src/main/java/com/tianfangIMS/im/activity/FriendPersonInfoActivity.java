@@ -87,6 +87,9 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                                     userInfoBean.getPositionname());
                             Picasso.with(mContext)
                                     .load(ConstantValue.ImageFile + userInfoBean.getLogo())
+                                    .resize(500, 500)
+                                    .placeholder(R.mipmap.default_photo)
+                                    .error(R.mipmap.default_photo)
                                     .into(iv_friendinfo_photo);
                         }
                     }
@@ -212,6 +215,7 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                         super.onBefore(request);
                         LoadDialog.show(mContext);
                     }
+
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);

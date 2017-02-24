@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -102,18 +103,25 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
                         Log.e(TAG, "测试返回JSON数据：" + s);
                         if (!TextUtils.isEmpty(s)) {
                             Gson gson = new Gson();
+                            Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            String code = map.get("code").toString();
+                            if (code.equals("0.0")) {
+                                NToast.longToast(mContext, "您还没有联系人");
+                                return;
+                            }
+                            if ((code.equals("1.0"))) {
+                                Gson gson1 = new Gson();
 //                            topContactsList = gson.fromJson(s, listType);
-                            bean = gson.fromJson(s, TopContactsListBean.class);
-
-                            group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, bean);
-                            lv_topContacts.setAdapter(group_addTopContactsAdapter);
-                            group_addTopContactsAdapter.notifyDataSetChanged();
-
+                                bean = gson1.fromJson(s, TopContactsListBean.class);
+                                group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, bean);
+                                lv_topContacts.setAdapter(group_addTopContactsAdapter);
+                                group_addTopContactsAdapter.notifyDataSetChanged();
+                            }
                         } else {
                             return;
                         }
                     }
-
                     @Override
                     public void onError(Call call, Response response, Exception e) {
                         super.onError(call, response, e);

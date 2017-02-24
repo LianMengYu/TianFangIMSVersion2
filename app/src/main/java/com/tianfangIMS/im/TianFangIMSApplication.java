@@ -15,7 +15,9 @@ import java.util.logging.Level;
 
 import io.rong.imkit.RongExtensionManager;
 import io.rong.imkit.RongIM;
+import io.rong.ptt.kit.PTTEndMessageItemProvider;
 import io.rong.ptt.kit.PTTExtensionModule;
+import io.rong.ptt.kit.PTTStartMessageItemProvider;
 
 /**
  * Created by Lincktek_Lmy on 2016/12/29.
@@ -29,6 +31,8 @@ public class TianFangIMSApplication extends Application {
         super.onCreate();
         instance = this;
         RongIM.init(this);
+        RongIM.registerMessageTemplate(new PTTStartMessageItemProvider());
+        RongIM.registerMessageTemplate(new PTTEndMessageItemProvider());
         RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
         OkGo.init(this);
         HttpHeaders headers = new HttpHeaders();

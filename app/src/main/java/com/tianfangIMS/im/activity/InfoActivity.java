@@ -1,5 +1,6 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -103,6 +104,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     int parentLevel;
     private TextView tv_creategroup_submit;
     private RelativeLayout rl_selectAddContacts_background;
+    private Context mContext;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -148,6 +150,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         setContentView(R.layout.activity_info);
         Groupid = getIntent().getStringExtra("Groupid");
         PrivateID = getIntent().getStringExtra("PrivateChat");
+        mContext = this;
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
@@ -291,7 +294,9 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         mTreeInfo = mTreeInfos.get(position);
         //点击的选项为员工类型
         if (mTreeInfo.getFlag() == 1) {
-            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
+            String ids = String.valueOf(mTreeInfo.getId());
+            RongIM.getInstance().startPrivateChat(mContext, ids, mTreeInfo.getName());
             return;
         }
         isChecked = mTreeInfos.get(position).isChecked();

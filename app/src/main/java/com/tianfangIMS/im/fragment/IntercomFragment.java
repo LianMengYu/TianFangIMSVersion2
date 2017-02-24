@@ -1,14 +1,11 @@
 package com.tianfangIMS.im.fragment;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,24 +22,19 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.BitmapCallback;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
-import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.OneGroupBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.NToast;
 
 import net.qiujuer.genius.blur.StackBlur;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import io.rong.common.RLog;
-import io.rong.imkit.RongExtension;
-import io.rong.imkit.RongIM;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
-import io.rong.imlib.RongIMClient;
+import io.rong.imkit.utilities.PermissionCheckUtil;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
 import io.rong.ptt.JoinSessionCallback;
@@ -53,19 +45,15 @@ import io.rong.ptt.RequestToSpeakCallback;
 import okhttp3.Call;
 import okhttp3.Response;
 
-import static com.xiaomi.push.service.aa.C;
-import static com.xiaomi.push.service.aa.f;
-
 /**
  * Created by LianMengYu on 2017/2/9.
  * 对讲fragment
  */
 
 public class IntercomFragment extends BaseFragment implements View.OnClickListener, PTTSessionStateListener {
-    private PTTClient pttClient;
     public static IntercomFragment Instance = null;
     private List<String> participants;
-
+    private PTTClient pttClient;
     public static IntercomFragment getInstance() {
         if (Instance == null) {
             Instance = new IntercomFragment();
@@ -84,6 +72,7 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.intercom_layout, container, false);
         Intent intent = getActivity().getIntent();
         main_call_blur = (ImageView) view.findViewById(R.id.main_call_blur);
@@ -93,18 +82,15 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
         main_call_talk = (ImageView) view.findViewById(R.id.main_call_talk);
         intercom_name = (TextView) view.findViewById(R.id.intercom_name);
         setListener();
-
 //        main_call_blur.setImageBitmap(blur(getBitmapFromUri(userInfo.getPortraitUri()), 25f));
         mConversationType = Conversation.ConversationType.valueOf(intent.getData()
                 .getLastPathSegment().toUpperCase(Locale.getDefault()));
 
         userid = intent.getData().getQueryParameter("targetId");
-
         //获取userinfo
         if (mConversationType == Conversation.ConversationType.PRIVATE) {
             userInfo = RongUserInfoManager.getInstance().getUserInfo(userid);
             if (userInfo != null) {
-                Log.e("已经不等于空了：", "---:" + userInfo);
                 intercom_name.setText(userInfo.getName());
                 Log.e("intercom", "确实是否执行：" + userInfo.getName());
                 getBitmap(userInfo.getPortraitUri().toString());
@@ -115,19 +101,26 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
             GetGroupUserInfo();
             Log.e("intercom", "群组id" + userid);
         }
-        RongExtension extension = new RongExtension(getActivity());
+        if (!PermissionCheckUtil.checkPermissions(getActivity(), new String[]{android.Manifest.permission.RECORD_AUDIO})) {
+            PermissionCheckUtil.requestPermissions(getInstance(), new String[]{Manifest.permission.RECORD_AUDIO});
+        }
+        PTTClient.setPTTServerBaseUrl("http://35.164.107.27:8080/rce/restapi/ptt");
         pttClient = PTTClient.getInstance();
-        PTTSession pttSession = pttClient.getCurrentPttSession();
-        userid = RongIM.getInstance().getCurrentUserId();
+        pttClient.init(getActivity());
+        Log.e("debugPTT","打印一个数据类型："+mConversationType+"打印userid："+userid);
+//        PTTClient pttKitManager = PTTClient.getInstance();
         pttClient.joinSession(mConversationType, userid, new JoinSessionCallback() {
             @Override
             public void onSuccess(List<String> list) {
                 Log.e("OnSuccess", "测试对讲是否连接成功");
+                PTTSession pttSession = pttClient.getCurrentPttSession();
+                participants = pttSession.getParticipantIds();
+                pttClient.setPttSessionStateListener(getInstance());
             }
 
             @Override
             public void onError(String s) {
-                Log.e("OnSuccess", "测试对讲是否连接成功");
+                Log.e("OnSuccess", "对讲链接失败:"+s);
             }
         });
         setListener();
@@ -201,27 +194,6 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
         main_call_free.setOnClickListener(this);
         main_call_flash.setOnClickListener(this);
         main_call_talk.setOnClickListener(this);
-    }
-
-//    private void SetInfos(Bitmap bitmap) {
-//        Picasso.with(getActivity())
-//        Log.e("intercom", "获取图片:" + userInfo.getPortraitUri());
-//
-//    }
-
-    private Bitmap blur(Bitmap bitmap, float radius) {
-        Bitmap output = Bitmap.createBitmap(bitmap); // 创建输出图片
-        RenderScript rs = RenderScript.create(getActivity()); // 构建一个RenderScript对象
-        ScriptIntrinsicBlur gaussianBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs)); // 创建高斯模糊脚本
-        Allocation allIn = Allocation.createFromBitmap(rs, bitmap); // 创建用于输入的脚本类型
-        Allocation allOut = Allocation.createFromBitmap(rs, output); // 创建用于输出的脚本类型
-        gaussianBlur.setRadius(radius); // 设置模糊半径，范围0f<radius<=25f
-        gaussianBlur.setInput(allIn); // 设置输入脚本类型
-        gaussianBlur.forEach(allOut); // 执行高斯模糊算法，并将结果填入输出脚本类型中
-        allOut.copyTo(output); // 将输出内存编码为Bitmap，图片大小必须注意
-        rs.finish();
-        rs.destroy(); // 关闭RenderScript对象，API>=23则使用rs.releaseAllContexts()
-        return output;
     }
 
     @Nullable

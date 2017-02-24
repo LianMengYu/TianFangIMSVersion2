@@ -59,6 +59,9 @@ public class GroupDetailInfo_GridView_Adapter extends BaseAdapter implements Vie
         if (position < mList.size()) {
             Picasso.with(mContext)
                     .load(ConstantValue.ImageFile + mList.get(position).getLogo())
+                    .resize(500,500)
+                    .placeholder(R.mipmap.default_photo)
+                    .error(R.mipmap.default_photo)
                     .into(viewHolder.iv_photo);
             viewHolder.tv_userName.setText(mList.get(position).getFullname());
         } else {

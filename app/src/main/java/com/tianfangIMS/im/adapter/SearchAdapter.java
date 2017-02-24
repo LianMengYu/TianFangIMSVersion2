@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.SearchUserBean;
-import com.tianfangIMS.im.view.FrameView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,10 +61,11 @@ public class SearchAdapter extends BaseAdapter {
         DetailHolder mDetailHolder = null;
         if (convertView == null) {
             mDetailHolder = new DetailHolder();
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.adapter_group_item_detail, null);
-            mDetailHolder.groupHeader = (ImageView) convertView.findViewById(R.id.adapter_group_item_detail_header);
-            mDetailHolder.groupName = (TextView) convertView.findViewById(R.id.adapter_group_item_detail_name);
-            mDetailHolder.groupIndex = (FrameView) convertView.findViewById(R.id.adapter_group_item_detail_index);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.contacts_person_item, null);
+            mDetailHolder.groupHeader = (ImageView) convertView.findViewById(R.id.iv_person_photo);
+            mDetailHolder.groupName = (TextView) convertView.findViewById(R.id.tv_person_departmentName);
+            mDetailHolder.pos = (TextView)convertView.findViewById(R.id.tv_person_departmentTxt);
+//            mDetailHolder.groupIndex = (FrameView) convertView.findViewById(R.id.adapter_group_item_detail_index);
             convertView.setTag(mDetailHolder);
         } else {
             mDetailHolder = (DetailHolder) convertView.getTag();
@@ -76,7 +76,8 @@ public class SearchAdapter extends BaseAdapter {
 //                        .load(ConstantValue.ImageFile + getItem(position).getLogo())
 //                        .into(mDetailHolder.groupHeader);
         mDetailHolder.groupName.setText(SearchUserBean.get(position).getName());
-        mDetailHolder.groupIndex.setText(SearchUserBean.get(position).getName().substring(1, 2));
+        mDetailHolder.pos.setText(SearchUserBean.get(position).getPos());
+//        mDetailHolder.groupIndex.setText(SearchUserBean.get(position).getName().substring(1, 2));
         return convertView;
     }
 
@@ -86,7 +87,8 @@ public class SearchAdapter extends BaseAdapter {
 
     private class DetailHolder {
         ImageView groupHeader;
-        FrameView groupIndex;
+//        FrameView groupIndex;
         TextView groupName;
+        TextView pos;
     }
 }

@@ -23,7 +23,6 @@
             app:RCCornerRadius="3dp"
             app:RCDefDrawable="@mipmap/me_icon_photo"
             app:RCShape="circle" />
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

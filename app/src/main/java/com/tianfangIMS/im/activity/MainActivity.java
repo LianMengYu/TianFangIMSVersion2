@@ -172,6 +172,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //        startActivity(new Intent(MainActivity.this, ConversationListDynamicActivtiy.class));
 //        CommonUtil.GetImage(this,GetUesrBean().getText().getLogo());
     }
+
     /**
      * 设置头部+号是否可见
      *
@@ -193,7 +194,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //    public void initView() {
 //
 //    }
-
 
 
     private void init() {
@@ -439,9 +439,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         public boolean onConversationPortraitClick(Context context, Conversation.ConversationType conversationType, String targetId) {
             return false;
         }
-
+        /**
+         * 当长按会话头像后执行。
+         *
+         * @param context          上下文。
+         * @param conversationType 会话类型。
+         * @param targetId         被点击的用户id。
+         * @return 如果用户自己处理了点击后的逻辑处理，则返回 true，否则返回 false，false 走融云默认处理方式。
+         */
         @Override
         public boolean onConversationPortraitLongClick(Context context, Conversation.ConversationType conversationType, String targetId) {
+
             return false;
         }
 
@@ -752,10 +760,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //            finish();
 //            System.exit(0);
 //            RongIM.getInstance().disconnect();
+            System.exit(0);
             mIntent = new Intent(this, FloatService.class);
             stopService(mIntent);
             finish();
-            System.exit(0);
         }
     }
 

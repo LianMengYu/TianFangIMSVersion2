@@ -57,6 +57,8 @@ public class CreateGroup_GridView_Adapter extends BaseAdapter {
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile + mList.get(position).getLogo())
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(hodler.img);
         hodler.text.setText(mList.get(position).getName());
         return convertView;

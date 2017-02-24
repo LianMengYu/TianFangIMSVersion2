@@ -25,7 +25,7 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
     private CompoundButton sw_sttings_notfaction;
     private ArrayList<TreeInfo> mTreeInfos;
     Intent mIntent;
-    Boolean flag = true;
+    Boolean flag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -114,6 +114,9 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
         if (mUserInfo != null) {
             Picasso.with(mContext)
                     .load(mUserInfo.getPortraitUri())
+                    .resize(500, 500)
+                    .placeholder(R.mipmap.default_photo)
+                    .error(R.mipmap.default_photo)
                     .into(iv_user_photo);
 //            iv_user_photo.setImageURI(mUserInfo.getPortraitUri());
             tv_user_name.setText(mUserInfo.getName());

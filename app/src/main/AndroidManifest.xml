@@ -72,7 +72,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--用于悬浮球点击HOME按键退出之后显示与周末的权限-->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".TianFangIMSApplication"
@@ -180,13 +180,12 @@
         <activity android:name=".activity.AddGroupActivity">
 
         </activity>
-        <activity android:name=".activity.SelectPhoteActivity"></activity>
-        <activity android:name=".activity.VideoActivity"></activity>
-        <activity android:name=".activity.TreeActivity"></activity>
-        <activity android:name=".activity.Group_AddTopContactsActivity">
-
-        </activity>
+        <activity android:name=".activity.SelectPhoteActivity" />
+        <activity android:name=".activity.VideoActivity" />
+        <activity android:name=".activity.TreeActivity" />
+        <activity android:name=".activity.Group_AddTopContactsActivity"></activity>
         <activity android:name=".activity.InfoActivity" />
+        <activity android:name=".activity.SearchActivity" />
         <!--会话页面-->
         <activity
             android:name=".activity.ConversationActivity"
@@ -248,21 +247,21 @@
             android:name="com.amap.api.v2.apikey"
             android:value="d23e3db8d2b5c453e35e0bc37a1bc37a" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name="com.amap.api.location.APSService"/>
 
-        <receivers
-            android:name=".receiver.SealNotificationReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
-            </intent-filter>
-        </receivers>
+        <!--<receivers-->
+            <!--android:name=".receiver.SealNotificationReceiver"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />-->
+                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />-->
+                <!--<action android:name="io.rong.push.intent.MESSAGE_CLICKED" />-->
+                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />-->
+            <!--</intent-filter>-->
+        <!--</receivers>-->
 
         <!--悬浮权限-->
-        <service android:name=".service.FloatService"></service>
+        <service android:name=".service.FloatService"/>
     </application>
 
 </manifest>
