@@ -81,7 +81,6 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
     @Override
     protected View newView(Context context, int position, ViewGroup group) {
         View result = mInflater.inflate(R.layout.rc_item_conversation, null);
-
         ViewHolder holder = new ViewHolder();
         holder.layout = findViewById(result, R.id.rc_item_conversation);
         holder.leftImageLayout = findViewById(result, R.id.rc_item1);

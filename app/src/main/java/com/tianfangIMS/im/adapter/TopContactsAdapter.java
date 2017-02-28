@@ -14,7 +14,6 @@ import com.tianfangIMS.im.bean.TopContactsListBean;
 
 /**
  * Created by LianMengYu on 2017/2/3.
- *
  */
 
 public class TopContactsAdapter extends BaseAdapter {
@@ -44,25 +43,27 @@ public class TopContactsAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHodler viewHodler;
-        if (convertView == null){
+        if (convertView == null) {
             convertView = View.inflate(mContext, R.layout.contacts_person_item, null);
-            viewHodler =new ViewHodler();
-            viewHodler.img = (ImageView)convertView.findViewById(R.id.iv_person_photo);
-            viewHodler.name = (TextView)convertView.findViewById(R.id.tv_person_departmentName);
-            viewHodler.level = (TextView)convertView.findViewById(R.id.tv_person_departmentTxt);
+            viewHodler = new ViewHodler();
+            viewHodler.img = (ImageView) convertView.findViewById(R.id.iv_person_photo);
+            viewHodler.name = (TextView) convertView.findViewById(R.id.tv_person_departmentName);
+            viewHodler.level = (TextView) convertView.findViewById(R.id.tv_person_departmentTxt);
             convertView.setTag(viewHodler);
-        }else {
-            viewHodler = (ViewHodler)convertView.getTag();
+        } else {
+            viewHodler = (ViewHodler) convertView.getTag();
         }
 //        CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
         Picasso.with(mContext)
-                .load(ConstantValue.ImageFile+list.getText().get(position).getLogo())
+                .load(ConstantValue.ImageFile + list.getText().get(position).getLogo())
+
                 .into(viewHodler.img);
         viewHodler.name.setText(list.getText().get(position).getFullname());
-        viewHodler.level.setText(list.getText().get(position).getWorkno());
+        viewHodler.level.setText(list.getText().get(position).getSex());
         return convertView;
     }
-    public class ViewHodler{
+
+    public class ViewHodler {
         ImageView img;
         TextView name;
         TextView level;

@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -23,6 +27,7 @@ import com.tianfangIMS.im.R;
 
 public class Login_Welcome extends Activity {
     private Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,13 +44,14 @@ public class Login_Welcome extends Activity {
         //启动一个handler来限定3秒，然后调整Activity
         new Handler().postDelayed(runnable, 5000);
 
-        if (! Settings.canDrawOverlays(Login_Welcome.this)) {
+    if (Build.VERSION.SDK_INT >= 23) {
+        if(!Settings.canDrawOverlays(Login_Welcome.this)){
             Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                     Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent,10);
+            startActivityForResult(intent, 10);
         }
-
     }
+}
 
     Runnable runnable = new Runnable() {
         @Override
@@ -71,7 +77,7 @@ public class Login_Welcome extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 10) {
             if (!Settings.canDrawOverlays(this)) {
-                Toast.makeText(Login_Welcome.this,"not granted",Toast.LENGTH_SHORT);
+                Toast.makeText(Login_Welcome.this, "not granted", Toast.LENGTH_SHORT);
             }
         }
     }

@@ -107,7 +107,12 @@
             android:layout_weight="1"
             android:src="@drawable/talk_voice_flash"
             android:visibility="invisible" />
-
     </com.zhy.android.percent.support.PercentLinearLayout>
-
+    <Button
+        android:id="@+id/ceshi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="点击"
+        android:visibility="gone"
+        />
 </com.zhy.android.percent.support.PercentRelativeLayout>

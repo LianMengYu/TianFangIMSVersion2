@@ -53,6 +53,8 @@ public class SelectPhoto_GridView_Adapter extends BaseAdapter {
         Picasso.with(mContext)
                 .load(list.get(position))
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(img);
         return convertView;
     }

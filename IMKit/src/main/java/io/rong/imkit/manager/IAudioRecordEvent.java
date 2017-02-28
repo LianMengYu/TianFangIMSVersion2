@@ -9,4 +9,5 @@ public class IAudioRecordEvent {
     public final static int AUDIO_RECORD_EVENT_ABORT = 6;
     public final static int AUDIO_RECORD_EVENT_TIME_OUT = 7;
     public final static int AUDIO_RECORD_EVENT_TICKER = 8;
+    public final static int AUDIO_RECORD_EVENT_SEND_FILE = 9;
 }

@@ -1,11 +1,13 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import com.google.gson.Gson;
@@ -33,13 +35,13 @@ import okhttp3.Response;
  * 常用联系人
  */
 
-public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener,View.OnClickListener {
     private static final String TAG = "MineTopContactsActivity";
     private Context mContext;
     private ListView lv_topContacts;
     private TopContactsAdapter topContactsAdapter;
     private TopContactsListBean bean;
-
+    private EditText et_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +54,12 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
 
     private void initView() {
         lv_topContacts = (ListView) this.findViewById(R.id.lv_group_addtopcontacts);
+        et_search = (EditText)this.findViewById(R.id.et_search);
+        et_search.setFocusable(false);
+        et_search.setOnClickListener(this);
         lv_topContacts.setOnItemClickListener(this);
+
+
     }
 
 
@@ -117,6 +124,15 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
                         return;
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.et_search:
+                startActivity(new Intent(mContext, SearchActivity.class));
+                break;
+        }
     }
 
     @Override

@@ -58,8 +58,8 @@
     </style>
 
     <style name="userinfo_dialog">
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">#373E61</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">#333333</item>
     </style>
 
     <style name="me_imageview">

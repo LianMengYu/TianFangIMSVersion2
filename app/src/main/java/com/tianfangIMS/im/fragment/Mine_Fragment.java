@@ -102,6 +102,8 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
         Picasso.with(getActivity())
                 .load(ConstantValue.ImageFile + loginBean.getText().getLogo())
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(iv_me_icon_photo);
         tv_me_username.setText(loginBean.getText().getFullname());
         tv_mine_company.setText(" ");
@@ -224,8 +226,8 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
             Log.e("怎么可能", "---tmpMap:" + tmpMap);
             TreeInfo mInfo = tmpMap.get(id);
             Log.e("怎么可能", "---TreeInfo:" + mInfo.getPid() + "----Flag:" + mInfo.getFlag());
-            if(mInfo.getPid() > 0 ){
-                if(mInfo.getFlag() != 1){
+            if (mInfo.getPid() > 0) {
+                if (mInfo.getFlag() != 1) {
                     tmpList.add(mInfo);
                 }
                 getParent(mInfo.getPid());

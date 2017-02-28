@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.bean.ImageItem;
 import com.lzy.imagepicker.ui.ImageGridActivity;
@@ -32,6 +33,7 @@ import com.tianfangIMS.im.utils.PicassoImageLoader;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Response;
@@ -85,10 +87,8 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
         friendinfo_address = (TextView) this.findViewById(R.id.tv_userinfo_address);
         friendinfo_chanpin = (TextView) this.findViewById(R.id.tv_userinfo_department);
         friendinfo_jingli = (TextView) this.findViewById(R.id.tv_userinfo_position);
-
         iv_userinfo_photo = (ImageView) this.findViewById(R.id.iv_userinfo_photo);
-
-
+        mphone = (TextView)this.findViewById(R.id.tv_userinfo_phonenumber);
         rl_useinfo_phone.setOnClickListener(this);
         ly_useinfo_photo.setOnClickListener(this);
     }
@@ -104,13 +104,39 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
     }
 
     private void GetUserInfo() {
-        Gson gson = new Gson();
+        final Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
-        Picasso.with(mContext)
-                .load(ConstantValue.ImageFile + loginBean.getText().getLogo())
-                .into(iv_userinfo_photo);
-        SetUserInfo(loginBean.getText().getEmail(), loginBean.getText().getMobile(), loginBean.getText().getTelephone(), null, loginBean.getText().getAddress(),
-                loginBean.getText().getIntro(), loginBean.getText().getWorkno());
+        String ids = loginBean.getText().getId();
+        OkGo.post(ConstantValue.GETONEPERSONINFO)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", ids)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Gson gson = new Gson();
+                            Map<String, String> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            Log.e("userinfo打印map", ":" + map);
+                            SetUserInfo(map.get("email"), map.get("mobile"), map.get("telephone"), map.get("organname"), map.get("address"),
+                                    map.get("branchname"), map.get("positionname"));
+                            Picasso.with(mContext)
+                                    .load(ConstantValue.ImageFile + map.get("logo"))
+                                    .into(iv_userinfo_photo);
+                        }
+                    }
+                });
+
     }
 
     @Override
@@ -151,7 +177,6 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         Log.e("是否执行成功", "OnSuccess：" + s);
-                        LoadDialog.dismiss(mContext);
                         if (!TextUtils.isEmpty(s)) {
                             Log.e("查看上传情况", "打印返回数据：" + s);
                         } else {
@@ -169,8 +194,9 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                     @Override
                     public void upProgress(long currentSize, long totalSize, float progress, long networkSpeed) {
                         super.upProgress(currentSize, totalSize, progress, networkSpeed);
-                        Log.e("查看上传回调", "上传图片大小：" + currentSize + "--图片大小:" + totalSize + "--Progress:" + progress + "--当前网速:" + networkSpeed);
+
                         if (currentSize == totalSize) {
+                            Log.e("查看上传回调", "上传图片大小：" + currentSize + "--图片大小:" + totalSize + "--Progress:" + progress + "--当前网速:" + networkSpeed);
                             LoadDialog.dismiss(mContext);
                         }
                     }
@@ -189,6 +215,8 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                 Picasso.with(mContext)
                         .load(new File(images.get(0).path))
                         .resize(500, 500)
+                        .placeholder(R.mipmap.default_photo)
+                        .error(R.mipmap.default_photo)
                         .into(iv_userinfo_photo);
             } else {
                 Toast.makeText(this, "没有数据", Toast.LENGTH_SHORT).show();

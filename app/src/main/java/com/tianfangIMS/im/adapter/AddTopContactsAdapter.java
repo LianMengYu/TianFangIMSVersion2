@@ -88,6 +88,8 @@ public class AddTopContactsAdapter extends BaseAdapter {
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.get(position).getLogo())
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(holder.AddFriendPhoto);
         holder.AddFriendName.setText(mList.get(position).getName());
         holder.AddFriendLevel.setText(mList.get(position).getSex());

@@ -39,7 +39,6 @@ public class VideoActivity extends BaseActivity implements View.OnClickListener 
         main_call_free = (ImageView) findViewById(R.id.main_call_free);
         main_call_flash = (ImageView) findViewById(R.id.main_call_flash);
         main_call_talk = (ImageView) findViewById(R.id.main_call_talk);
-        main_call_blur.setImageBitmap(blur(BitmapFactory.decodeResource(getResources(), R.drawable.heiyan), 25f));
         setListener();
 
     }
@@ -52,20 +51,20 @@ public class VideoActivity extends BaseActivity implements View.OnClickListener 
         main_call_talk.setOnClickListener(this);
     }
 
-    private Bitmap blur(Bitmap bitmap, float radius) {
-        Bitmap output = Bitmap.createBitmap(bitmap); // 创建输出图片
-        RenderScript rs = RenderScript.create(this); // 构建一个RenderScript对象
-        ScriptIntrinsicBlur gaussianBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs)); // 创建高斯模糊脚本
-        Allocation allIn = Allocation.createFromBitmap(rs, bitmap); // 创建用于输入的脚本类型
-        Allocation allOut = Allocation.createFromBitmap(rs, output); // 创建用于输出的脚本类型
-        gaussianBlur.setRadius(radius); // 设置模糊半径，范围0f<radius<=25f
-        gaussianBlur.setInput(allIn); // 设置输入脚本类型
-        gaussianBlur.forEach(allOut); // 执行高斯模糊算法，并将结果填入输出脚本类型中
-        allOut.copyTo(output); // 将输出内存编码为Bitmap，图片大小必须注意
-        rs.finish();
-        rs.destroy(); // 关闭RenderScript对象，API>=23则使用rs.releaseAllContexts()
-        return output;
-    }
+//    private Bitmap blur(Bitmap bitmap, float radius) {
+//        Bitmap output = Bitmap.createBitmap(bitmap); // 创建输出图片
+//        RenderScript rs = RenderScript.create(this); // 构建一个RenderScript对象
+//        ScriptIntrinsicBlur gaussianBlur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs)); // 创建高斯模糊脚本
+//        Allocation allIn = Allocation.createFromBitmap(rs, bitmap); // 创建用于输入的脚本类型
+//        Allocation allOut = Allocation.createFromBitmap(rs, output); // 创建用于输出的脚本类型
+//        gaussianBlur.setRadius(radius); // 设置模糊半径，范围0f<radius<=25f
+//        gaussianBlur.setInput(allIn); // 设置输入脚本类型
+//        gaussianBlur.forEach(allOut); // 执行高斯模糊算法，并将结果填入输出脚本类型中
+//        allOut.copyTo(output); // 将输出内存编码为Bitmap，图片大小必须注意
+//        rs.finish();
+//        rs.destroy(); // 关闭RenderScript对象，API>=23则使用rs.releaseAllContexts()
+//        return output;
+//    }
 
     @Override
     public void onClick(View v) {

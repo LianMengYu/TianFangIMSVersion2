@@ -14,6 +14,11 @@ import com.tianfangIMS.im.service.FloatService;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
 
 /**
  * Created by LianMengYu on 2017/1/7.
@@ -24,9 +29,10 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
     private Context mContext;
     private CompoundButton sw_sttings_notfaction;
     private ArrayList<TreeInfo> mTreeInfos;
+    private RelativeLayout settting_clear_conversation;
     Intent mIntent;
-    Boolean flag = true;
-
+    Boolean flag = false;
+    ArrayList<String> strList;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,16 +42,17 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
         init();
         sw_sttings_notfaction.setChecked(flag);
     }
-
     private void init() {
         rl_newMessage = (RelativeLayout) this.findViewById(R.id.rl_newMessage);
         rl_resetPwd = (RelativeLayout) this.findViewById(R.id.rl_resetPwd);
         rl_setting_signout = (RelativeLayout) this.findViewById(R.id.rl_setting_signout);
         sw_sttings_notfaction = (CompoundButton) this.findViewById(R.id.sw_sttings_notfaction);
+        settting_clear_conversation = (RelativeLayout)this.findViewById(R.id.settting_clear_conversation);
 
         rl_newMessage.setOnClickListener(this);
         rl_resetPwd.setOnClickListener(this);
         rl_setting_signout.setOnClickListener(this);
+        settting_clear_conversation.setOnClickListener(this);
 
         sw_sttings_notfaction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -72,21 +79,32 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
 
     }
 
-    //预留登出接口
-    private void Signout() {
-//        OkGo.post(ConstantValue.SINGOUTUSER)
-//                .tag(this)
-//                .connTimeOut(10000)
-//                .readTimeOut(10000)
-//                .writeTimeOut(10000)
-//                .execute(new StringCallback() {
-//                    @Override
-//                    public void onSuccess(String s, Call call, Response response) {
-//                        if()
-//                    }
-//                });
-    }
+    private void clearConversation(){
+        List<Conversation> list = RongIM.getInstance().getRongIMClient().getConversationList();
+        for (int i = 0; i < list.size(); i++) {
+            RongIM.getInstance().clearMessages(list.get(i).getConversationType(), list.get(i).getTargetId(), new RongIMClient.ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                }
 
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                }
+            });
+            RongIM.getInstance().removeConversation(list.get(i).getConversationType(), list.get(i).getTargetId(), new RongIMClient.ResultCallback<Boolean>() {
+                @Override
+                public void onSuccess(Boolean aBoolean) {
+                    NToast.shortToast(mContext,"聊天记录删除成功");
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                }
+            });
+        }
+    }
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -106,11 +124,9 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 break;
+            case R.id.settting_clear_conversation:
+                clearConversation();
+                break;
         }
     }
-
-//    @Override
-//    public void initView() {
-//
-//    }
 }

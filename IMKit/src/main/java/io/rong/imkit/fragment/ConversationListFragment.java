@@ -80,6 +80,7 @@ public class ConversationListFragment extends UriFragment implements
                 Conversation.ConversationType.PUBLIC_SERVICE,
                 Conversation.ConversationType.APP_PUBLIC_SERVICE
         };
+
         //ConversationListFragment config
         for (Conversation.ConversationType conversationType : defConversationType) {
             if (uri.getQueryParameter(conversationType.getName()) != null) {

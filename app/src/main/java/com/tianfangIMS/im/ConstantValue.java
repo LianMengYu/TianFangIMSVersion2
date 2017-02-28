@@ -6,8 +6,11 @@ package com.tianfangIMS.im;
  */
 
 public class ConstantValue {
-    //服务器访问地址
+    //测试服务器访问地址
     public static String Urls = "http://35.164.107.27:8080/im/";
+
+    //天坊服务器
+//    public static String Urls = "http://120.26.42.225:8080/sealtalk/";
 
     public static final String AFTERLOGINUSERINFO = "member!getOneOfMember";//获取登录后用户单独的信息接口
 

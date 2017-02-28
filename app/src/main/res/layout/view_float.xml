@@ -7,7 +7,7 @@
         android:id="@+id/view_float_cv"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:visibility="gone"></com.tianfangIMS.im.view.CustomView>
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/view_float_iv"

@@ -1,11 +1,13 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -38,7 +40,7 @@ import okhttp3.Response;
  * 我的群组
  */
 
-public class MineGroupActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class MineGroupActivity extends BaseActivity implements AdapterView.OnItemClickListener ,View.OnClickListener{
     private static final String TAG = "MineGroupActivity";
     private Context mContext;
     private List<MineGroupChildBean> mList = new ArrayList<MineGroupChildBean>();
@@ -52,7 +54,7 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
     GroupAdapter mGroupAdapter;
 
     Gson mGson;
-
+    private EditText et_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,13 +63,16 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
         setTitle("我的群组");
         initView();
         GetGroupList();
-
     }
 
     public void initView() {
         activity_group_lv_data = (ListView) findViewById(R.id.activity_group_lv_data);
         activity_group_lv_data.setOnItemClickListener(this);
         tv_groupIsNull = (TextView) findViewById(R.id.tv_groupIsNull);
+        et_search = (EditText)findViewById(R.id.et_search);
+        et_search.setFocusable(false);
+        et_search.setOnClickListener(this);
+//        et_search.setOnClickListener(this);
 //        mListView = (ListView) this.findViewById(R.id.minegroup_list);
 
 //        minegroup_list_ICreate = (ListView) this.findViewById(R.id.minegroup_list_ICreate);
@@ -137,6 +142,15 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
                         return;
                     }
                 });
+    }
+
+    @Override
+    public void onClick(View v) {
+       switch (v.getId()){
+           case R.id.et_search:
+               startActivity(new Intent(mContext, SearchGroupActivity.class));
+               break;
+       }
     }
 
     @Override

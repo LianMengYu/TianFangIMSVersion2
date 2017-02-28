@@ -83,6 +83,8 @@ public class Group_AddTopContactsAdapter  extends BaseAdapter{
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.getText().get(position).getLogo())
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(viewHodler.img);
         viewHodler.name.setText(mList.getText().get(position).getFullname());
         viewHodler.level.setText(mList.getText().get(position).getSex());

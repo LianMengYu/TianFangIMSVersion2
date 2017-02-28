@@ -2,7 +2,6 @@ package io.rong.ptt.kit;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.TextView;
@@ -102,17 +101,20 @@ public class PTTExtensionModule implements IExtensionModule, PTTStateListener {
                                 if (rongExtension == null) {
                                     return;
                                 }
-                                Context context = rongExtension.getContext();
-                                Intent intent = new Intent(context, PTTSessionActivity.class);
-                                intent.putStringArrayListExtra("users", (ArrayList<String>) users);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent);
+//                                Context context = rongExtension.getContext();
+////                                Intent intent = new Intent(context, PTTSessionActivity.class);
+//                                Intent intent = new Intent();
+//                                intent.setAction("com.android.action.MY_ACTION");
+//                                intent.putExtra("pages",1);
+//                                intent.putStringArrayListExtra("users", (ArrayList<String>) users);
+//                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                context.startActivity(intent);
+//                                Toast.makeText(context,"-----------",Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
                             public void onError(String msg) {
                                 // TODO
-
                             }
                         });
                     }

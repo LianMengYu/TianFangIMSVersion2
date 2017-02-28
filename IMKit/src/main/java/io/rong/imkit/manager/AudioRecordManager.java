@@ -32,6 +32,8 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.VoiceMessage;
 
+import static io.rong.imkit.manager.IAudioRecordEvent.AUDIO_RECORD_EVENT_SEND_FILE;
+
 public class AudioRecordManager implements Handler.Callback {
     private final static String TAG = "AudioRecordManager";
 
@@ -144,8 +146,8 @@ public class AudioRecordManager implements Handler.Callback {
                 case IAudioRecordEvent.AUDIO_RECORD_EVENT_RELEASE:
                     final boolean checked = checkAudioTimeLength();
                     boolean activityFinished = false;
-                    if(msg.obj != null) {
-                        activityFinished = (boolean)msg.obj;
+                    if (msg.obj != null) {
+                        activityFinished = (boolean) msg.obj;
                     }
                     if (checked && !activityFinished) {
                         mStateIV.setImageResource(R.drawable.rc_ic_volume_wraning);
@@ -156,14 +158,13 @@ public class AudioRecordManager implements Handler.Callback {
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                stopRec();
-                                if (!checked) {
-                                    sendAudioFile();
-                                }
-                                destroyView();
-                                mCurAudioState = idleState;
+                                AudioStateMessage message = AudioStateMessage.obtain();
+                                message.what = AUDIO_RECORD_EVENT_SEND_FILE;
+                                message.obj = !checked;
+                                sendMessage(message);
                             }
                         }, 500);
+                        mCurAudioState = sendingState;
                     } else {
                         stopRec();
                         if (!checked && activityFinished) {
@@ -193,6 +194,7 @@ public class AudioRecordManager implements Handler.Callback {
                             }
                         }, 500);
                         mCurAudioState = idleState;
+
                     }
                     break;
                 case IAudioRecordEvent.AUDIO_RECORD_EVENT_ABORT:
@@ -201,6 +203,23 @@ public class AudioRecordManager implements Handler.Callback {
                     deleteAudioFile();
                     mCurAudioState = idleState;
                     idleState.enter();
+                    break;
+            }
+        }
+    }
+
+    IAudioState sendingState = new SendingState();
+
+    class SendingState extends IAudioState {
+        @Override
+        void handleMessage(AudioStateMessage message) {
+            RLog.d(TAG, "SendingState handleMessage " + message.what);
+            switch (message.what) {
+                case IAudioRecordEvent.AUDIO_RECORD_EVENT_SEND_FILE:
+                    stopRec();
+                    if ((boolean) message.obj) sendAudioFile();
+                    destroyView();
+                    mCurAudioState = idleState;
                     break;
             }
         }
@@ -531,7 +550,7 @@ public class AudioRecordManager implements Handler.Callback {
         RLog.d(TAG, "sendAudioFile path = " + mAudioPath);
         if (mAudioPath != null) {
             File file = new File(mAudioPath.getPath());
-            if(!file.exists() || file.length() == 0) {
+            if (!file.exists() || file.length() == 0) {
                 RLog.e(TAG, "sendAudioFile fail cause of file length 0 or audio permission denied");
                 return;
             }

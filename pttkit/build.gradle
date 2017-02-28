@@ -25,5 +25,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile project(':IMKit')
     compile 'io.kvh:amr:1.1.1'
-
+    compile project(path: ':ptt')
 }

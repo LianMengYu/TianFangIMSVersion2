@@ -1,12 +1,14 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -14,6 +16,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
@@ -57,7 +60,7 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
     private Group_AddTopContactsAdapter group_addTopContactsAdapter;
     private GroupTopContacts_GridView_Adapter groupTopContacts_gridView_adapter;
     private TopContactsListBean bean;
-
+    private EditText et_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +76,9 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
         rl_selectAddGroupContacts_background = (RelativeLayout) this.findViewById(R.id.rl_selectAddContacts_background);
         gv_addContacts = (GridView) this.findViewById(R.id.gv_addContacts);
         tv_addfriend_submit = (TextView) this.findViewById(R.id.tv_addfriend_submit);
+        et_search = (EditText)this.findViewById(R.id.et_search);
+        et_search.setFocusable(false);
+        et_search.setOnClickListener(this);
         gv_addContacts.setOnItemClickListener(this);
         tv_addfriend_submit.setOnClickListener(this);
         lv_topContacts.setOnItemClickListener(this);
@@ -102,18 +108,25 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
                         Log.e(TAG, "测试返回JSON数据：" + s);
                         if (!TextUtils.isEmpty(s)) {
                             Gson gson = new Gson();
+                            Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            String code = map.get("code").toString();
+                            if (code.equals("0.0")) {
+                                NToast.longToast(mContext, "您还没有联系人");
+                                return;
+                            }
+                            if ((code.equals("1.0"))) {
+                                Gson gson1 = new Gson();
 //                            topContactsList = gson.fromJson(s, listType);
-                            bean = gson.fromJson(s, TopContactsListBean.class);
-
-                            group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, bean);
-                            lv_topContacts.setAdapter(group_addTopContactsAdapter);
-                            group_addTopContactsAdapter.notifyDataSetChanged();
-
+                                bean = gson1.fromJson(s, TopContactsListBean.class);
+                                group_addTopContactsAdapter = new Group_AddTopContactsAdapter(mContext, bean);
+                                lv_topContacts.setAdapter(group_addTopContactsAdapter);
+                                group_addTopContactsAdapter.notifyDataSetChanged();
+                            }
                         } else {
                             return;
                         }
                     }
-
                     @Override
                     public void onError(Call call, Response response, Exception e) {
                         super.onError(call, response, e);
@@ -256,6 +269,9 @@ public class Group_AddTopContactsActivity extends BaseActivity implements Adapte
         switch (v.getId()) {
             case R.id.tv_addfriend_submit:
                 AddGroup();
+                break;
+            case R.id.et_search:
+                startActivity(new Intent(mContext, SearchActivity.class));
                 break;
         }
     }

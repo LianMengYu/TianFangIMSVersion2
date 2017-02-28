@@ -35,6 +35,7 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.bean.TopContactsBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
+import com.tianfangIMS.im.dialog.ConversationListLongDialog;
 import com.tianfangIMS.im.dialog.MainPlusDialog;
 import com.tianfangIMS.im.fragment.Contacts_Fragment;
 import com.tianfangIMS.im.fragment.ConversationListDynamicActivtiy;
@@ -172,6 +173,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //        startActivity(new Intent(MainActivity.this, ConversationListDynamicActivtiy.class));
 //        CommonUtil.GetImage(this,GetUesrBean().getText().getLogo());
     }
+
     /**
      * 设置头部+号是否可见
      *
@@ -193,7 +195,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //    public void initView() {
 //
 //    }
-
 
 
     private void init() {
@@ -444,10 +445,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         public boolean onConversationPortraitLongClick(Context context, Conversation.ConversationType conversationType, String targetId) {
             return false;
         }
-
         @Override
-        public boolean onConversationLongClick(Context context, View view, UIConversation conversation) {
-            return false;
+        public boolean onConversationLongClick(Context context, View view,final UIConversation conversation) {
+            RongIMClient.getInstance().getConversationNotificationStatus(conversation.getConversationType(), conversation.getConversationTargetId(), new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
+                @Override
+                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
+                    ConversationListLongDialog dialog = new ConversationListLongDialog(mContext,conversation.getConversationType(),conversation.getConversationTargetId(),conversationNotificationStatus.getValue());
+                    dialog.show();
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode errorCode) {
+
+                }
+            });
+            return true;
         }
     }
 
@@ -669,25 +681,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         Gson gson1 = new Gson();
         String jsondata = CommonUtil.getFrientUserInfo(mContext);
         Log.e(TAG, "我回去的信息：" + jsondata);
-        Type listTypeJson = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        Map<String, Object> map = gson1.fromJson(jsondata, listTypeJson);
-        if (0 == (double) map.get("code")) {
-            Log.e(TAG, "打印code：" + (double) map.get("code"));
-            return null;
-        } else {
-
-            Gson gson = new Gson();
-            Type listType = new TypeToken<TopContactsListBean>() {
+        if(!TextUtils.isEmpty(jsondata)){
+            Type listTypeJson = new TypeToken<Map<String, Object>>() {
             }.getType();
-            TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(mContext), listType);
-            Log.e(TAG, "打印bean：" + bean.getText());
-            if (bean != null && bean.getText().size() > 0) {
-                for (int i = 0; i < bean.getText().size(); i++) {
-                    if (bean.getText().get(i).getId().equals(s)) {
-                        Log.e(TAG, "用户新提供的S：" + s);
-                        Log.e(TAG, "自己的id" + bean.getText().get(i).getId());
-                        return new UserInfo(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), Uri.parse(ConstantValue.ImageFile + bean.getText().get(i).getLogo()));
+            Map<String, Object> map = gson1.fromJson(jsondata, listTypeJson);
+            if (0 == (double) map.get("code")) {
+                Log.e(TAG, "打印code：" + (double) map.get("code"));
+                return null;
+            } else {
+
+                Gson gson = new Gson();
+                Type listType = new TypeToken<TopContactsListBean>() {
+                }.getType();
+                TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(mContext), listType);
+                Log.e(TAG, "打印bean：" + bean.getText());
+                if (bean != null && bean.getText().size() > 0) {
+                    for (int i = 0; i < bean.getText().size(); i++) {
+                        if (bean.getText().get(i).getId().equals(s)) {
+                            Log.e(TAG, "用户新提供的S：" + s);
+                            Log.e(TAG, "自己的id" + bean.getText().get(i).getId());
+                            return new UserInfo(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), Uri.parse(ConstantValue.ImageFile + bean.getText().get(i).getLogo()));
+                        }
                     }
                 }
             }
@@ -700,26 +714,28 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         String str = CommonUtil.getGroupUserInfo(mContext);
         Log.e(TAG, "首先获取信息：" + str);
-        Type listType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        Gson gson = new Gson();
-        Map<String, Object> jsonData = gson.fromJson(str, listType);
-        Log.e(TAG, "群组数据:" + jsonData + "---返回的数据：" + jsonData.get("code"));
-        if (jsonData.get("code").equals("0.0")) {
-            Map<String, String> textData = (Map<String, String>) jsonData.get("text");
-            Log.e(TAG, "群组信息提供者:" + textData);
-        } else {
-            Log.e(TAG, "执行没有");
-            Type listType1 = new TypeToken<GroupListBean>() {
+        if(!TextUtils.isEmpty(str)){
+            Type listType = new TypeToken<Map<String, Object>>() {
             }.getType();
-            Gson gson1 = new Gson();
-            GroupListBean GroupAllBean = gson1.fromJson(CommonUtil.getGroupUserInfo(mContext), listType1);
-            ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
-            Log.e(TAG, "群组信息提供者:" + GroupBeanList);
-            if (GroupBeanList != null && GroupBeanList.size() > 0) {
-                for (GroupBean i : GroupBeanList) {
-                    if (i.getGID().equals(groupId)) {
-                        return new Group(i.getGID(), i.getName(), Uri.parse(ConstantValue.ImageFile + i.getLogo()));
+            Gson gson = new Gson();
+            Map<String, Object> jsonData = gson.fromJson(str, listType);
+            Log.e(TAG, "群组数据:" + jsonData + "---返回的数据：" + jsonData.get("code"));
+            if (jsonData.get("code").equals("0.0")) {
+                Map<String, String> textData = (Map<String, String>) jsonData.get("text");
+                Log.e(TAG, "群组信息提供者:" + textData);
+            } else {
+                Log.e(TAG, "执行没有");
+                Type listType1 = new TypeToken<GroupListBean>() {
+                }.getType();
+                Gson gson1 = new Gson();
+                GroupListBean GroupAllBean = gson1.fromJson(CommonUtil.getGroupUserInfo(mContext), listType1);
+                ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
+                Log.e(TAG, "群组信息提供者:" + GroupBeanList);
+                if (GroupBeanList != null && GroupBeanList.size() > 0) {
+                    for (GroupBean i : GroupBeanList) {
+                        if (i.getGID().equals(groupId)) {
+                            return new Group(i.getGID(), i.getName(), Uri.parse(ConstantValue.ImageFile + i.getLogo()));
+                        }
                     }
                 }
             }
@@ -752,10 +768,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //            finish();
 //            System.exit(0);
 //            RongIM.getInstance().disconnect();
+            System.exit(0);
             mIntent = new Intent(this, FloatService.class);
             stopService(mIntent);
             finish();
-            System.exit(0);
         }
     }
 
@@ -769,7 +785,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onCountChanged(int count) {
-        Log.e(TAG, "打印数量:" + count);
         if (count == 0) {
             tv_tab_menu_msg_num.setVisibility(View.GONE);
         } else if (count > 0 && count < 100) {

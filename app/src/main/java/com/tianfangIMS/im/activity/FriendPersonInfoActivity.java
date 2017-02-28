@@ -85,17 +85,19 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                                     userInfoBean.getAddress(),
                                     userInfoBean.getBranchname(),
                                     userInfoBean.getPositionname());
-                            Picasso.with(mContext)
-                                    .load(ConstantValue.ImageFile + userInfoBean.getLogo())
-                                    .into(iv_friendinfo_photo);
                         }
+//                        CommonUtil.GetImages(mContext,ConstantValue.ImageFile+userInfoBean.getLogo(),iv_friendinfo_photo);
+                        Picasso.with(mContext)
+                                .load(ConstantValue.ImageFile+userInfoBean.getLogo())
+                                .error(R.mipmap.default_image)
+                                .into(iv_friendinfo_photo);
                     }
+
                 });
     }
 
 
     private void init() {
-
         iv_friendinfo_photo = (ImageView) this.findViewById(R.id.iv_friendinfo_photo);
         tv_friendinfo_name = (TextView) this.findViewById(R.id.tv_friendinfo_name);
         friendinfo_email = (TextView) this.findViewById(R.id.friendinfo_email);
@@ -160,7 +162,7 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
     private void AddFriend() {
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
-        String UID = loginBean.getText().getAccount();
+        String UID = loginBean.getText().getId();
         OkGo.post(ConstantValue.ADDTOPCONTACTS)
                 .tag(this)
                 .connTimeOut(10000)
@@ -198,7 +200,7 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
     private void DelFriend() {
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
-        String UID = loginBean.getText().getAccount();
+        String UID = loginBean.getText().getId();
         OkGo.post(ConstantValue.DELTETFRIEND)
                 .tag(this)
                 .connTimeOut(10000)
@@ -212,6 +214,7 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                         super.onBefore(request);
                         LoadDialog.show(mContext);
                     }
+
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);

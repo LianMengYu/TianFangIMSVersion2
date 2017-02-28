@@ -83,7 +83,9 @@
         android:orientation="vertical">
 
         <RelativeLayout
+            android:id="@+id/settting_clear_conversation"
             android:layout_width="match_parent"
+
             android:layout_height="59dp">
 
             <TextView

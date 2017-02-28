@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
@@ -59,6 +60,7 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
     HashMap<Integer, Boolean> prepare;
     private String GroupID ;
     private String PrivateId;
+    private EditText et_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,7 +78,10 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
         rl_group_topcontacts.setOnClickListener(this);
         lv_addGroup_company = (ListView) this.findViewById(R.id.lv_addGroup_company);
         rl_allContacts = (RelativeLayout) this.findViewById(R.id.rl_allContacts);
+        et_search = (EditText) this.findViewById(R.id.et_search);
         rl_allContacts.setOnClickListener(this);
+        et_search.setFocusable(false);
+        et_search.setOnClickListener(this);
     }
 
 
@@ -233,6 +238,9 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);
                 finish();
+                break;
+            case R.id.et_search:
+                startActivity(new Intent(mContext, SearchActivity.class));
                 break;
         }
     }

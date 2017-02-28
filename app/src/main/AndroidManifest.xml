@@ -72,7 +72,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--用于悬浮球点击HOME按键退出之后显示与周末的权限-->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:name=".TianFangIMSApplication"
@@ -180,21 +180,20 @@
         <activity android:name=".activity.AddGroupActivity">
 
         </activity>
-        <activity android:name=".activity.SelectPhoteActivity"></activity>
-        <activity android:name=".activity.VideoActivity"></activity>
-        <activity android:name=".activity.TreeActivity"></activity>
-        <activity android:name=".activity.Group_AddTopContactsActivity">
-
-        </activity>
+        <activity android:name=".activity.SelectPhoteActivity" />
+        <activity android:name=".activity.VideoActivity" />
+        <activity android:name=".activity.TreeActivity" />
+        <activity android:name=".activity.Group_AddTopContactsActivity"></activity>
         <activity android:name=".activity.InfoActivity" />
+        <activity android:name=".activity.SearchActivity" />
         <!--会话页面-->
         <activity
-            android:name=".activity.ConversationActivity"
+            android:name="com.tianfangIMS.im.activity.ConversationActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
+                <action android:name="com.android.action.MY_ACTION"/>
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
@@ -224,6 +223,7 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.SearchGroupActivity"></activity>
         <activity android:name=".activity.FriendPersonInfoActivity"></activity>
         <!-- GCM 配置结束 < -->
         <provider
@@ -238,7 +238,7 @@
         <!--配置APPKey-->
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
-            android:value="e5t4ouvpe564a" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+            android:value="m7ua80guyso7u" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
      App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"
@@ -248,21 +248,21 @@
             android:name="com.amap.api.v2.apikey"
             android:value="d23e3db8d2b5c453e35e0bc37a1bc37a" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name="com.amap.api.location.APSService"/>
 
-        <receivers
-            android:name=".receiver.SealNotificationReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
-                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
-                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
-            </intent-filter>
-        </receivers>
+        <!--<receivers-->
+            <!--android:name=".receiver.SealNotificationReceiver"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />-->
+                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />-->
+                <!--<action android:name="io.rong.push.intent.MESSAGE_CLICKED" />-->
+                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />-->
+            <!--</intent-filter>-->
+        <!--</receivers>-->
 
         <!--悬浮权限-->
-        <service android:name=".service.FloatService"></service>
+        <service android:name=".service.FloatService"/>
     </application>
 
 </manifest>

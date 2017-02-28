@@ -60,6 +60,8 @@ public class GroupTopContacts_GridView_Adapter extends BaseAdapter {
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.get(position).getText().get(position).getLogo())
                 .resize(500, 500)
+                .placeholder(R.mipmap.default_photo)
+                .error(R.mipmap.default_photo)
                 .into(viewHolder.img);
         viewHolder.text.setText(mList.get(position).getText().get(position).getFullname());
         return convertView;

@@ -17,6 +17,7 @@ import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.PublicServiceProfile;
 import io.rong.imlib.model.UserInfo;
+import io.rong.message.RecallNotificationMessage;
 import io.rong.push.RongPushClient;
 import io.rong.push.notification.PushNotificationMessage;
 
@@ -108,7 +109,9 @@ public class RongNotificationManager {
                     } else {
                         notificationContent = message.getContent().getMentionedInfo().getMentionedContent();
                     }
-                } else {
+                } else if (message.getContent() instanceof RecallNotificationMessage){
+                    notificationContent = content.toString();
+                }else {
                     notificationContent = userName + " : " + content.toString();
                 }
                 pushMsg = new PushNotificationMessage();

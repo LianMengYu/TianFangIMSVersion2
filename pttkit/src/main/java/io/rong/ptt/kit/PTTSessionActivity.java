@@ -2,6 +2,7 @@ package io.rong.ptt.kit;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -48,9 +49,8 @@ public class PTTSessionActivity extends Activity implements PTTSessionStateListe
         pttClient = PTTClient.getInstance();
         PTTSession pttSession = pttClient.getCurrentPttSession();
         participants = pttSession.getParticipantIds();
-
+        Log.e("你好","::"+participants);
         pttClient.setPttSessionStateListener(this);
-
         micHolderImageView = (AsyncImageView) findViewById(R.id.micHolderImageView);
         micHolderTextView = (TextView) findViewById(R.id.micHolderTextView);
         holdToSpeakImageView = (ImageView) findViewById(R.id.holdToSpeakImageView);

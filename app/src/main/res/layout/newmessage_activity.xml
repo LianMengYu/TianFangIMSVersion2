@@ -7,6 +7,7 @@
     android:orientation="vertical">
 
     <RelativeLayout
+        android:id="@+id/newMessage_rl"
         android:layout_width="match_parent"
         android:layout_height="59dp"
         android:background="@color/White">
@@ -30,6 +31,11 @@
             android:textSize="14dp" />
     </RelativeLayout>
 
+    <LinearLayout
+    android:id="@+id/newMessage_tishi"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="34dp">
@@ -178,4 +184,5 @@
             android:layout_centerVertical="true"
             android:text="设置消息的通知推送和声音提示" />
     </RelativeLayout>
+</LinearLayout>
 </LinearLayout>

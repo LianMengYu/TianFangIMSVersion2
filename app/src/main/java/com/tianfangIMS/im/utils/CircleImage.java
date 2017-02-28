@@ -46,7 +46,7 @@ public class CircleImage extends ImageView {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.heiyan);
+        Bitmap mBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.default_image);
         setImageBitmap(drawCircle(mBitmap));
         mPaint.setColor(Color.parseColor("#6BDDC3"));
         //被注释的两行代码只渲染圆形的边 将其注释掉就会将整个圆进行指定颜色的渲染

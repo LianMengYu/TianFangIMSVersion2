@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.activity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
 import io.rong.imkit.fragment.UriFragment;
@@ -50,6 +52,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.UserInfo;
+import io.rong.ptt.kit.PTTExtensionModule;
 
 /**
  * Created by LianMengYu on 2017/1/16.
@@ -86,18 +89,21 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     private List<ImageView> imageViewList = new ArrayList<>();
     private LinearLayout ll_talk;
     private UserInfo mUserInfo;
-
+    private Context mContext;
+    private RongExtension extension;
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        setContentView(R.layout.conversation);
         setContentView(R.layout.conversation);
+        mContext = this;
         initParentView();
         initConversationViewPager();
         final Intent intent = getIntent();
         mTargetId = intent.getData().getQueryParameter("targetId");
-
+        PTTExtensionModule pttExtensionModule = new PTTExtensionModule(mContext,true,10000);
+        pttExtensionModule.onAttachedToExtension(extension);
         //10000 为 Demo Server 加好友的 id，若 targetId 为 10000，则为加好友消息，默认跳转到 NewFriendListActivity
         // Demo 逻辑
         if (mTargetId != null && mTargetId.equals("10000")) {

@@ -10,7 +10,7 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/search_createGroup"
+            android:id="@+id/search_infoactivity"
             layout="@layout/search_layout" />
 
         <Button

@@ -1,5 +1,6 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -86,7 +88,8 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     boolean isChecked;
 
     int oldLevel, selectedCount;
-
+    private LinearLayout search_infoactivity;
+    private EditText iv_search_icon;
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -103,6 +106,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     int parentLevel;
     private TextView tv_creategroup_submit;
     private RelativeLayout rl_selectAddContacts_background;
+    private Context mContext;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -148,6 +152,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         setContentView(R.layout.activity_info);
         Groupid = getIntent().getStringExtra("Groupid");
         PrivateID = getIntent().getStringExtra("PrivateChat");
+        mContext = this;
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
         parentLevel = getIntent().getIntExtra("parentLevel", -1);
@@ -162,6 +167,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 GetInfo();
             }
         });
+        iv_search_icon = (EditText)this.findViewById(R.id.et_search);
         gv_create = (GridView) this.findViewById(R.id.gv_create);
         gv_create.setOnItemClickListener(this);
         activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
@@ -169,6 +175,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
         activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
         tv_creategroup_submit = (TextView) this.findViewById(R.id.tv_creategroup_submit);
+        search_infoactivity = (LinearLayout)this.findViewById(R.id.search_infoactivity);
+        search_infoactivity.setOnClickListener(this);
+        iv_search_icon.setFocusable(false);
+        iv_search_icon.setOnClickListener(this);
         rl_selectAddContacts_background = (RelativeLayout) this.findViewById(R.id.rl_selectAddContacts_background);
         tv_creategroup_submit.setOnClickListener(this);
 //        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
@@ -291,7 +301,9 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         mTreeInfo = mTreeInfos.get(position);
         //点击的选项为员工类型
         if (mTreeInfo.getFlag() == 1) {
-            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
+            String ids = String.valueOf(mTreeInfo.getId());
+            RongIM.getInstance().startPrivateChat(mContext, ids, mTreeInfo.getName());
             return;
         }
         isChecked = mTreeInfos.get(position).isChecked();
@@ -581,6 +593,9 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                     }
 
                 }
+                break;
+            case R.id.et_search:
+                startActivity(new Intent(mContext, SearchActivity.class));
                 break;
         }
     }
