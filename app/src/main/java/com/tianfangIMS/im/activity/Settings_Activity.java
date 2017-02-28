@@ -33,6 +33,8 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
     Intent mIntent;
     Boolean flag = false;
     ArrayList<String> strList;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

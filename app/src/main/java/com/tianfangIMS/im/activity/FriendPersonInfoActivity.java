@@ -91,8 +91,14 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                                 .load(ConstantValue.ImageFile+userInfoBean.getLogo())
                                 .error(R.mipmap.default_image)
                                 .into(iv_friendinfo_photo);
+                            Picasso.with(mContext)
+                                    .load(ConstantValue.ImageFile + userInfoBean.getLogo())
+                                    .resize(500, 500)
+                                    .placeholder(R.mipmap.default_photo)
+                                    .error(R.mipmap.default_photo)
+                                    .into(iv_friendinfo_photo);
+                        }
                     }
-
                 });
     }
 
