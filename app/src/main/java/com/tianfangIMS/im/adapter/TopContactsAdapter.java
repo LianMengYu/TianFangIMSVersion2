@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -56,10 +57,13 @@ public class TopContactsAdapter extends BaseAdapter {
 //        CommonUtil.GetImages(mContext,list.getText().get(position).getLogo(),viewHodler.img);
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile + list.getText().get(position).getLogo())
-
+                .resize(80, 80)
+                .placeholder(R.mipmap.default_portrait)
+                .config(Bitmap.Config.ARGB_8888)
+                .error(R.mipmap.default_portrait)
                 .into(viewHodler.img);
         viewHodler.name.setText(list.getText().get(position).getFullname());
-        viewHodler.level.setText(list.getText().get(position).getSex());
+        viewHodler.level.setText(list.getText().get(position).getPosition());
         return convertView;
     }
 

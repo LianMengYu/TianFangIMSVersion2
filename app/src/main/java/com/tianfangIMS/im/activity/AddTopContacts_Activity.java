@@ -138,8 +138,6 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                             addTopContactsAdapter = new AddTopContactsAdapter(mContext, list);
                             mlistView.setAdapter(addTopContactsAdapter);
                             addTopContactsAdapter.notifyDataSetChanged();
-
-//                            mlistView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
                         } else {
                             NToast.longToast(mContext, "请输入搜索条件");
                             return;
@@ -157,7 +155,6 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                 });
     }
 
-    AddTopContactsAdapter.Holder holder;
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, final long id) {
@@ -241,7 +238,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         for (int i = 0; i < allChecked.size(); i++) {
             list.add(allChecked.get(i).getAccount().toString());
         }
-        Gson gson = new Gson();
+        final Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String UID = loginBean.getText().getAccount();
         String str = list.toString();
@@ -264,17 +261,23 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "返回json:" + s);
-                        if (!TextUtils.isEmpty(s)) {
-                            Gson gson = new Gson();
-                            AddFriendRequestBean bean = gson.fromJson(s, AddFriendRequestBean.class);
-                            if (bean.getCode().equals("1")) {
-                                NToast.shortToast(mContext, "添加好友成功");
-                            }
-                            if (bean.getCode().equals("0")) {
-                                NToast.shortToast(mContext, "存在好友关系");
-                            }
-                            if (bean.getCode().equals("-1")) {
-                                NToast.shortToast(mContext, "好友添加失败");
+                        Gson gson1 = new Gson();
+                        Map<String,Object> map =gson1.fromJson(s,new TypeToken<Map<String,Object>>(){}.getType());
+                        if ((double)map.get("code") == -1.0) {
+                            NToast.shortToast(mContext,"未知错误");
+                        }else {
+                            if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                                Gson gson = new Gson();
+                                AddFriendRequestBean bean = gson.fromJson(s, AddFriendRequestBean.class);
+                                if (bean.getCode().equals("1")) {
+                                    NToast.shortToast(mContext, "添加好友成功");
+                                }
+                                if (bean.getCode().equals("0")) {
+                                    NToast.shortToast(mContext, "存在好友关系");
+                                }
+                                if (bean.getCode().equals("-1")) {
+                                    NToast.shortToast(mContext, "好友添加失败");
+                                }
                             }
                         }
                     }

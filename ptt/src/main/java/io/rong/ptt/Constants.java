@@ -5,8 +5,8 @@ package io.rong.ptt;
  */
 
 class Constants {
-//    public static String URL_BASE = "http://111.200.55.12:8196/rce2/restapi/ptt";s
-    public static String URL_BASE = " http://35.164.107.27:8080/rce/restapi/ptt";
+//    public static String URL_BASE = "http://35.164.107.27:8080/rce/restapi/ptt";
+    public static String URL_BASE = "http://120.26.42.225:8080/rce/restapi/ptt";
     public static String URL_JOIN_SESSION = URL_BASE + "/joinsession";
     public static String URL_REQUIRE_CHANNEL = URL_BASE + "/requirechannel";
     public static String URL_RELEASE_CHANNEL = URL_BASE + "/releasechannel";

@@ -1,7 +1,9 @@
 package com.tianfangIMS.im.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -88,7 +90,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
         friendinfo_chanpin = (TextView) this.findViewById(R.id.tv_userinfo_department);
         friendinfo_jingli = (TextView) this.findViewById(R.id.tv_userinfo_position);
         iv_userinfo_photo = (ImageView) this.findViewById(R.id.iv_userinfo_photo);
-        mphone = (TextView)this.findViewById(R.id.tv_userinfo_phonenumber);
+        mphone = (TextView) this.findViewById(R.id.tv_userinfo_phonenumber);
         rl_useinfo_phone.setOnClickListener(this);
         ly_useinfo_photo.setOnClickListener(this);
     }
@@ -132,7 +134,10 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                                     map.get("branchname"), map.get("positionname"));
                             Picasso.with(mContext)
                                     .load(ConstantValue.ImageFile + map.get("logo"))
+                                    .resize(50, 50)
+                                    .error(R.mipmap.default_photo)
                                     .into(iv_userinfo_photo);
+                            Log.e("loginBean", "---userinfo：" + ConstantValue.ImageFile + map.get("logo"));
                         }
                     }
                 });
@@ -156,7 +161,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
     }
 
     private void UpdateUserPhoto(File imageItem) {
-        Gson gson = new Gson();
+        final Gson gson = new Gson();
         final LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String uid = loginBean.getText().getId();
         OkGo.post(ConstantValue.UPDATEUSERPHOTONOTCUT)
@@ -179,6 +184,19 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                         Log.e("是否执行成功", "OnSuccess：" + s);
                         if (!TextUtils.isEmpty(s)) {
                             Log.e("查看上传情况", "打印返回数据：" + s);
+                            Gson gson1 = new Gson();
+                            Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            if ((Double) map.get("code") == 1.0) {
+                                String logo = map.get("text").toString();
+                                SharedPreferences mySharedPreferences = getSharedPreferences("user_login",
+                                        Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = mySharedPreferences.edit();
+                                editor.putString("logo", logo);
+                                String name =mySharedPreferences.getString("logo", "");
+                                Log.e("PhotoName", "---:" + name);
+                                editor.commit();
+                            }
                         } else {
                             NToast.longToast(mContext, "上传失败" + s);
                         }

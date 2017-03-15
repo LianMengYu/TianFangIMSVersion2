@@ -2,15 +2,20 @@ package io.rong.imkit.widget.adapter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.RongContext;
+import io.rong.imkit.RongIM;
 import io.rong.imkit.model.ConversationProviderTag;
 import io.rong.imkit.model.UIConversation;
 import io.rong.imkit.utils.FrameViewForRongIM;
@@ -21,8 +26,12 @@ import io.rong.imlib.model.Conversation;
 
 public class ConversationListAdapter extends BaseAdapter<UIConversation> {
     private final static String TAG = "ConversationListAdapter";
+
     LayoutInflater mInflater;
     Context mContext;
+    //监听item滑动事件
+    GestureDetector detector;
+    FlingListeber listener;
 
     @Override
     public long getItemId(int position) {
@@ -99,7 +108,7 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
     }
 
     @Override
-    protected void bindView(View v, int position, final UIConversation data) {
+    protected void bindView(final View v, int position, final UIConversation data) {
         ViewHolder holder = (ViewHolder) v.getTag();
 
         if (data == null) {
@@ -126,6 +135,9 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
         String portrait = "";
         if (!TextUtils.isEmpty(data.getUIConversationTitle()) && data.getUIConversationTitle().length() > 2) {
             portrait = data.getUIConversationTitle().substring(1, 2);
+        }
+        else if (data.getUIConversationTitle().length() == 2) {
+            portrait = data.getUIConversationTitle().substring(data.getUIConversationTitle().length() - 1, data.getUIConversationTitle().length());
         } else {
             portrait = data.getUIConversationTitle();
         }
@@ -178,10 +190,10 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
                         holder.unReadMsgCount.setText(Integer.toString(data.getUnReadMessageCount()));
                     }
                     holder.unReadMsgCount.setVisibility(View.VISIBLE);
-                    holder.unReadMsgCountIcon.setImageResource(R.drawable.rc_unread_count_bg);
+                    holder.unReadMsgCountIcon.setImageResource(R.drawable.rc_unread_count_bg1);
                 } else {
                     holder.unReadMsgCount.setVisibility(View.GONE);
-                    holder.unReadMsgCountIcon.setImageResource(R.drawable.rc_unread_remind_list_count);
+                    holder.unReadMsgCountIcon.setImageResource(R.drawable.rc_unread_count_bg1);
                 }
             } else
 
@@ -237,7 +249,7 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
                     } else {
                         holder.unReadMsgCountRight.setText(Integer.toString(data.getUnReadMessageCount()));
                     }
-                    holder.unReadMsgCountRightIcon.setImageResource(R.drawable.rc_unread_count_bg);
+                    holder.unReadMsgCountRightIcon.setImageResource(R.drawable.rc_unread_count_bg1);
                 } else {
                     holder.unReadMsgCount.setVisibility(View.GONE);
                     holder.unReadMsgCountRightIcon.setImageResource(R.drawable.rc_unread_remind_without_count);
@@ -254,6 +266,16 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
         } else {
             throw new IllegalArgumentException("the portrait position is wrong!");
         }
+        holder.layout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (mOnPortraitItemClick != null)
+                    mOnPortraitItemClick.OnFlinglistber(v, data, motionEvent);
+                return false;
+            }
+        });
+
+
     }
 
     private OnPortraitItemClick mOnPortraitItemClick;
@@ -262,9 +284,79 @@ public class ConversationListAdapter extends BaseAdapter<UIConversation> {
         public void onPortraitItemClick(View v, UIConversation data);
 
         public boolean onPortraitItemLongClick(View v, UIConversation data);
+
+        public boolean OnFlinglistber(View v, UIConversation data, MotionEvent event);
     }
 
     public void setOnPortraitItemClick(OnPortraitItemClick onPortraitItemClick) {
         this.mOnPortraitItemClick = onPortraitItemClick;
+    }
+
+    class FlingListeber implements GestureDetector.OnGestureListener {
+        UIConversation conversation;
+        ViewHolder holder;
+
+        public UIConversation getConversation() {
+            return conversation;
+        }
+
+        public void setConversation(UIConversation conversation) {
+            this.conversation = conversation;
+        }
+
+        public ViewHolder getHolder() {
+            return holder;
+        }
+
+        public void setHolder(ViewHolder holder) {
+            this.holder = holder;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
+            if (e2.getX() - e1.getX() > 20) {
+                Log.e("aaaaaa", "执行左滑");
+                Toast.makeText(mContext, "左滑", Toast.LENGTH_SHORT).show();
+
+            } else if (e1.getX() - e2.getX() > 20) {
+
+                Toast.makeText(mContext, "右滑", Toast.LENGTH_SHORT).show();
+                UIConversation uiConversation = getConversation();
+
+                Conversation.ConversationType conversationType = uiConversation.getConversationType();
+                Log.e("aaaaaa", "执行右滑" + conversationType);
+                RongIM.getInstance().startConversation(mContext, conversationType, uiConversation.getConversationTargetId(), uiConversation.getUIConversationTitle());
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Log.e("aaaaaa", "执行了长按");
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                float distanceX, float distanceY) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            Toast.makeText(mContext, "点击item", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 }

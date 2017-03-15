@@ -1,8 +1,10 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
@@ -22,7 +24,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.rong.imkit.RongIM;
+import io.rong.imlib.model.Conversation;
 
 /**
  * Created by LianMengYu on 2017/2/23.
@@ -55,7 +57,7 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
         TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(mContext), listType);
         for (int i = 0; i < bean.getText().size(); i++) {
             searchList.add(new SearchUserBean(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(),
-                    bean.getText().get(i).getFullname(), bean.getText().get(i).getLogo(), bean.getText().get(i).getSex()));
+                    bean.getText().get(i).getMobile(), bean.getText().get(i).getLogo(), bean.getText().get(i).getPosition()));
         }
     }
 
@@ -72,17 +74,23 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                GetSearch(s);
+                searchAdapter = new SearchAdapter(mContext, searchData);
+                fragment_contacts_search.setAdapter(searchAdapter);
+                searchAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                GetSearch(s);
+                String file = s.toString();
+                if (TextUtils.isEmpty(file)) {
+                    searchData.clear();
+                }
             }
         });
     }
 
-    private void GetSearch(Editable s) {
+    private void GetSearch(CharSequence s) {
         searchData.clear();
         String input = s.toString();
         for (int i = 0; i < searchList.size(); i++) {
@@ -119,14 +127,17 @@ public class SearchActivity extends BaseActivity implements AdapterView.OnItemCl
                 searchData.add(searchList.get(i));
             }
         }
-        searchAdapter = new SearchAdapter(mContext, searchData);
-        fragment_contacts_search.setAdapter(searchAdapter);
-        searchAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        RongIM.getInstance().startPrivateChat(mContext, searchData.get(position).getId(), searchData.get(position).getName());
+//        RongIM.getInstance().startPrivateChat(mContext, searchData.get(position).getId(), searchData.get(position).getName());
+        Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", searchData.get(position).getId());
+        intent.putExtras(bundle);
+        intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+        startActivity(intent);
         finish();
     }
 }

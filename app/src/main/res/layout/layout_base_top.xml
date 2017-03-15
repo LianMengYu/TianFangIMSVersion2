@@ -97,7 +97,10 @@
             android:background="@null"
             android:scaleType="centerCrop"
             android:text="完成"
-            android:visibility="invisible" />
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
 
     </RelativeLayout>
 </LinearLayout>

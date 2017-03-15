@@ -33,8 +33,9 @@ public class GroupBean implements Serializable {
     private String annexlong;
     private String notice;
     private String dontdistrub;
+    private String id;
 
-    public GroupBean(String account, String address, String annexlong, String birthday, String code, String createdate, String dontdistrub, String email, String fullname, String GID, String groupmax, String groupuse, String logo, String mid, String mobile, String name, String notice, String sex, String space, String spaceuse, String telephone, String token, String volume, String volumeuse, String workno) {
+    public GroupBean(String account, String address, String annexlong, String birthday, String code, String createdate, String dontdistrub, String email, String fullname, String GID, String groupmax, String groupuse, String logo, String mid, String mobile, String name, String notice, String sex, String space, String spaceuse, String telephone, String token, String volume, String volumeuse, String workno,String id) {
         this.account = account;
         this.address = address;
         this.annexlong = annexlong;
@@ -60,6 +61,7 @@ public class GroupBean implements Serializable {
         this.volume = volume;
         this.volumeuse = volumeuse;
         this.workno = workno;
+        this.id = id;
     }
 
     public GroupBean() {
@@ -263,6 +265,14 @@ public class GroupBean implements Serializable {
 
     public void setWorkno(String workno) {
         this.workno = workno;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

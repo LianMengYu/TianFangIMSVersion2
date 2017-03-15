@@ -4,15 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -42,7 +39,7 @@ public class Login_Welcome extends Activity {
         window.setFlags(flag, flag);
         setContentView(R.layout.activity_welcome);
         //启动一个handler来限定3秒，然后调整Activity
-        new Handler().postDelayed(runnable, 5000);
+        new Handler().postDelayed(runnable, 7000);
 
     if (Build.VERSION.SDK_INT >= 23) {
         if(!Settings.canDrawOverlays(Login_Welcome.this)){
@@ -71,7 +68,6 @@ public class Login_Welcome extends Activity {
             }
         }
     };
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

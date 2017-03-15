@@ -20,13 +20,17 @@ import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.TopContactsAdapter;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
+import com.tianfangIMS.im.bean.UserBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.dialog.SendImageMessageDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -35,13 +39,15 @@ import okhttp3.Response;
  * 常用联系人
  */
 
-public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener,View.OnClickListener {
+public class MineTopContactsActivity extends BaseActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
     private static final String TAG = "MineTopContactsActivity";
     private Context mContext;
     private ListView lv_topContacts;
     private TopContactsAdapter topContactsAdapter;
     private TopContactsListBean bean;
     private EditText et_search;
+    private ArrayList<String> ImgMsgList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,12 +55,14 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
         setTitle("选择常用联系人");
         mContext = this;
         initView();
+        GetLoginUserInfo();
         GetTopContacts();
+        ImgMsgList = getIntent().getStringArrayListExtra("ListUri");
     }
 
     private void initView() {
         lv_topContacts = (ListView) this.findViewById(R.id.lv_group_addtopcontacts);
-        et_search = (EditText)this.findViewById(R.id.et_search);
+        et_search = (EditText) this.findViewById(R.id.et_search);
         et_search.setFocusable(false);
         et_search.setOnClickListener(this);
         lv_topContacts.setOnItemClickListener(this);
@@ -62,6 +70,31 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
 
     }
 
+    private void GetLoginUserInfo() {
+        String ids = RongIMClient.getInstance().getCurrentUserId();
+        OkGo.post(ConstantValue.GETONEPERSONINFO)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", ids)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Gson gson2 = new Gson();
+                            UserBean bean = gson2.fromJson(s, UserBean.class);
+                        }
+                    }
+                });
+    }
 
     private void GetTopContacts() {
         Gson gson = new Gson();
@@ -83,34 +116,22 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
-                        if (!TextUtils.isEmpty(s)) {
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
 //                            Type listType = new TypeToken<TopContactsListBean>() {
 //                            }.getType();
                             Log.e(TAG, "aaaa:" + s);
                             Gson gson = new Gson();
                             Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
-                            String code = map.get("code").toString();
-                            if (code.equals("0.0")) {
+                            if ((double) map.get("code") == 0.0) {
                                 NToast.longToast(mContext, "您还没有联系人");
-                                return;
                             }
-                            if ((code.equals("1.0"))) {
+                            if ((double) map.get("code") == 1.0) {
                                 bean = gson.fromJson(s, TopContactsListBean.class);
                                 topContactsAdapter = new TopContactsAdapter(bean, mContext);
                                 lv_topContacts.setAdapter(topContactsAdapter);
                                 topContactsAdapter.notifyDataSetChanged();
                             }
-//
-////                            List<Object> list =(List<Object>) bean.getText();
-//
-//                            String str = bean.getText().toString();
-//                            Gson gson1 = new Gson();
-//                            Type listType = new TypeToken<List<Map<String,Object>>>() {
-//                            }.getType();
-//
-//                            List<Map<String,ContactsTopBean>> contactsTopBean = gson1.fromJson(str, listType);
-//                            Log.e(TAG, "获取了什么数据:" + contactsTopBean);
                         } else {
                             return;
                         }
@@ -126,9 +147,10 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
                 });
     }
 
+
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.et_search:
                 startActivity(new Intent(mContext, SearchActivity.class));
                 break;
@@ -137,6 +159,20 @@ public class MineTopContactsActivity extends BaseActivity implements AdapterView
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        RongIM.getInstance().startPrivateChat(mContext, bean.getText().get(position).getId(), bean.getText().get(position).getFullname());
+        if (ImgMsgList != null && ImgMsgList.size() > 0) {
+//            SendImageMessage(ImgMsgList, position);
+            SendImageMessageDialog sendImageMessageDialog = new SendImageMessageDialog(mContext, bean.getText().get(position).getId(),
+                    position, bean.getText().get(position).getFullname(), ImgMsgList, Conversation.ConversationType.PRIVATE,
+                    ConstantValue.ImageFile + bean.getText().get(position).getLogo(), bean.getText().get(position).getPosition());
+            sendImageMessageDialog.show();
+        } else {
+            Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("userId", bean.getText().get(position).getId());
+            intent.putExtras(bundle);
+            intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+            startActivity(intent);
+//            RongIM.getInstance().startPrivateChat(mContext, bean.getText().get(position).getId(), bean.getText().get(position).getFullname());
+        }
     }
 }

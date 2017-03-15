@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -28,7 +27,7 @@ import com.tianfangIMS.im.activity.InfoActivity;
 import com.tianfangIMS.im.activity.MainActivity;
 import com.tianfangIMS.im.activity.MineGroupActivity;
 import com.tianfangIMS.im.activity.MineTopContactsActivity;
-import com.tianfangIMS.im.activity.SearchActivity;
+import com.tianfangIMS.im.activity.SearchAllContactsActivity;
 import com.tianfangIMS.im.activity.TreeActivity;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.adapter.SearchAdapter;
@@ -367,14 +366,14 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                 startActivity(new Intent(getActivity(), MineTopContactsActivity.class));
                 break;
             case R.id.et_search:
-                startActivity(new Intent(getActivity(), SearchActivity.class));
+                startActivity(new Intent(getActivity(), SearchAllContactsActivity.class));
                 break;
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
         mIntent = new Intent(getActivity(), InfoActivity.class);
         mIntent.putExtra("maps", maps);
         mIntent.putExtra("viewMode", ViewMode.NORMAL);

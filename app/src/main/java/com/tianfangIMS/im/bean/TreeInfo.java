@@ -35,8 +35,16 @@ public class TreeInfo implements Serializable {
     private String postitionname;
     private String sexid;
     private String sexname;
-
+    private boolean isGroup;//判断是否为群组
     private boolean isChecked;
+
+    public boolean isGroup() {
+        return isGroup;
+    }
+
+    public void setGroup(boolean group) {
+        isGroup = group;
+    }
 
     public int getFlag() {
         return flag;

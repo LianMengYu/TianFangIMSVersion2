@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
@@ -21,9 +20,10 @@
             android:layout_centerVertical="true"
             android:layout_gravity="bottom"
             android:background="@drawable/rc_edit_text_background_selector"
-            android:paddingTop="3dp"
+            android:maxLength="1000"
             android:maxLines="4"
-            android:textSize="16sp"/>
+            android:paddingTop="3dp"
+            android:textSize="16sp" />
     </RelativeLayout>
 
     <ImageView
@@ -33,7 +33,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="10dp"
-        android:src="@drawable/rc_emotion_toggle_selector"/>
+        android:src="@drawable/rc_emotion_toggle_selector" />
 
     <FrameLayout
         android:id="@+id/rc_send_toggle"
@@ -50,6 +50,6 @@
             android:gravity="center"
             android:text="@string/rc_ext_send"
             android:textColor="#ffffff"
-            android:textSize="14sp"/>
+            android:textSize="14sp" />
     </FrameLayout>
 </LinearLayout>

@@ -89,12 +89,22 @@
         android:background="@mipmap/addgroup_background"
         android:visibility="gone">
 
+        <ImageView
+            android:id="@+id/iv_image_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="80dp"
+            android:layout_marginTop="10dp"
+            android:src="@mipmap/checkbox_selected_blue" />
+
         <TextView
             android:id="@+id/tv_creategroup_submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="10dp"
             android:layout_marginTop="15dp"
             android:text="添加" />
 

@@ -6,7 +6,6 @@
     android:background="@color/backgroundColor"
     android:orientation="vertical">
 
-    <!--在这个百分比布局中，不能使用include.孙子，怎么回事？-->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"

@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,15 +9,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.SearchUserBean;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 
 /**
@@ -64,17 +63,20 @@ public class SearchAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.contacts_person_item, null);
             mDetailHolder.groupHeader = (ImageView) convertView.findViewById(R.id.iv_person_photo);
             mDetailHolder.groupName = (TextView) convertView.findViewById(R.id.tv_person_departmentName);
-            mDetailHolder.pos = (TextView)convertView.findViewById(R.id.tv_person_departmentTxt);
+            mDetailHolder.pos = (TextView) convertView.findViewById(R.id.tv_person_departmentTxt);
 //            mDetailHolder.groupIndex = (FrameView) convertView.findViewById(R.id.adapter_group_item_detail_index);
             convertView.setTag(mDetailHolder);
         } else {
             mDetailHolder = (DetailHolder) convertView.getTag();
         }
 
-        Glide.with(mContext).load(ConstantValue.ImageFile + getItem(position)).bitmapTransform(new CropCircleTransformation(mContext)).into(mDetailHolder.groupHeader);
-//                Picasso.with(mContext)
-//                        .load(ConstantValue.ImageFile + getItem(position).getLogo())
-//                        .into(mDetailHolder.groupHeader);
+        Picasso.with(mContext)
+                .load(ConstantValue.ImageFile + SearchUserBean.get(position).getLogo())
+                .resize(80, 80)
+                .placeholder(R.mipmap.default_portrait)
+                .config(Bitmap.Config.ARGB_8888)
+                .error(R.mipmap.default_portrait)
+                .into(mDetailHolder.groupHeader);
         mDetailHolder.groupName.setText(SearchUserBean.get(position).getName());
         mDetailHolder.pos.setText(SearchUserBean.get(position).getPos());
 //        mDetailHolder.groupIndex.setText(SearchUserBean.get(position).getName().substring(1, 2));
@@ -87,7 +89,7 @@ public class SearchAdapter extends BaseAdapter {
 
     private class DetailHolder {
         ImageView groupHeader;
-//        FrameView groupIndex;
+        //        FrameView groupIndex;
         TextView groupName;
         TextView pos;
     }

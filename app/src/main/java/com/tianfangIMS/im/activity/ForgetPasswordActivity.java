@@ -103,8 +103,7 @@ public class ForgetPasswordActivity extends Activity implements View.OnClickList
                 .connTimeOut(10000)
                 .readTimeOut(10000)
                 .writeTimeOut(10000)
-                //TODO
-                .params("phone","15910832272")
+                .params("phone",et_forgetpassword_phoneNumber.getText().toString())
                 .execute(new StringCallback() {
                     @Override
                     public void onBefore(BaseRequest request) {

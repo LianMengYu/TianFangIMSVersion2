@@ -147,7 +147,6 @@ public class PTTSessionActivity extends Activity implements PTTSessionStateListe
     }
 
     private class PttParticipantsAdapter extends BaseAdapter {
-
         @Override
         public int getCount() {
             return participants == null ? 0 : participants.size();

@@ -3,6 +3,7 @@ package com.tianfangIMS.im.activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -21,25 +22,40 @@ public class NewMessageNotice_Activity extends BaseActivity {
     private SharedPreferences.Editor editor;
     private LinearLayout newMessage_tishi;
     private RelativeLayout newMessage_rl;
+    private CompoundButton sw_newmessage_disturb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.newmessage_activity);
         setTitle("新消息通知设置");
-        SharedPreferences sp = getSharedPreferences("newmessage",MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("newmessage", MODE_PRIVATE);
         editor = sp.edit();
         boolean isOpenDisturb = sp.getBoolean("isOpenDisturb", true);
         init();
-        newMessage_rl.setOnClickListener(new View.OnClickListener() {
+        if (isOpenDisturb) {
+            tv_OpenOr.setText("已开启");
+        } else {
+            tv_OpenOr.setText("已关闭");
+        }
+        sw_newmessage_disturb.setChecked(isOpenDisturb);
+    }
+
+    private void init() {
+        tv_OpenOr = (TextView) this.findViewById(R.id.tv_OpenOr);
+        newMessage_tishi = (LinearLayout) this.findViewById(R.id.newMessage_tishi);
+        newMessage_rl = (RelativeLayout) this.findViewById(R.id.newMessage_rl);
+        sw_newmessage_disturb = (CompoundButton) this.findViewById(R.id.sw_newmessage_disturb);
+        sw_newmessage_disturb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                if(tv_OpenOr.getText().equals("已开启")){
-                    tv_OpenOr.setText("已关闭");
-                    RongIM.getInstance().removeNotificationQuietHours(new RongIMClient.OperationCallback() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                tv_OpenOr.setText("已开启");
+                if (buttonView.isChecked()) {
+                    RongIM.getInstance().setNotificationQuietHours("00:00:00", 1439, new RongIMClient.OperationCallback() {
                         @Override
                         public void onSuccess() {
-                            newMessage_tishi.setVisibility(View.GONE);
-                            editor.putBoolean("isOpenDisturb",true);
+                            newMessage_tishi.setVisibility(View.VISIBLE);
+                            editor.putBoolean("isOpenDisturb", true);
                             editor.apply();
                         }
 
@@ -48,13 +64,13 @@ public class NewMessageNotice_Activity extends BaseActivity {
 
                         }
                     });
-                }else {
-                    tv_OpenOr.setText("已开启");
+                } else {
+                    tv_OpenOr.setText("已关闭");
                     RongIM.getInstance().setNotificationQuietHours("00:00:00", 1439, new RongIMClient.OperationCallback() {
                         @Override
                         public void onSuccess() {
                             newMessage_tishi.setVisibility(View.VISIBLE);
-                            editor.putBoolean("isOpenDisturb",false);
+                            editor.putBoolean("isOpenDisturb", false);
                             editor.apply();
                         }
 
@@ -66,18 +82,7 @@ public class NewMessageNotice_Activity extends BaseActivity {
                 }
             }
         });
-        if(isOpenDisturb){
-            tv_OpenOr.setText("已关闭");
-            newMessage_tishi.setVisibility(View.GONE);
-        }else {
-            tv_OpenOr.setText("已开启");
-            newMessage_tishi.setVisibility(View.VISIBLE);
-        }
-    }
-    private void init(){
-        tv_OpenOr = (TextView)this.findViewById(R.id.tv_OpenOr);
-        newMessage_tishi = (LinearLayout)this.findViewById(R.id.newMessage_tishi);
-        newMessage_rl = (RelativeLayout)this.findViewById(R.id.newMessage_rl);
+
     }
 
 }

@@ -27,7 +27,6 @@
                 android:background="@android:color/transparent"
                 android:scaleType="centerCrop"
                 app:RCCornerRadius="3dp"
-                app:RCDefDrawable="@mipmap/me_icon_photo"
                 app:RCShape="circle" />
 
             <TextView
@@ -72,6 +71,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/privateChat_searchChatting"
         android:layout_width="match_parent"
         android:layout_height="59dp"
         android:background="@color/White">
@@ -93,9 +93,10 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/ly_privatechat_clean"
         android:layout_width="match_parent"
         android:layout_height="59dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="10dp"
         android:background="@color/White">
 
         <TextView

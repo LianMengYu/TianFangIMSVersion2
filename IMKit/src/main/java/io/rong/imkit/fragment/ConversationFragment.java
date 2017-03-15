@@ -199,7 +199,7 @@ public class ConversationFragment extends UriFragment implements
         mRongExtension.setExtensionClickListener(this);
         mRongExtension.setFragment(this);
         mOffsetLimit = 70 * getActivity().getResources().getDisplayMetrics().density;
-
+        view.findViewById(R.id.rc_extension);
         mMsgListView = findViewById(view, R.id.rc_layout_msg_list);
         mList = findViewById(mMsgListView, R.id.rc_list);
         mList.requestDisallowInterceptTouchEvent(true);

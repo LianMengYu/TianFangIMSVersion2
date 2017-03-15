@@ -1,8 +1,16 @@
 package com.tianfangIMS.im;
 
+import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import android.support.multidex.MultiDex;
+import android.util.Log;
+import android.view.WindowManager;
 
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheEntity;
@@ -10,13 +18,23 @@ import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.cookie.store.PersistentCookieStore;
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
+import com.tianfangIMS.im.activity.LoginActivity;
+import com.tianfangIMS.im.bean.TopFiveUserInfoBean;
+import com.tianfangIMS.im.service.FloatService;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 
-import io.rong.imkit.RongExtensionManager;
+import io.rong.imkit.RongExtension;
 import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.UserInfo;
+import io.rong.ptt.PTTClient;
+import io.rong.ptt.PTTSession;
+import io.rong.ptt.PTTStateListener;
 import io.rong.ptt.kit.PTTEndMessageItemProvider;
-import io.rong.ptt.kit.PTTExtensionModule;
 import io.rong.ptt.kit.PTTStartMessageItemProvider;
 
 /**
@@ -24,17 +42,39 @@ import io.rong.ptt.kit.PTTStartMessageItemProvider;
  * Application继承类
  */
 
-public class TianFangIMSApplication extends Application {
+public class TianFangIMSApplication extends Application implements PTTStateListener {
     private static TianFangIMSApplication instance;
+    private List<TopFiveUserInfoBean> data = new ArrayList<TopFiveUserInfoBean>(5);
+    private int sum = 5;
+    ReentrantLock lock = new ReentrantLock();
+    UserInfo userinfo;
+    TopFiveUserInfoBean floatbean;
+    private String PrivateChatLogo;
+    private String GroupLogo;
+    private RongExtension extension;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(android.os.Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 0:
+                    showDialog();
+                    break;
+            }
+        }
+    };
+    PTTClient pttClient = PTTClient.getInstance();
+
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
+        RongIM.setServerInfo("103.36.132.10:80", null);
         RongIM.init(this);
         RongIM.registerMessageTemplate(new PTTStartMessageItemProvider());
         RongIM.registerMessageTemplate(new PTTEndMessageItemProvider());
 //        PTTClient.setPTTServerBaseUrl("http://35.164.107.27:8080/rce/restapi/ptt");
-        RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
+//        RongExtensionManager.getInstance().registerExtensionModule(new PTTExtensionModule(this, true, 1000 * 60));
         OkGo.init(this);
         HttpHeaders headers = new HttpHeaders();
         headers.put("commonHeaderKey1", "commonHeaderValue1");    //header不支持中文
@@ -43,7 +83,7 @@ public class TianFangIMSApplication extends Application {
         params.put("commonParamsKey1", "commonParamsValue1");     //param支持中文,直接传,不要自己编码
         params.put("commonParamsKey2", "这里支持中文参数");
 //以下设置的所有参数是全局参数,同样的参数可以在请求的时候再设置一遍,那么对于该请求来讲,请求中的参数会覆盖全局参数
-        //好处是全局参数统一,特定请求可以特别定制参数
+        //好处是全局参数统一,特定请求可以特别定制参数1
         try {
             //以下都不是必须的，根据需要自行选择,一般来说只需要 debug,缓存相关,cookie相关的 就可以了
             OkGo.getInstance()
@@ -95,14 +135,87 @@ public class TianFangIMSApplication extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //获取接收消息的监听
+//        RongIM.setOnReceiveMessageListener(new MyReceiveMessageListener());
+
+        RongIM.setConnectionStatusListener(new MyConnectionStatusListener());
+        pttClient.init(this);
+        pttClient.setPttStateListener(this);
     }
-    public static TianFangIMSApplication getInstance(){
-        return instance;
+
+    private class MyConnectionStatusListener implements RongIMClient.ConnectionStatusListener {
+        @Override
+        public void onChanged(ConnectionStatus connectionStatus) {
+            if (connectionStatus == ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
+                Message msg = Message.obtain();
+                msg.what = 0;
+                handler.sendMessage(msg);
+            }
+        }
     }
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         MultiDex.install(this);
+    }
+
+    public static TianFangIMSApplication getInstance() {
+        return instance;
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+        builder.setTitle("提示");
+        builder.setMessage("此账号已在其他设备登陆");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences sp = getBaseContext().getSharedPreferences("config", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.clear();
+                editor.commit();
+                getBaseContext().startActivity(new Intent(getBaseContext(), LoginActivity.class));
+                Intent mIntent = new Intent(getBaseContext(), FloatService.class);
+                getBaseContext().stopService(mIntent);
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog simpledialog = builder.create();
+        simpledialog.setCanceledOnTouchOutside(false);
+        simpledialog.setCancelable(false);
+        simpledialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        simpledialog.show();
+    }
+
+    @Override
+    public void onSessionStart(PTTSession pttSession) {
+        Log.e("PTT", "onSessionStart------:" + pttSession);
+    }
+
+    @Override
+    public void onSessionTerminated(PTTSession pttSession) {
+        Log.e("PTT", "onSessionTerminated------:" + pttSession);
+    }
+
+    @Override
+    public void onParticipantChanged(PTTSession pttSession, List<String> userIds) {
+        Log.e("PTT", "onParticipantChanged------:" + pttSession);
+    }
+
+    @Override
+    public void onMicHolderChanged(PTTSession pttSession, String holderUserId) {
+        Log.e("PTT", "onMicHolderChanged------:" + pttSession);
+    }
+
+    @Override
+    public void onNetworkError(String msg) {
+        Log.e("PTT", "onNetworkError------:" + msg);
     }
 }

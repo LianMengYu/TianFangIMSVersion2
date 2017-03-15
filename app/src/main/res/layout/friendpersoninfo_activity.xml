@@ -261,6 +261,18 @@
                     android:text="产品经理" />
             </RelativeLayout>
         </LinearLayout>
+        <Button
+            android:id="@+id/btn_sendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@mipmap/im_button"
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="14dp"
+            android:textColor="@color/White"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:text="发送消息"/>
     </LinearLayout>
 
 </ScrollView>

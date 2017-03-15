@@ -66,50 +66,6 @@ public class BaseActivity extends FragmentActivity {
         tv_complete = (TextView) super.findViewById(R.id.tv_complete);
     }
 
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent ev) {
-//        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-//            View v = getCurrentFocus();
-//            if (isShouldHideKeyboard(v, ev)) {
-//                hideKeyboard(v.getWindowToken());
-//            }
-//        }
-//        return super.dispatchTouchEvent(ev);
-//    }
-//
-//    private boolean isShouldHideKeyboard(View view, MotionEvent event) {
-//        if (view != null && (view instanceof EditText)) {
-//            int[] l = {0, 0};
-//            view.getLocationInWindow(l);
-//            int left = l[0],
-//                    top = l[1],
-//                    bottom = top + view.getHeight(),
-//                    right = left + view.getWidth();
-//            if (event.getX() > left && event.getX() < right
-//                    && event.getY() > top && event.getY() < bottom) {
-//                // 点击EditText的事件，忽略它。
-//                return false;
-//            } else {
-//                return true;
-//            }
-//        }
-//        // 如果焦点不是EditText则忽略，这个发生在视图刚绘制完，第一个焦点不在EditText上，和用户用轨迹球选择其他的焦点
-//        return false;
-//    }
-//
-//    /**
-//     * 获取InputMethodManager，隐藏软键盘
-//     *
-//     * @param token
-//     */
-//    private void hideKeyboard(IBinder token) {
-//        if (token != null) {
-//            InputMethodManager im = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//            im.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
-//        }
-//    }
-
-
     @Override
     public void setContentView(View view) {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -123,6 +79,7 @@ public class BaseActivity extends FragmentActivity {
         setContentView(view);
 
     }
+
     /**
      * 设置头部是否可见
      *
@@ -188,10 +145,11 @@ public class BaseActivity extends FragmentActivity {
         return iv_talk_call;
     }
 
-    public void setTv_completeVisibiliy(int visibiliy){
+    public void setTv_completeVisibiliy(int visibiliy) {
         tv_complete.setVisibility(visibiliy);
     }
-    public TextView getTv_title(){
+
+    public TextView getTv_title() {
         return tv_complete;
     }
 

@@ -3,7 +3,7 @@
     <!--实心-->
     <solid android:color="#FFFFFF" />
     <!-- 圆角 -->
-    <corners android:radius="8dp" />
+    <corners android:radius="4dp" />
     <!-- 边距 -->
     <padding android:left="5dp" />
     <!--边框-->

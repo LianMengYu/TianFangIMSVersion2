@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 /**
- * Created by Titan on 2017/2/9.
+ * Created by LianMengYu on 2017/2/9.
  */
 
 public class FrameView extends TextView {

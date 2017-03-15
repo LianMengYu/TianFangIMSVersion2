@@ -3,6 +3,7 @@ package com.tianfangIMS.im.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -14,11 +15,20 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.bean.TopFiveUserInfoBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.view.FloatView;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
+
+import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UserInfo;
 
 /**
  * Created by Titan on 2017/2/19.
@@ -34,6 +44,14 @@ public class FloatService extends Service {
     List<TreeInfo> mTreeInfos;
 
     WindowManager.LayoutParams wl;
+    private List<TopFiveUserInfoBean> data = new ArrayList<TopFiveUserInfoBean>(5);
+    private int sum = 5;
+    ReentrantLock lock = new ReentrantLock();
+    UserInfo userinfo;
+    TopFiveUserInfoBean floatbean;
+    private String PrivateChatLogo;
+    private String GroupLogo;
+    TreeInfo mInfo;
 
     @Override
     public void onCreate() {
@@ -42,11 +60,19 @@ public class FloatService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        RongIM.setOnReceiveMessageListener(new RongIMClient.OnReceiveMessageListener() {
+            @Override
+            public boolean onReceived(Message message, int i) {
+                add5Date(new TopFiveUserInfoBean(message.getConversationType(), message.getTargetId(), null, null));
+                return false;
+            }
+        });
         if (mFloatView == null) {
             final int density = (int) getResources().getDisplayMetrics().density;
             if (mTreeInfos == null) {
                 try {
                     mTreeInfos = (List<TreeInfo>) intent.getSerializableExtra("data");
+                    Log.e("settingResultData：", "打印接受值的数量----:" + mTreeInfos.size());
                 } catch (NullPointerException e) {
                     Toast.makeText(this, "服务异常,无法启动", Toast.LENGTH_SHORT).show();
                 }
@@ -58,9 +84,6 @@ public class FloatService extends Service {
                 public void onClick(View v) {
                     if (mFloatView.mCustomView.getVisibility() == View.GONE) {
                         mFloatView.mCustomView.setVisibility(View.VISIBLE);
-//                        mFloatView.setBackgroundColor(Color.GRAY);
-//                        mFloatView.setAlpha(0.1f);
-//                        wl.gravity = Gravity.CENTER;
                         wl.width = WindowManager.LayoutParams.WRAP_CONTENT;
                         wl.height = WindowManager.LayoutParams.WRAP_CONTENT;
                         wl.gravity = Gravity.TOP | Gravity.LEFT;
@@ -72,13 +95,8 @@ public class FloatService extends Service {
                         lp.addRule(RelativeLayout.CENTER_VERTICAL);
                         lp.leftMargin = 150 * density - 70 * density;
                         mFloatView.btn.setLayoutParams(lp);
-//                        wl.width = getResources().getDisplayMetrics().widthPixels;
-//                        wl.height = getResources().getDisplayMetrics().heightPixels;
                     } else {
                         mFloatView.mCustomView.setVisibility(View.GONE);
-//                        wl.width = 66 * density;
-//                        wl.height = 66 * density;
-//                        wl.gravity = Gravity.CENTER | Gravity.RIGHT;
                         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
                         lp.rightMargin = 25 * density;
                         mFloatView.btn.setLayoutParams(lp);
@@ -95,23 +113,45 @@ public class FloatService extends Service {
                     mWindowManager.updateViewLayout(mFloatView, wl);
                 }
             });
-//            Glide.with(getApplicationContext()).load("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg").bitmapTransform(new CropCircleTransformation(getApplicationContext())).into(mFloatView.btn);
             mFloatView.btn.setImageResource(R.mipmap.icon_float);
-            for (int i = 0; i < mTreeInfos.size(); i++) {
-                ImageView mImageView = new ImageView(this);
-                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
-                mImageView.setLayoutParams(lp);
-                mImageView.setId(View.NO_ID);
-                mImageView.setTag(mImageView.getId(), mTreeInfos.get(0));
-                mImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        TreeInfo mInfo = (TreeInfo) v.getTag(v.getId());
-                        Toast.makeText(getApplicationContext(), mInfo.getName(), Toast.LENGTH_SHORT).show();
+            if(mTreeInfos != null && mTreeInfos.size()>0){
+                for (int i = 0; i < mTreeInfos.size(); i++) {
+                    ImageView mImageView = new ImageView(this);
+                    mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
+                    mImageView.setLayoutParams(lp);
+                    mImageView.setId(View.NO_ID);
+                    Log.e("settingResultData", "----:" + mTreeInfos.get(i).getLogo());
+                    Picasso.with(FloatService.this)
+                            .load(mTreeInfos.get(i).getLogo())
+                            .config(Bitmap.Config.ARGB_8888)
+                            .placeholder(R.mipmap.default_portrait)
+                            .error(R.mipmap.default_portrait)
+                            .resize(50, 50)
+                            .into(mImageView);
+                    mImageView.setTag(mImageView.getId(), mTreeInfos.get(i));
+                    mImageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            mInfo = (TreeInfo) v.getTag(v.getId());
+                            if (mInfo.isGroup()) {
+                                RongIM.getInstance().startGroupChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                            } else {
+                                RongIM.getInstance().startPrivateChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                            }
+                        }
+                    });
+                    mImageView.setOnLongClickListener(new View.OnLongClickListener() {
+                        //TODO
+                        @Override
+                        public boolean onLongClick(View v) {
+                            return false;
+                        }
+                    });
+                    if(mTreeInfos != null && mTreeInfos.size() > 0){
+                        mFloatView.mCustomView.addView(mImageView);
                     }
-                });
-                mFloatView.mCustomView.addView(mImageView);
+                }
             }
             wl = new WindowManager.LayoutParams();
             wl.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
@@ -127,7 +167,9 @@ public class FloatService extends Service {
             wl.y = (getResources().getDisplayMetrics().heightPixels - 100 * density) / 2;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-            mWindowManager.addView(mFloatView, wl);
+            if(mTreeInfos != null && mTreeInfos.size() > 0){
+                mWindowManager.addView(mFloatView, wl);
+            }
             Log.d(TAG, "添加完成");
         }
         return super.onStartCommand(intent, flags, startId);
@@ -139,11 +181,35 @@ public class FloatService extends Service {
         return null;
     }
 
+    public void add5Date(TopFiveUserInfoBean da) {
+        lock.lock();
+        try {
+            for (int i = 0; i < data.size(); i++) {
+                if (data.get(i).getId().equals(da.getId())) {
+                    data.remove(i);
+                }
+            }
+            //执行某些操作
+            if (data.size() < sum) {
+                data.add(da);
+            }
+            if (data.size() >= sum) {
+                data.remove(0);
+                data.add(da);
+            }
+        } finally {
+            lock.unlock();
+        }
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mFloatView != null) {
+        if(mTreeInfos != null && mTreeInfos.size() > 0){
             mWindowManager.removeView(mFloatView);
         }
+//        if (mFloatView != null) {
+//            mWindowManager.removeView(mFloatView);
+//        }
     }
 }

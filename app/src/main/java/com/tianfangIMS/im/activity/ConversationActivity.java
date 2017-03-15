@@ -20,7 +20,6 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -44,15 +43,11 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationFragment;
 import io.rong.imkit.fragment.UriFragment;
 import io.rong.imkit.manager.IUnReadMessageObserver;
-import io.rong.imkit.plugin.location.AMapRealTimeActivity;
-import io.rong.imkit.plugin.location.LocationManager;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
-import io.rong.imkit.utilities.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Discussion;
 import io.rong.imlib.model.UserInfo;
-import io.rong.ptt.kit.PTTExtensionModule;
 
 /**
  * Created by LianMengYu on 2017/1/16.
@@ -91,6 +86,8 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     private UserInfo mUserInfo;
     private Context mContext;
     private RongExtension extension;
+    private int page;
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,8 +99,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         initConversationViewPager();
         final Intent intent = getIntent();
         mTargetId = intent.getData().getQueryParameter("targetId");
-        PTTExtensionModule pttExtensionModule = new PTTExtensionModule(mContext,true,10000);
-        pttExtensionModule.onAttachedToExtension(extension);
+        Log.e("mTargetId", ":" + mTargetId);
         //10000 为 Demo Server 加好友的 id，若 targetId 为 10000，则为加好友消息，默认跳转到 NewFriendListActivity
         // Demo 逻辑
         if (mTargetId != null && mTargetId.equals("10000")) {
@@ -282,8 +278,13 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         if (conversationDynamicFragment == null) {
             Intent intent = getIntent();
             mTargetId = intent.getData().getQueryParameter("targetId");
+            page = intent.getIntExtra("page", 0);
+            if (page == 1) {
+                NToast.shortToast(mContext, "跳转成功");
+            }
             mConversationType = Conversation.ConversationType.valueOf(intent.getData().getLastPathSegment().toUpperCase(Locale.getDefault()));
             ConversationFragment fragment = new ConversationFragment();
+
             Uri uri = Uri.parse("rong://" + getApplicationInfo().packageName).buildUpon()
                     .appendPath("conversation").appendPath(mConversationType.getName().toLowerCase())
                     .appendQueryParameter("targetId", mTargetId).build();
@@ -407,8 +408,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
 //     */
     public Action getIndexApiAction() {
         Thing object = new Thing.Builder()
-                .setName("Conversation Page") // TODO: Define a title for the content shown.
-                // TODO: Make sure this auto-generated URL is correct.
+                .setName("Conversation Page")
                 .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
                 .build();
         return new Action.Builder(Action.TYPE_VIEW)
@@ -490,11 +490,16 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String token = loginBean.getText().getToken();
-        if (token.equals("default")) {
-            startActivity(new Intent(ConversationActivity.this, LoginActivity.class));
+        if (!TextUtils.isEmpty(token)) {
+            if (token.equals("default")) {
+                startActivity(new Intent(ConversationActivity.this, LoginActivity.class));
+            } else {
+                reconnect(token);
+            }
         } else {
-            reconnect(token);
+            NToast.shortToast(mContext, "token无效");
         }
+
     }
 
     private void reconnect(String token) {
@@ -545,7 +550,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
 
         if (mConversationType == Conversation.ConversationType.PUBLIC_SERVICE
                 || mConversationType == Conversation.ConversationType.APP_PUBLIC_SERVICE) {
-
             RongIM.getInstance().startPublicServiceProfile(this, mConversationType, mTargetId);
         } else {
             UriFragment fragment = (UriFragment) getSupportFragmentManager().getFragments().get(0);
@@ -578,6 +582,22 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
         }
     }
 
+    //传递userinfo到位置共享
+    private void JoinAMapShare() {
+        Intent intent = null;
+        intent = new Intent(this, AMapShareActivity.class);
+        if (mConversationType == Conversation.ConversationType.GROUP) {
+            intent.putExtra("conversationType", Conversation.ConversationType.GROUP);
+        } else if (mConversationType == Conversation.ConversationType.PRIVATE) {
+            intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+        }
+        intent.putExtra("mTargetId", mTargetId);
+        intent.putExtra("title", title);
+        if (intent != null) {
+            startActivity(intent);
+        }
+    }
+
     /**
      * 加载会话页面 ConversationFragmentEx 继承自 ConversationFragment
      *
@@ -605,24 +625,25 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 enterSettingActivity();
                 break;
             case R.id.iv_conversation_location:
-
-                String[] items = {"位置共享"};
-                OptionsPopupDialog.newInstance(mContext, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                    @Override
-                    public void onOptionsItemClicked(int i) {
-                        if (i == 0) {
-                            if (LocationManager.getInstance().joinLocationSharing() == 0) {
-                                Intent intent = new Intent(mContext, AMapRealTimeActivity.class);
-                                mContext.startActivity(intent);
-                            } else {
-                                Toast.makeText(mContext, io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                }).show();
-                break;
+//                String[] items = {"位置共享"};
+//                OptionsPopupDialog.newInstance(mContext, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
+//                    @Override
+//                    public void onOptionsItemClicked(int i) {
+//                        if (i == 0) {
+//                            if (LocationManager.getInstance().joinLocationSharing() == 0) {
+//                                Intent intent = new Intent(mContext, AMapRealTimeActivity.class);
+//                                mContext.startActivity(intent);
+//                            } else {
+//                                Toast.makeText(mContext, io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+//                            }
+//                        }
+//                    }
+//                }).show();
+//                break;
 //                startActivity(new Intent(mContext, AMapShareActivity.class));
+                JoinAMapShare();
         }
+
 
     }
 }

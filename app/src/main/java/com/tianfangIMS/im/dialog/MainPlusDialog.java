@@ -43,7 +43,11 @@ public class MainPlusDialog extends PopupWindow implements View.OnClickListener 
 
     }
     private void jumpGroup(){
-        mContext.startActivity(new Intent(mContext,AddGroupActivity.class));
+        Intent intent = new Intent(mContext,AddGroupActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("SimpleName",TAG);
+        intent.putExtras(bundle);
+        mContext.startActivity(intent);
         this.dismiss();
 
     }

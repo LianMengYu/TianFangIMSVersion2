@@ -7,10 +7,10 @@ package com.tianfangIMS.im;
 
 public class ConstantValue {
     //测试服务器访问地址
-    public static String Urls = "http://35.164.107.27:8080/im/";
+//    public static String Urls = "http://35.164.107.27:8080/im/";
 
-    //天坊服务器
-//    public static String Urls = "http://120.26.42.225:8080/sealtalk/";
+    //天坊服务器120.26.42.225
+    public static String Urls = "http://120.26.42.225:8080/sealtalk/";
 
     public static final String AFTERLOGINUSERINFO = "member!getOneOfMember";//获取登录后用户单独的信息接口
 
@@ -66,11 +66,15 @@ public class ConstantValue {
 
     public static final String SUBLOCATION = Urls +"map!subLocation";//上传位置信息
 
-    public static final String GROUPALLUSERINFO = Urls +"group!listGroupMemebersData";//上传位置信息
+    public static final String GROUPALLUSERINFO = Urls +"group!listGroupMemebersData";//获取群组信息
 
     public static final String ISFRIEND = Urls +"friend!getFriendsRelation";//判断是否为好友
 
     public static final String DELTETFRIEND = Urls +"friend!delFriend";//删除好友
 
     public static final String SREACHGROUPUSER = Urls +"group!listGroupMemebers";//删除好友
+
+    public static final String GETLOCATION = Urls +"map!getLocation";//获取好友或者群组的坐标
+
+    public static final String TRANSFERGROUP = Urls+"group!transferGroup";//转移群主
 }

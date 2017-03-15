@@ -2,8 +2,11 @@ package com.tianfangIMS.im.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,9 +32,12 @@ import com.tianfangIMS.im.adapter.DeparmentLevelAdatper;
 import com.tianfangIMS.im.adapter.InfoAdapter;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.UserBean;
 import com.tianfangIMS.im.bean.ViewMode;
+import com.tianfangIMS.im.dialog.BigImagedialog;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
+import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.rong.imlib.RongIMClient;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -72,6 +79,7 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
     private ListView mine_department_List;
     HashMap<Integer, Boolean> prepare;
     DeparmentLevelAdatper adatper;
+    private String BigImagePath;
 
     @Nullable
     @Override
@@ -91,31 +99,80 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
 //        tv_mine_department = (TextView) view.findViewById(R.id.tv_mine_department);
 //        tv_position = (TextView) view.findViewById(R.id.tv_position);
         iv_me_icon_photo = (ImageView) view.findViewById(R.id.iv_setting_photo);
+
+        iv_me_icon_photo.setOnClickListener(this);
         rl_mine_company = (RelativeLayout) view.findViewById(R.id.rl_mine_company);
         mine_department_List = (ListView) view.findViewById(R.id.mine_department_List);
         rl_mine_company.setOnClickListener(this);
         rl_mine_settings.setOnClickListener(this);
         rl_me_use.setOnClickListener(this);
         mine_department_List.setOnItemClickListener(this);
-        Gson gson = new Gson();
-        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
-        Picasso.with(getActivity())
-                .load(ConstantValue.ImageFile + loginBean.getText().getLogo())
-                .resize(500, 500)
-                .placeholder(R.mipmap.default_photo)
-                .error(R.mipmap.default_photo)
-                .into(iv_me_icon_photo);
-        tv_me_username.setText(loginBean.getText().getFullname());
-        tv_mine_company.setText(" ");
-        if (loginBean.getText().getSex().equals(1)) {
-            iv_sex.setImageResource(R.mipmap.me_sexicon_nan);
-        } else {
-            iv_sex.setImageResource(R.mipmap.me_sexicon_nv);
-        }
+        GetLoginUserInfo();
+//        Gson gson = new Gson();
+//        String str = CommonUtil.getUserInfo(getActivity());
+//        if (!TextUtils.isEmpty(str)) {
+//            LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
+//            Log.e("loginBean", "---:" + ConstantValue.ImageFile + loginBean.getText().getLogo());
+//            Picasso.with(getActivity())
+//                    .load(ConstantValue.ImageFile + loginBean.getText().getLogo())
+//                    .resize(50, 50)
+//                    .centerCrop()
+//                    .error(R.mipmap.default_photo)
+//                    .into(iv_me_icon_photo);
+//            tv_me_username.setText(loginBean.getText().getFullname());
+//            tv_mine_company.setText(" ");
+//            if (loginBean.getText().getSex() != null) {
+//            }
+//        }
 //        tv_mine_department.setText(loginBean.getText().getIntro());
 //        tv_position.setText(loginBean.getText().getWorkno());
     }
 
+    private void GetLoginUserInfo() {
+        String ids = RongIMClient.getInstance().getCurrentUserId();
+        OkGo.post(ConstantValue.GETONEPERSONINFO)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("userid", ids)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(getActivity());
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(getActivity());
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
+                            Gson gson2 = new Gson();
+                            UserBean bean = gson2.fromJson(s, UserBean.class);
+                            BigImagePath = ConstantValue.ImageFile + bean.getLogo();
+                            Picasso.with(getActivity())
+                                    .load(ConstantValue.ImageFile + bean.getLogo())
+                                    .resize(80, 80)
+                                    .centerCrop()
+                                    .placeholder(R.mipmap.default_portrait)
+                                    .config(Bitmap.Config.ARGB_8888)
+                                    .error(R.mipmap.default_portrait)
+                                    .into(iv_me_icon_photo);
+                            tv_me_username.setText(bean.getName());
+                            Log.e("adajdasdsad", "------:" + bean.getSex());
+                            if (bean.getSex() != null) {
+                                if (bean.getSex().equals("1")) {
+                                    iv_sex.setImageResource(R.mipmap.me_sexicon_nan);
+                                } else {
+                                    iv_sex.setImageResource(R.mipmap.me_sexicon_nv);
+                                }
+                            } else {
+                                return;
+                            }
+                        }
+                    }
+                });
+    }
 
     private void GetData() {
         OkGo.post(ConstantValue.DEPARTMENTPERSON)
@@ -155,51 +212,62 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                         //规定最小PID为0 保证与最小PID不相同
                         int pid = -1;
                         tmpMap = new HashMap<Integer, TreeInfo>();
-                        Gson gson = new Gson();
-                        LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
-                        int ids = Integer.parseInt(loginBean.getText().getId().toString());
-                        for (TreeInfo treeInfo : mTreeInfos) {
-                            tmpMap.put(treeInfo.getId(), treeInfo);
-                            //如果当前pid等于之前的pid 说明该平行节点组已被创建 直接将其放入当前平行节点组内即可
-                            if (pid == treeInfo.getPid()) {
-                                map.put(treeInfo.getId(), treeInfo);
+                        String str = CommonUtil.getUserInfo(getActivity());
+                        Log.e("dayinsstr", "----:" + str);
+                        if (!TextUtils.isEmpty(str) && !str.equals("{}")) {
+                            Gson gson1 = new Gson();
+                            Map<String, Object> LoginbeanMap = gson1.fromJson(CommonUtil.getUserInfo(getActivity()), new TypeToken<Map<String, Object>>() {
+                            }.getType());
+                            Log.e("asdadasdsadsad", "----:" + LoginbeanMap.get("code"));
+                            if ((double) LoginbeanMap.get("code") == 0.0) {
+                                NToast.shortToast(getActivity(), "没有获取到数据");
                             } else {
-                                if (map != null) {
-                                    //当前平行节点已结束 填入父Map 自身置空
-                                    maps.put(pid, map);
-                                    map = null;
+                                Gson gson = new Gson();
+                                LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
+                                int ids = Integer.parseInt(loginBean.getText().getId().toString());
+                                for (TreeInfo treeInfo : mTreeInfos) {
+                                    tmpMap.put(treeInfo.getId(), treeInfo);
+                                    //如果当前pid等于之前的pid 说明该平行节点组已被创建 直接将其放入当前平行节点组内即可
+                                    if (pid == treeInfo.getPid()) {
+                                        map.put(treeInfo.getId(), treeInfo);
+                                    } else {
+                                        if (map != null) {
+                                            //当前平行节点已结束 填入父Map 自身置空
+                                            maps.put(pid, map);
+                                            map = null;
+                                        }
+                                        //如果不同 则说明进入了新的平行节点组
+                                        pid = treeInfo.getPid();
+                                        if (map == null) {
+                                            map = new HashMap<Integer, TreeInfo>();
+                                            map.put(treeInfo.getId(), treeInfo);
+                                        }
+                                    }
                                 }
-                                //如果不同 则说明进入了新的平行节点组
-                                pid = treeInfo.getPid();
-                                if (map == null) {
-                                    map = new HashMap<Integer, TreeInfo>();
-                                    map.put(treeInfo.getId(), treeInfo);
-                                }
-                            }
-                        }
-                        SetListData(ids);
-                        //最后的一组平行节点组进行嵌入
-                        maps.put(pid, map);
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                clickHistory = new ArrayList<TreeInfo>();
-                                mTreeInfos = new ArrayList<>();
-                                childCount = new ArrayList<Integer>();
-                                mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
+                                SetListData(ids);
+                                //最后的一组平行节点组进行嵌入
+                                maps.put(pid, map);
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        clickHistory = new ArrayList<TreeInfo>();
+                                        mTreeInfos = new ArrayList<>();
+                                        childCount = new ArrayList<Integer>();
+                                        mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
 //                                lv_addGroup_company.setAdapter(mAdapter);
-                                Log.e("哈哈", "TreeInfo：" + mTreeInfos);
-                                transfer();
+                                        Log.e("哈哈", "TreeInfo：" + mTreeInfos);
+                                        transfer();
+                                    }
+                                });
                             }
-                        });
+
+                        }
                     }
                 });
     }
 
     private void SetListData(int ids) {
         tmpList = new ArrayList<>();
-        Log.e("hahaha", "ids:" + ids);
-        Log.e("怎么可能:", "----:" + ids);
         getParent(ids);
         Collections.sort(tmpList, new Comparator<TreeInfo>() {
             @Override
@@ -307,6 +375,12 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                 mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);
+                break;
+            case R.id.iv_setting_photo:
+                BigImagedialog bigImagedialog = new BigImagedialog(getActivity(), BigImagePath, R.style.Dialog_Fullscreen);
+                bigImagedialog.getWindow().setBackgroundDrawable(new ColorDrawable());
+                bigImagedialog.show();
+                CommonUtil.SetDialogStyle(bigImagedialog);
                 break;
         }
     }

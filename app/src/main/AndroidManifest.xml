@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" /><!-- 读取通讯录权限 -->
     <uses-permission android:name="android.permission.WRITE_CONTACTS" /><!-- 写入通讯录权限 -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- 获取机型信息权限 -->
@@ -48,8 +50,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--允许程序访问CellID或WiFi热点来获取粗略的位置-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
-
     <!--用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!--用于访问GPS定位-->
@@ -73,6 +73,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--用于悬浮球点击HOME按键退出之后显示与周末的权限-->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <application
         android:name=".TianFangIMSApplication"
@@ -183,17 +184,19 @@
         <activity android:name=".activity.SelectPhoteActivity" />
         <activity android:name=".activity.VideoActivity" />
         <activity android:name=".activity.TreeActivity" />
-        <activity android:name=".activity.Group_AddTopContactsActivity"></activity>
+        <activity android:name=".activity.Group_AddTopContactsActivity" />
         <activity android:name=".activity.InfoActivity" />
         <activity android:name=".activity.SearchActivity" />
         <!--会话页面-->
         <activity
             android:name="com.tianfangIMS.im.activity.ConversationActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-                <action android:name="com.android.action.MY_ACTION"/>
+                <action android:name="com.android.action.MY_ACTION" />
+
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data
@@ -206,8 +209,10 @@
         <activity android:name=".activity.ConversationViewpagerActivity">
 
         </activity>
-        <activity android:name=".activity.ChangeGroupNameActivity"></activity>
+        <activity android:name=".activity.SearchChattingDetailActivity" />
+        <activity android:name=".activity.ChangeGroupNameActivity" />
         <activity android:name=".activity.AMapShareActivity" />
+        <activity android:name=".location.AMapRealTimeActivity" />
         <!--聚合会话-->
         <activity
             android:name=".activity.SubConversationListActivity"
@@ -223,8 +228,13 @@
                     android:scheme="rong" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.SearchGroupActivity"></activity>
-        <activity android:name=".activity.FriendPersonInfoActivity"></activity>
+
+        <activity android:name=".activity.SearchGroupActivity" />
+        <activity android:name=".activity.FriendPersonInfoActivity" />
+        <activity android:name=".activity.SendMessageActivity" />
+        <activity android:name=".activity.SearchAllContactsActivity" />
+        <activity android:name=".activity.MoveGroupUserActivity" />
+        <activity android:name=".activity.DeleteGropUserActivity" />
         <!-- GCM 配置结束 < -->
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -238,8 +248,10 @@
         <!--配置APPKey-->
         <meta-data
             android:name="RONG_CLOUD_APP_KEY"
-            android:value="m7ua80guyso7u" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
+            android:value="m7ua80guyso7u"/>
+
+        <!-- 120:m7ua80guyso7u   35: e5t4ouvpe564a ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing. See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -248,21 +260,25 @@
             android:name="com.amap.api.v2.apikey"
             android:value="d23e3db8d2b5c453e35e0bc37a1bc37a" />
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService"/>
-
-        <!--<receivers-->
-            <!--android:name=".receiver.SealNotificationReceiver"-->
-            <!--android:exported="true">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />-->
-                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />-->
-                <!--<action android:name="io.rong.push.intent.MESSAGE_CLICKED" />-->
-                <!--<action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />-->
-            <!--</intent-filter>-->
-        <!--</receivers>-->
-
+        <service android:name="com.amap.api.location.APSService" />
         <!--悬浮权限-->
-        <service android:name=".service.FloatService"/>
+        <service android:name=".service.FloatService" />
+        <receiver android:name="io.rong.imlib.ConnectChangeReceiver" />
+
+        <receiver
+            android:name="io.rong.imlib.HeartbeatReceiver"
+            android:process=":ipc" />
+
+        <receiver
+            android:name=".receiver.SealNotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="io.rong.push.intent.MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_ARRIVED" />
+                <action android:name="io.rong.push.intent.MESSAGE_CLICKED" />
+                <action android:name="io.rong.push.intent.MI_MESSAGE_CLICKED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

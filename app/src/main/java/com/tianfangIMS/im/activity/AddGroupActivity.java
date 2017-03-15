@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -58,9 +59,11 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
     Intent mIntent;
 
     HashMap<Integer, Boolean> prepare;
-    private String GroupID ;
+    private String GroupID;
     private String PrivateId;
     private EditText et_search;
+    private ArrayList<String> ImageMessageList;//接收转发的图片消息
+    private String SimpleName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +71,9 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
         mContext = this;
         GroupID = getIntent().getStringExtra("GroupId");
         PrivateId = getIntent().getStringExtra("PrivateChat");
+        ImageMessageList = getIntent().getStringArrayListExtra("ListUri");
+        SimpleName = getIntent().getStringExtra("SimpleName");
+        Log.e("打印图片消息：", "---:" + SimpleName);
         setTitle("选择联系人");
         init();
         GetData();
@@ -106,7 +112,6 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                         }.getType());
                         //根据PID进行平行节点排序 如果PID相同 则根据自身ID进行前后排序
                         Collections.sort(mTreeInfos, new Comparator<TreeInfo>() {
-                            @Override
                             public int compare(TreeInfo o1, TreeInfo o2) {
                                 if (o1.getPid() < o2.getPid()) {
                                     return -1;
@@ -141,10 +146,9 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                         //最后的一组平行节点组进行嵌入
                         maps.put(pid, map);
                         runOnUiThread(new Runnable() {
-                            @Override
                             public void run() {
                                 clickHistory = new ArrayList<TreeInfo>();
-                                mTreeInfos = new ArrayList<>();
+                                mTreeInfos = new ArrayList<TreeInfo>();
                                 childCount = new ArrayList<Integer>();
                                 mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
                                 lv_addGroup_company.setAdapter(mAdapter);
@@ -171,7 +175,6 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
         }
         //根据部门编号 进行排序
         Collections.sort(mTreeInfos, new Comparator<TreeInfo>() {
-            @Override
             public int compare(TreeInfo o1, TreeInfo o2) {
                 return o1.getId() < o2.getId() ? -1 : 1;
             }
@@ -211,7 +214,6 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_group_topcontacts:
@@ -225,11 +227,17 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
             case R.id.rl_allContacts:
 //                Toast.makeText(getActivity(), mTreeInfos.get(position).getId() + " / " + mTreeInfos.get(position).getName(), Toast.LENGTH_SHORT).show();
                 mIntent = new Intent(mContext, InfoActivity.class);
-                if(!TextUtils.isEmpty(GroupID)){
+                if (!TextUtils.isEmpty(GroupID)) {
                     mIntent.putExtra("Groupid", GroupID);
                 }
-                if(!TextUtils.isEmpty(PrivateId)){
+                if (!TextUtils.isEmpty(PrivateId)) {
                     mIntent.putExtra("PrivateChat", PrivateId);
+                }
+                if (ImageMessageList != null && ImageMessageList.size() > 0) {
+                    mIntent.putStringArrayListExtra("ImageUri", ImageMessageList);
+                }
+                if(!TextUtils.isEmpty(SimpleName)){
+                    mIntent.putExtra("SimpleName",SimpleName);
                 }
                 mIntent.putExtra("maps", maps);
                 mIntent.putExtra("IsBoolean", flag);

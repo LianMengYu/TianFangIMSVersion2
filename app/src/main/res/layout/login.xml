@@ -61,8 +61,10 @@
                 android:layout_toRightOf="@+id/img_icon_user"
                 android:background="@null"
                 android:hint="@string/edittext_login"
-                android:imeOptions="actionGo"
+                android:imeOptions="actionNext"
                 android:maxLines="1"
+                android:nextFocusForward="@+id/et_login_password"
+                android:singleLine="true"
                 android:textColor="#373E61"
                 android:textColorHint="#BFC9D9" />
 
@@ -107,6 +109,7 @@
                 android:layout_toRightOf="@+id/img_icon_password"
                 android:background="@null"
                 android:hint="@string/edittext_password"
+                android:imeOptions="actionGo"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:textColor="#373E61"
@@ -145,7 +148,6 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/img_icon_forget"
             android:layout_marginLeft="105dp"
-            android:clickable="true"
             android:text="@string/tx_forgetpassword" />
 
         <Button
@@ -155,7 +157,8 @@
             android:layout_below="@id/tx_forgetpassword"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
-            android:background="@drawable/btn_login_selector" />
+            android:background="@drawable/btn_login_selector"
+            android:enabled="false" />
     </RelativeLayout>
 
 </LinearLayout>

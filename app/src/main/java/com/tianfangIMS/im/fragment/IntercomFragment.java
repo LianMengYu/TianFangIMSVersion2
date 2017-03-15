@@ -1,8 +1,10 @@
 package com.tianfangIMS.im.fragment;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -54,13 +56,13 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
     private List<String> participants;
     private PTTClient pttClient;
     private Button ceshi;
+
     public static IntercomFragment getInstance() {
         if (Instance == null) {
             Instance = new IntercomFragment();
         }
         return Instance;
     }
-
     ImageView main_call_blur;
     ImageView main_call_header;
     private Conversation.ConversationType mConversationType;
@@ -80,13 +82,11 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
         main_call_flash = (ImageView) view.findViewById(R.id.main_call_flash);
         main_call_talk = (ImageView) view.findViewById(R.id.main_call_talk);
         intercom_name = (TextView) view.findViewById(R.id.intercom_name);
-        ceshi = (Button)view.findViewById(R.id.ceshi);
+        ceshi = (Button) view.findViewById(R.id.ceshi);
         ceshi.setOnClickListener(this);
         setListener();
-//        main_call_blur.setImageBitmap(blur(getBitmapFromUri(userInfo.getPortraitUri()), 25f));
         mConversationType = Conversation.ConversationType.valueOf(intent.getData()
                 .getLastPathSegment().toUpperCase(Locale.getDefault()));
-
         userid = intent.getData().getQueryParameter("targetId");
         //获取userinfo
         if (mConversationType == Conversation.ConversationType.PRIVATE) {
@@ -122,6 +122,7 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
                     public void onBefore(BaseRequest request) {
                         super.onBefore(request);
                     }
+
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
@@ -171,6 +172,7 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
         main_call_flash.setOnClickListener(this);
         main_call_talk.setOnClickListener(this);
     }
+
     //请求说话，抢麦
     boolean requestToSpeak(View view, MotionEvent motionEvent) {
         if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -200,21 +202,37 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
             });
         } else if (motionEvent.getAction() == MotionEvent.ACTION_UP || motionEvent.getAction() == MotionEvent.ACTION_CANCEL) {
             main_call_talk.setImageResource(R.mipmap.talk_voice_green_connect);
-//            micHolderTextView.setText(getString(io.rong.ptt.kit.R.string.rce_ptt_hold_to_request_mic));
-//            micHolderImageView.setImageResource(io.rong.ptt.kit.R.drawable.rc_default_portrait);
             pttClient.stopSpeak();
         }
         return true;
     }
 
+    //    public void setSpeakerphoneOn (boolean on){
+//        audioManager.setSpeakerphoneOn(on);
+//        if(!on){
+//            audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+//        }
+//    }
+    boolean flag = true;
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.main_call_free:
-                Toast.makeText(getActivity(), "点击了免提", Toast.LENGTH_SHORT).show();
+                getActivity().getSystemService(Context.AUDIO_SERVICE);
+                AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
+                if (flag) {
+                    main_call_free.setImageResource(R.drawable.talk_voice_mode);
+                    audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+                    flag = false;//开启了扬声器，讲图片设置为听筒
+                    audioManager.setMicrophoneMute(false);
+                    audioManager.setSpeakerphoneOn(true);
+                } else {
+                    main_call_free.setImageResource(R.drawable.talk_voice_handsfree);
+                    audioManager.setMode(AudioManager.MODE_IN_CALL);
+                    flag = true;
+                }
                 break;
             case R.id.main_call_flash:
-                Toast.makeText(getActivity(), "点击了Flash", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.main_call_talk:
                 Toast.makeText(getActivity(), "点击了对讲", Toast.LENGTH_SHORT).show();
@@ -224,29 +242,32 @@ public class IntercomFragment extends BaseFragment implements View.OnClickListen
                 break;
         }
     }
-    private void JoinInterCom(){
+
+    private void JoinInterCom() {
         pttClient = PTTClient.getInstance();
         pttClient.init(getContext());
-        Log.e("debugPTT","打印一个数据类型："+mConversationType+"打印userid："+userid);
         pttClient.joinSession(mConversationType, userid, new JoinSessionCallback() {
             @Override
             public void onSuccess(List<String> list) {
                 Log.e("OnSuccess", "测试对讲连接成功");
                 main_call_talk.setImageResource(R.mipmap.talk_voice_green_connect);
+                pttClient.setPttSessionStateListener(getInstance());
                 PTTSession pttSession = pttClient.getCurrentPttSession();
                 participants = pttSession.getParticipantIds();
-                pttClient.setPttSessionStateListener(getInstance());
+                pttClient = PTTClient.getInstance();
+                Log.e("你好", "::" + list);
                 main_call_talk.setOnTouchListener(new View.OnTouchListener() {
                     @Override
-                   public boolean onTouch(View v, MotionEvent event) {
+                    public boolean onTouch(View v, MotionEvent event) {
                         return requestToSpeak(v, event);
                     }
-             });
+                });
 
             }
+
             @Override
             public void onError(String s) {
-                Log.e("OnSuccess", "对讲链接失败:"+s);
+                Log.e("OnSuccess", "对讲链接失败:" + s);
             }
         });
     }

@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -59,9 +60,11 @@ public class AddTopContacts_GridView_Adapter extends BaseAdapter {
 //        CommonUtil.GetImages(mContext, mList.get(position).getLogo(), viewHolder.img);
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.get(position).getLogo())
-                .resize(500, 500)
-                .placeholder(R.mipmap.default_photo)
-                .error(R.mipmap.default_photo)
+                .resize(80, 80)
+                .centerCrop()
+                .placeholder(R.mipmap.default_portrait)
+                .config(Bitmap.Config.ARGB_8888)
+                .error(R.mipmap.default_portrait)
                 .into( viewHolder.img);
         viewHolder.text.setText(mList.get(position).getName());
         return convertView;

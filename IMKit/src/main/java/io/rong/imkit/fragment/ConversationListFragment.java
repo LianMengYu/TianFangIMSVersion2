@@ -4,7 +4,9 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -157,7 +159,7 @@ public class ConversationListFragment extends UriFragment implements
                 if (data != null && data.size() > 0) {
                     makeUiConversationList(data);
                     mAdapter.notifyDataSetChanged();
-                }else {
+                } else {
                     RLog.w(TAG, "getConversationList return null " + RongIMClient.getInstance().getCurrentConnectionStatus());
                     isShowWithoutConnected = true;
                 }
@@ -1072,6 +1074,7 @@ public class ConversationListFragment extends UriFragment implements
 
         if (RongContext.getInstance().getConversationListBehaviorListener() != null) {
             boolean isDealt = RongContext.getInstance().getConversationListBehaviorListener().onConversationPortraitLongClick(getActivity(), type, data.getConversationTargetId());
+            Log.e("触发", "---boolean:" + isDealt);
             if (isDealt)
                 return true;
         }
@@ -1116,6 +1119,45 @@ public class ConversationListFragment extends UriFragment implements
             buildSingleDialog(uiConversation);
             return true;
         }
+    }
+
+    int startX = 0;
+    int endX = 0;
+
+    @Override
+    public boolean OnFlinglistber(View view, UIConversation data, MotionEvent event) {
+        boolean result = false;
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            startX = (int) event.getX();
+            Log.e("startX", "" + startX);
+            result = false;
+        }
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            endX = (int) event.getX();
+            if (startX - endX > 120) {
+                Log.e("触发", "左划");
+                ConversationType type = data.getConversationType();
+//                if (getGatherState(type)) {
+//                    RongIM.getInstance().startSubConversationList(getActivity(), type);
+//                } else {
+//                    if (RongContext.getInstance().getConversationListBehaviorListener() != null) {
+//                        boolean isDefault = RongContext.getInstance().getConversationListBehaviorListener().onConversationPortraitClick(getActivity(), type, data.getConversationTargetId());
+//                        if (isDefault){
+//                            return;
+//                        }
+//                    }
+//                    data.setUnReadMessageCount(0);
+                RongIM.getInstance().startConversation(getActivity(), type, data.getConversationTargetId(), data.getUIConversationTitle());
+//                }
+                result = true;
+            }
+            if (endX - startX > 120) {
+                Log.e("触发", "右划");
+                result = true;
+            }
+        }
+        Log.e("fanhuizhi", "--:" + result);
+        return result;
     }
 
     private void buildMultiDialog(final UIConversation uiConversation) {

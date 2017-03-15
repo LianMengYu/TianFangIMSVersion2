@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,15 +9,14 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.bean.ViewMode;
 
 import java.util.HashMap;
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * Created by Titan on 2017/2/7.
@@ -29,9 +29,7 @@ public class InfoAdapter extends BaseAdapter {
     List<Integer> childCount;
     TreeInfo mTreeInfo;
     HashMap<Integer, Boolean> prepare;
-
     OnDepartmentCheckedChangeListener mListener;
-
     ViewMode mMode;
 
     /**
@@ -143,7 +141,15 @@ public class InfoAdapter extends BaseAdapter {
                 } else {
                     mWorkerHolder.adapter_info_item_worker_iv.setVisibility(View.GONE);
                 }
-                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
+//                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
+                Picasso.with(mContext)
+                        .load(ConstantValue.ImageFile+mInfos.get(position).getLogo())
+                        .resize(80, 80)
+                        .centerCrop()
+                        .placeholder(R.mipmap.default_portrait)
+                        .config(Bitmap.Config.ARGB_8888)
+                        .error(R.mipmap.default_portrait)
+                        .into(mWorkerHolder.adapter_info_item_worker_header);
                 mWorkerHolder.adapter_info_item_worker_name.setText(mTreeInfo.getName());
                 mWorkerHolder.adapter_info_item_worker_job.setText(mTreeInfo.getPostitionname());
                 break;

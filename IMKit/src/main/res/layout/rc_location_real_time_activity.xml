@@ -2,16 +2,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.amap.api.maps2d.MapView
-        android:id="@+id/rc_ext_amap"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <RelativeLayout
         android:id="@+id/rc_toolbar"
         android:layout_width="match_parent"
         android:layout_height="69dp"
-        android:background="#70000000">
+        android:background="#70000000"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/rc_toolbar_close"
@@ -62,4 +58,12 @@
             android:textColor="@android:color/white"
             android:textSize="14sp" />
     </RelativeLayout>
+
+    <com.amap.api.maps2d.MapView
+        android:id="@+id/rc_ext_amap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

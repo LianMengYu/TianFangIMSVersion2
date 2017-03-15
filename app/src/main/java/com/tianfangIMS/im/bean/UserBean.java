@@ -12,6 +12,7 @@ public class UserBean implements Serializable {
     private String address;
     private String birthday;
     private String email;
+    private String name;
     private String groupmax;
     private String groupuse;
     private String id;
@@ -25,7 +26,7 @@ public class UserBean implements Serializable {
     private String workno;
     private String token;
 
-    public UserBean(String account, String address, String birthday, String email, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String password, String pinyin, String sex, String telephone, String token, String workno) {
+    public UserBean(String account, String address, String birthday, String email,String name, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String password, String pinyin, String sex, String telephone, String token, String workno) {
         this.account = account;
         this.address = address;
         this.birthday = birthday;
@@ -42,8 +43,16 @@ public class UserBean implements Serializable {
         this.telephone = telephone;
         this.token = token;
         this.workno = workno;
+        this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getAccount() {
         return account;

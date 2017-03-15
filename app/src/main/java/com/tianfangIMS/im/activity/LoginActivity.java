@@ -34,7 +34,6 @@ import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.SetSyncUserBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
-import com.tianfangIMS.im.utils.AMUtils;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.MD5;
 import com.tianfangIMS.im.utils.NToast;
@@ -52,7 +51,7 @@ import okhttp3.Response;
  * 登录页
  */
 
-public class LoginActivity extends Activity implements View.OnClickListener, RongIM.UserInfoProvider{
+public class LoginActivity extends Activity implements View.OnClickListener, RongIM.UserInfoProvider {
     private final static String TAG = "LoginActivity";
     private static final int LOGIN = 5;
     private static final int GET_TOKEN = 6;
@@ -117,7 +116,6 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         et_login_password = (EditText) this.findViewById(R.id.et_login_password);
         btn_login = (Button) this.findViewById(R.id.btn_login);
 
-
         //根据Edittext输入的改变，隐藏或者显示输入框右边的清空button
         et_login_user.addTextChangedListener(new TextWatcher() {
             @Override
@@ -133,8 +131,24 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                     img_login_clean_user.setVisibility(View.INVISIBLE);
                 }
 
-                if (s.length() == 11) {
-                    AMUtils.onInactive(getApplicationContext(), et_login_user);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        et_login_password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String str = s.toString();
+                if (!TextUtils.isEmpty(str)) {
+                    btn_login.setEnabled(true);
                 }
             }
 
@@ -149,11 +163,19 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         if (getIntent().getBooleanExtra("kickedByOtherClient", false)) {
 //            final AlertDialog dlg = new AlertDialog().Builder(LoginActivity.this).create();
 //            dlg.show();
-            //  注释掉的为掉线逻辑，现在暂未实现，保留后续
+//              //注释掉的为掉线逻辑，现在暂未实现，保留后续
 //            Window window = dlg.getWindow();
 //            window.setContentView(R.layout.other_devices);
-            Toast.makeText(getApplicationContext(), "您的账号在其他设备登录", Toast.LENGTH_SHORT).show();
-
+//            Toast.makeText(getApplicationContext(), "您的账号在其他设备登录", Toast.LENGTH_SHORT).show();
+//            if (RongIM.getInstance() != null)
+//                RongIM.getInstance().disconnect(true);
+//
+//            android.os.Process.killProcess(android.os.Process.myPid());
+////            finish();
+////            System.exit(0);
+////            RongIM.getInstance().disconnect();
+//            System.exit(0);
+//
 //            TextView text = (TextView) window.findViewById(R.id.ok);
 //            text.setOnClickListener(new View.OnClickListener() {
 //                @Override
@@ -232,7 +254,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-
+                        Log.e("assdadsasdsad", "是否访问成功:----:" + loginToken);
                         if (!TextUtils.isEmpty(s)) {
                             Log.e("OnSuccess", "访问成功" + s);
                             Gson gson = new Gson();
@@ -246,16 +268,15 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                         @Override
                                         public void onTokenIncorrect() {
-
+                                            Log.e("sasdfsaasfd", "你执行了啊");
                                         }
 
                                         @Override
                                         public void onSuccess(String s) {
                                             LoadDialog.dismiss(mContext);
                                             SetSyncUserGroup(user);
-                                            Log.e("OnSuccess", "访问成功" + s);
                                             connectResultId = s;
-                                            Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(getApplicationContext(), "登陆成功", Toast.LENGTH_SHORT).show();
                                             Intent intent_login = new Intent();
                                             intent_login.setClass(LoginActivity.this, MainActivity.class);
                                             startActivity(intent_login);
@@ -264,7 +285,8 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
                                         @Override
                                         public void onError(RongIMClient.ErrorCode errorCode) {
-                                            NToast.shortToast(mContext, "获取token失败");
+                                            NToast.shortToast(mContext, "获取token失败" + errorCode);
+                                            Log.e("sasdfsaasfd", "你执行了啊"+errorCode);
                                             return;
                                         }
                                     });
@@ -426,5 +448,19 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            phoneString = et_login_user.getText().toString().trim();
+            passwordString = et_login_password.getText().toString().trim();
+            editor.putString("username", phoneString);
+            editor.putString("userpass", passwordString);
+            editor.apply();
+            setLogin();
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 }

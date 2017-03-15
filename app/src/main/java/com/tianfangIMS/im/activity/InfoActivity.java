@@ -2,6 +2,7 @@ package com.tianfangIMS.im.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,6 +35,7 @@ import com.tianfangIMS.im.bean.TopContactsRequestBean;
 import com.tianfangIMS.im.bean.TreeInfo;
 import com.tianfangIMS.im.bean.ViewMode;
 import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.dialog.SendImageMessageDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -46,6 +48,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.rong.imkit.RongIM;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.message.ImageMessage;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -69,6 +74,8 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     ListView activity_info_lv_part;
 
     InfoAdapter mAdapter;
+
+    List<String> ImageMessageList;
 
     //树节点深度
     int currentLevel;
@@ -102,11 +109,13 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
 
     ViewMode mMode;
     String Groupid;//从群组详情页面传递过来的群组ID
-    String PrivateID;//从好友详情页面传递过来的好友ID
+    String PrivateID;//从好友详情页面传递过来的好友IDS
+    String SimpleName;//常规创建群组的方法
     int parentLevel;
     private TextView tv_creategroup_submit;
     private RelativeLayout rl_selectAddContacts_background;
     private Context mContext;
+    private ArrayList<String> ListUri;
 //    @Override
 //    protected void onCreate(Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -152,6 +161,9 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         setContentView(R.layout.activity_info);
         Groupid = getIntent().getStringExtra("Groupid");
         PrivateID = getIntent().getStringExtra("PrivateChat");
+        ImageMessageList = getIntent().getStringArrayListExtra("ImageUri");
+        SimpleName = getIntent().getStringExtra("SimpleName");
+        ListUri = getIntent().getStringArrayListExtra("ListUri");
         mContext = this;
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
         currentLevel = getIntent().getIntExtra("currentLevel", -1);
@@ -167,7 +179,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 GetInfo();
             }
         });
-        iv_search_icon = (EditText)this.findViewById(R.id.et_search);
+        iv_search_icon = (EditText) this.findViewById(R.id.et_search);
         gv_create = (GridView) this.findViewById(R.id.gv_create);
         gv_create.setOnItemClickListener(this);
         activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
@@ -175,7 +187,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
         activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
         tv_creategroup_submit = (TextView) this.findViewById(R.id.tv_creategroup_submit);
-        search_infoactivity = (LinearLayout)this.findViewById(R.id.search_infoactivity);
+        search_infoactivity = (LinearLayout) this.findViewById(R.id.search_infoactivity);
         search_infoactivity.setOnClickListener(this);
         iv_search_icon.setFocusable(false);
         iv_search_icon.setOnClickListener(this);
@@ -303,7 +315,14 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         if (mTreeInfo.getFlag() == 1) {
 //            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
             String ids = String.valueOf(mTreeInfo.getId());
-            RongIM.getInstance().startPrivateChat(mContext, ids, mTreeInfo.getName());
+            if (ListUri != null && ListUri.size() > 0) {
+//                SendImageMessage(ListUri, position);
+                SendImageMessageDialog sendImageMessageDialog = new SendImageMessageDialog(mContext,ids,position,mTreeInfo.getName(),ListUri, Conversation.ConversationType.PRIVATE,
+                        ConstantValue.ImageFile+mTreeInfo.getLogo(),null);
+                sendImageMessageDialog.show();
+            } else {
+                RongIM.getInstance().startPrivateChat(mContext, ids, mTreeInfo.getName());
+            }
             return;
         }
         isChecked = mTreeInfos.get(position).isChecked();
@@ -409,7 +428,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         SettingGridView(results);
         gv_create.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        Log.e("InfoActivity", "共计" + results.size() + "人");
+        tv_creategroup_submit.setText("添加（" + results.size() + "）");
     }
 
     @Override
@@ -566,9 +585,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                             Gson gson = new Gson();
                             Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
-                            if (map.get("code").equals("1")) {
+                            if ((Double) map.get("code") == 1.0) {
                                 Log.e("哈哈", "添加成员是否承诺" + map.get("code"));
-                                startActivity(new Intent(mContext, MainActivity.class));
+//                                startActivity(new Intent(mContext, MainActivity.class));
+                                RongIM.getInstance().startGroupChat(mContext, Groupid, "");
                                 Log.e("哈哈", "添加成员是跳转是否执行" + map.get("code"));
                             }
                         } else {
@@ -578,25 +598,61 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 });
     }
 
+
+    /**
+     * Groupid = getIntent().getStringExtra("Groupid");
+     * PrivateID = getIntent().getStringExtra("PrivateChat");
+     * ImageMessageList = getIntent().getStringArrayListExtra("ImageUri");
+     * SimpleName = getIntent().getStringExtra("SimpleName");
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.tv_creategroup_submit:
                 if (!TextUtils.isEmpty(Groupid)) {
                     AddGroupUser();
-                } else {
-                    if (!TextUtils.isEmpty(PrivateID)) {
-                        NToast.longToast(mContext, "执行单聊创建群组");
-                        CreatePrivateChatforGroup();
-                    } else {
-                        CreateGroup();
-                    }
-
+                }
+                if (!TextUtils.isEmpty(PrivateID)) {
+                    CreatePrivateChatforGroup();
+                }
+                if (!TextUtils.isEmpty(SimpleName)) {
+                    CreateGroup();
                 }
                 break;
             case R.id.et_search:
                 startActivity(new Intent(mContext, SearchActivity.class));
                 break;
+        }
+    }
+
+    private void SendImageMessage(List<String> ImageMessageList, final int position) {
+        final String sendImageIds = String.valueOf(mTreeInfo.getId());
+        for (int i = 0; i < ImageMessageList.size(); i++) {
+            ImageMessage imageMessage = ImageMessage.obtain(null, Uri.parse(ImageMessageList.get(i)), true);
+            RongIM.getInstance().sendImageMessage(Conversation.ConversationType.PRIVATE, sendImageIds, imageMessage, null, null,
+                    new RongIMClient.SendImageMessageCallback() {
+                        @Override
+                        public void onAttached(io.rong.imlib.model.Message message) {
+
+                        }
+
+                        @Override
+                        public void onError(io.rong.imlib.model.Message message, RongIMClient.ErrorCode errorCode) {
+                            LoadDialog.dismiss(mContext);
+                            NToast.shortToast(mContext, "发送失败" + errorCode.getValue());
+                        }
+
+                        @Override
+                        public void onSuccess(io.rong.imlib.model.Message message) {
+                            LoadDialog.dismiss(mContext);
+                            NToast.shortToast(mContext, "发送成功");
+                            RongIM.getInstance().startPrivateChat(mContext, sendImageIds, mTreeInfo.getName());
+                        }
+
+                        @Override
+                        public void onProgress(io.rong.imlib.model.Message message, int i) {
+                        }
+                    });
         }
     }
 }

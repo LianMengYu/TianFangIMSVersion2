@@ -34,8 +34,10 @@ public class TopContactsListBean implements Serializable {
         private String workno;
         private String code;
         private String text;
+        private String position;
 
-        public Text(String account, String address, String birthday, String code, String createtokendate, String email, String fullname, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String password, String pinyin, String sex, String telephone, String text, String token, String workno) {
+        public Text(String position,String account, String address, String birthday, String code, String createtokendate, String email, String fullname, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String password, String pinyin, String sex, String telephone, String text, String token, String workno) {
+            this.position =position;
             this.account = account;
             this.address = address;
             this.birthday = birthday;
@@ -56,6 +58,14 @@ public class TopContactsListBean implements Serializable {
             this.text = text;
             this.token = token;
             this.workno = workno;
+        }
+
+        public String getPosition() {
+            return position;
+        }
+
+        public void setPosition(String position) {
+            this.position = position;
         }
 
         public String getAccount() {

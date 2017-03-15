@@ -24,6 +24,7 @@ import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.MineGroupBean;
 import com.tianfangIMS.im.bean.MineGroupChildBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
+import com.tianfangIMS.im.dialog.SendImageMessageDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.rong.imkit.RongIM;
+import io.rong.imlib.model.Conversation;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -40,7 +42,7 @@ import okhttp3.Response;
  * 我的群组
  */
 
-public class MineGroupActivity extends BaseActivity implements AdapterView.OnItemClickListener ,View.OnClickListener{
+public class MineGroupActivity extends BaseActivity implements AdapterView.OnItemClickListener, View.OnClickListener {
     private static final String TAG = "MineGroupActivity";
     private Context mContext;
     private List<MineGroupChildBean> mList = new ArrayList<MineGroupChildBean>();
@@ -52,9 +54,10 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
     List<GroupBean> mGroupBeen;
 
     GroupAdapter mGroupAdapter;
-
+    private ArrayList<String> uriList;
     Gson mGson;
     private EditText et_search;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,13 +66,14 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
         setTitle("我的群组");
         initView();
         GetGroupList();
+        uriList = getIntent().getStringArrayListExtra("ListUri");
     }
 
     public void initView() {
         activity_group_lv_data = (ListView) findViewById(R.id.activity_group_lv_data);
         activity_group_lv_data.setOnItemClickListener(this);
         tv_groupIsNull = (TextView) findViewById(R.id.tv_groupIsNull);
-        et_search = (EditText)findViewById(R.id.et_search);
+        et_search = (EditText) findViewById(R.id.et_search);
         et_search.setFocusable(false);
         et_search.setOnClickListener(this);
 //        et_search.setOnClickListener(this);
@@ -101,7 +105,7 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "json:---" + s);
-                        if (!TextUtils.isEmpty(s)) {
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                             Gson gson1 = new Gson();
                             Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
@@ -146,15 +150,55 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
 
     @Override
     public void onClick(View v) {
-       switch (v.getId()){
-           case R.id.et_search:
-               startActivity(new Intent(mContext, SearchGroupActivity.class));
-               break;
-       }
+        switch (v.getId()) {
+            case R.id.et_search:
+                startActivity(new Intent(mContext, SearchGroupActivity.class));
+                break;
+        }
     }
+
+//    private void SendImageMessage(List<String> ImageMessageList, final int position) {
+//        List<String> list = new ArrayList<String>();
+//        for (int i = 0; i < ImageMessageList.size(); i++) {
+//            ImageMessage imageMessage = ImageMessage.obtain(null, Uri.parse(ImageMessageList.get(i)), true);
+//            RongIM.getInstance().sendImageMessage(Conversation.ConversationType.GROUP, mGroupBeen.get(position).getGID(), imageMessage, null, null,
+//                    new RongIMClient.SendImageMessageCallback() {
+//                        @Override
+//                        public void onAttached(Message message) {
+//
+//                        }
+//
+//                        @Override
+//                        public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+//                            LoadDialog.dismiss(mContext);
+//                            NToast.shortToast(mContext, "发送失败" + errorCode.getValue());
+//                        }
+//
+//                        @Override
+//                        public void onSuccess(Message message) {
+//                            LoadDialog.dismiss(mContext);
+//                            NToast.shortToast(mContext, "发送成功");
+//                            RongIM.getInstance().startGroupChat(mContext, mGroupBeen.get(position).getGID(), mGroupBeen.get(position).getName(),
+//                                    ConstantValue.ImageFile + mGroupBeen.get(position).getLogo());
+//                        }
+//
+//                        @Override
+//                        public void onProgress(Message message, int i) {
+//                        }
+//                    });
+//        }
+//    }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        RongIM.getInstance().startGroupChat(mContext, mGroupBeen.get(position).getGID(), mGroupBeen.get(position).getName());
+        if (uriList != null && uriList.size() > 0) {
+//            SendImageMessage(uriList, position);
+            SendImageMessageDialog sendImageMessageDialog = new SendImageMessageDialog(mContext, mGroupBeen.get(position).getGID(),
+                    position, mGroupBeen.get(position).getName(), uriList,Conversation.ConversationType.GROUP,ConstantValue.ImageFile+mGroupBeen.get(position).getLogo(),
+                    null);
+            sendImageMessageDialog.show();
+        } else {
+            RongIM.getInstance().startGroupChat(mContext, mGroupBeen.get(position).getGID(), mGroupBeen.get(position).getName());
+        }
     }
 }

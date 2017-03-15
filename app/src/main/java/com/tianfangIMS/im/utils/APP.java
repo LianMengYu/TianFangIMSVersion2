@@ -28,6 +28,7 @@ public class APP extends TianFangIMSApplication{
             RongIM.init(this);
 //            NLog.setDebug(true);//Seal Module Log 开关
             SharedPreferencesContext.init(this);
+            //获取对讲监听
         }
     }
 
@@ -41,5 +42,4 @@ public class APP extends TianFangIMSApplication{
         }
         return null;
     }
-
 }

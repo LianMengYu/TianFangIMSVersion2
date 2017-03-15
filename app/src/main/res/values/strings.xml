@@ -16,4 +16,5 @@
     <string name="layout_dialog_loading">正在加载</string>
     <string name="all_pic">全部图片</string>
     <string name="preview_without_num">预览</string>
+    <string name="ac_search_chat_detail">共%1$d条与</string>
 </resources>

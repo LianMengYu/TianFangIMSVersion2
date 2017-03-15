@@ -18,6 +18,7 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.request.BaseRequest;
 import com.tianfangIMS.im.R;
+import com.tianfangIMS.im.bean.SubmitCodeBean;
 import com.tianfangIMS.im.bean.VerificationCodeBean;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CountDownTimerUtils;
@@ -27,6 +28,7 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 import static com.tianfangIMS.im.ConstantValue.NEWPASSWORD;
+import static com.tianfangIMS.im.ConstantValue.REQUESTTEXT;
 
 /**
  * Created by LianMengYu on 2017/1/13.
@@ -40,6 +42,10 @@ public class GetVerificationCode_Activity extends Activity implements View.OnCli
     private TextView tv_getcode_txt;
     private CountDownTimerUtils countDownTimerUtils;
     private ImageView imgbtn_back;
+    String PhoneNuber;
+    String newpwd;
+    String renewpwd;
+    String textcode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +53,11 @@ public class GetVerificationCode_Activity extends Activity implements View.OnCli
         setContentView(R.layout.getcode_activity);
         mContext = this;
         init();
+        Intent intent = getIntent();
+        PhoneNuber = intent.getStringExtra("PhoneNumber");
+        newpwd = et_getcode_newpwd.getText().toString().trim();
+        renewpwd = et_getcode_renewpwd.getText().toString().trim();
+        textcode = et_getcode_input.getText().toString().trim();
     }
 
     private void init() {
@@ -58,7 +69,6 @@ public class GetVerificationCode_Activity extends Activity implements View.OnCli
         et_getcode_input = (EditText) this.findViewById(R.id.et_getcode_input);
         tv_getcode_txt = (TextView) this.findViewById(R.id.tv_getcode_txt);
         imgbtn_back = (ImageView) this.findViewById(R.id.imgbtn_back);
-
 
 
         countDownTimerUtils = new CountDownTimerUtils(tv_getcode_txt, 60000, 1000);
@@ -124,11 +134,6 @@ public class GetVerificationCode_Activity extends Activity implements View.OnCli
     }
 
     private void GetVerification() {
-        Intent intent = getIntent();
-        String PhoneNuber = intent.getStringExtra("PhoneNumber");
-        String newpwd = et_getcode_newpwd.getText().toString().trim();
-        String renewpwd = et_getcode_renewpwd.getText().toString().trim();
-        String textcode = et_getcode_input.getText().toString().trim();
         OkGo.post(NEWPASSWORD)
                 .tag(this)
                 .connTimeOut(10000)
@@ -180,45 +185,51 @@ public class GetVerificationCode_Activity extends Activity implements View.OnCli
             case R.id.btn_getcode_sumbit:
                 GetVerification();
                 break;
-//            case R.id.tv_getcode_txt:
-//                OkGo.post(REQUESTTEXT)
-//                        .tag(this)
-//                        .connTimeOut(10000)
-//                        .readTimeOut(10000)
-//                        .writeTimeOut(10000)
-//                        .execute(new StringCallback() {
-//                            @Override
-//                            public void onBefore(BaseRequest request) {
-//                                super.onBefore(request);
-//                                LoadDialog.show(mContext);
-//                            }
-//
-//                            @Override
-//                            public void onSuccess(String s, Call call, Response response) {
-//                                LoadDialog.dismiss(mContext);
-//                                if (!TextUtils.isEmpty(s)) {
-//                                    Gson gson = new Gson();
-//                                    SubmitCodeBean submitCodeBean = gson.fromJson(s, SubmitCodeBean.class);
-//                                    if (submitCodeBean.getCode() == 1) {
-//                                        String Message = submitCodeBean.getMessagetext();
-//                                        countDownTimerUtils = new CountDownTimerUtils(tv_getcode_txt, 60000, 1000);
-//                                        countDownTimerUtils.start();
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onError(Call call, Response response, Exception e) {
-//                                super.onError(call, response, e);
-//                                LoadDialog.dismiss(mContext);
-//                                NToast.shortToast(mContext, "访问网络失败");
-//                                return;
-//                            }
-//                        });
-//                break;
+            case R.id.tv_getcode_txt:
+                SubmitCode();
+                countDownTimerUtils = new CountDownTimerUtils(tv_getcode_txt, 60000, 1000);
+                countDownTimerUtils.start();
+                break;
             case R.id.imgbtn_back:
                 finish();
                 break;
         }
+    }
+
+    private void SubmitCode() {
+
+        OkGo.post(REQUESTTEXT)
+                .tag(this)
+                .connTimeOut(10000)
+                .readTimeOut(10000)
+                .writeTimeOut(10000)
+                .params("phone",PhoneNuber)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onBefore(BaseRequest request) {
+                        super.onBefore(request);
+                        LoadDialog.show(mContext);
+                    }
+
+                    @Override
+                    public void onSuccess(String s, Call call, Response response) {
+                        LoadDialog.dismiss(mContext);
+                        if (!TextUtils.isEmpty(s)) {
+                            Gson gson = new Gson();
+                            SubmitCodeBean submitCodeBean = gson.fromJson(s, SubmitCodeBean.class);
+                            if (submitCodeBean.getCode() == 1) {
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Call call, Response response, Exception e) {
+                        super.onError(call, response, e);
+                        LoadDialog.dismiss(mContext);
+                        NToast.shortToast(mContext, "访问网络失败");
+                        return;
+                    }
+                });
     }
 }

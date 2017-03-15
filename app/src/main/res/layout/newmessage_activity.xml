@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="请在手机“设置”-“通知”中经行修改" />
+            android:text="请在手机“设置”-“通知”中进行修改" />
     </RelativeLayout>
 
     <LinearLayout

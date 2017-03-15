@@ -1,6 +1,7 @@
 package com.tianfangIMS.im.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -18,20 +19,24 @@ import java.util.ArrayList;
  * Created by LianMengYu on 2017/2/17.
  */
 
-public class GroupDetailInfo_GridView_Adapter extends BaseAdapter implements View.OnClickListener {
+public class GroupDetailInfo_GridView_Adapter extends BaseAdapter {
     private Context mContext;
     private ArrayList<GroupBean> mList;
-    private MyClickListener mListener;
+    private AddClickListener addListener;
+    private DelClickListener delListener;
+    private boolean flag;//true是群主，false不是群主
 
-    public GroupDetailInfo_GridView_Adapter(Context mContext, ArrayList<GroupBean> mList, MyClickListener mListener) {
+    public GroupDetailInfo_GridView_Adapter(Context mContext, ArrayList<GroupBean> mList, AddClickListener addListener, DelClickListener delListener, boolean flag) {
         this.mContext = mContext;
         this.mList = mList;
-        this.mListener = mListener;
+        this.addListener = addListener;
+        this.delListener = delListener;
+        this.flag = flag;
     }
 
     @Override
     public int getCount() {
-        return mList.size() + 1;
+        return mList.size() + 2;
     }
 
     @Override
@@ -59,14 +64,30 @@ public class GroupDetailInfo_GridView_Adapter extends BaseAdapter implements Vie
         if (position < mList.size()) {
             Picasso.with(mContext)
                     .load(ConstantValue.ImageFile + mList.get(position).getLogo())
-                    .resize(500,500)
-                    .placeholder(R.mipmap.default_photo)
-                    .error(R.mipmap.default_photo)
+                    .resize(80, 80)
+                    .placeholder(R.mipmap.default_portrait)
+                    .config(Bitmap.Config.ARGB_8888)
+                    .error(R.mipmap.default_portrait)
                     .into(viewHolder.iv_photo);
             viewHolder.tv_userName.setText(mList.get(position).getFullname());
-        } else {
+        } else if (position == mList.size()) {
             viewHolder.iv_photo.setBackgroundResource(R.mipmap.add);
-            viewHolder.iv_photo.setOnClickListener(this);
+            viewHolder.iv_photo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addListener.AddclickListener(v);
+                }
+            });
+
+
+        } else if (position == mList.size() + 1 && flag == true) {
+            viewHolder.iv_photo.setBackgroundResource(R.mipmap.del);
+            viewHolder.iv_photo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    delListener.DelclickListener(v);
+                }
+            });
         }
         return convertView;
     }
@@ -77,12 +98,20 @@ public class GroupDetailInfo_GridView_Adapter extends BaseAdapter implements Vie
     }
 
     //自定义接口，用于回调按钮点击事件到Activity
-    public interface MyClickListener {
-        public void clickListener(View v);
+    public static interface AddClickListener {
+        public void AddclickListener(View v);
     }
 
-    @Override
-    public void onClick(View v) {
-        mListener.clickListener(v);
+    public interface DelClickListener {
+        public void DelclickListener(View v);
+    }
+
+
+    public void setaddClickListener(AddClickListener e) {
+        addListener = e;
+    }
+
+    public void setdelClickListener(DelClickListener e) {
+        delListener = e;
     }
 }

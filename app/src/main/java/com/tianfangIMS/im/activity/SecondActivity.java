@@ -109,7 +109,6 @@ public class SecondActivity extends BaseActivity implements OnItemClickListener 
      */
     private List<String> getNames(int id, List<ParentModel> parentModelList, List<SonModel> sonModelList, int position) {
         if (isFromSon) {
-            //TODO 跳转聊天页面
             Toast.makeText(this, "这是最底层了", Toast.LENGTH_SHORT).show();
         } else {
             if (parentModels != null && parentModels.size() != 0) {

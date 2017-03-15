@@ -2,6 +2,7 @@ package com.tianfangIMS.im.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -10,8 +11,11 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,6 +31,8 @@ import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.LoginBean;
 import com.tianfangIMS.im.bean.OneGroupBean;
+import com.tianfangIMS.im.bean.SealSearchConversationResult;
+import com.tianfangIMS.im.dialog.CleanChatLogDialog;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
@@ -53,8 +59,9 @@ import okhttp3.Response;
 /**
  * Created by LianMengYu on 2017/1/21.
  */
-public class GroupDetailActivity extends BaseActivity implements View.OnClickListener, GroupDetailInfo_GridView_Adapter.MyClickListener {
+public class GroupDetailActivity extends BaseActivity implements View.OnClickListener,GroupDetailInfo_GridView_Adapter.AddClickListener,GroupDetailInfo_GridView_Adapter.DelClickListener {
     private static final String TAG = "GroupDetailActivity";
+    private static final int SEARCH_TYPE_FLAG = 0;
     private String fromConversationId;
     private Conversation.ConversationType mConversationType;
     private UserInfo userInfo;
@@ -64,10 +71,18 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
     private int requestCode;//返回值
     private OneGroupBean oneGroupBean;
     private String GroupName;
-    private RelativeLayout rl_group_file, rl_breakGroup;
+    private RelativeLayout rl_group_file, rl_breakGroup, rl_group_clean;
     private Context mContext;
     private GridView gv_userinfo;
     private GroupDetailInfo_GridView_Adapter adapter;
+    private CompoundButton sw_conversationdetail_notfaction;
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sp;
+    private RelativeLayout rl_group_findFile;
+    private SealSearchConversationResult mResult;
+    private RelativeLayout rl_movegroup;
+    private ArrayList<GroupBean> GroupBeanList;
+    private boolean flag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +96,14 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         if (!TextUtils.isEmpty(fromConversationId)) {
 
             userInfo = RongUserInfoManager.getInstance().getUserInfo(fromConversationId);
-//            updateUI();
             Log.e(TAG, "看看UserInfo有什么：" + fromConversationId);
         }
         GroupInfo();
         GetGroupUserInfo();
+        sp = getSharedPreferences("config", MODE_PRIVATE);
+        editor = sp.edit();
+        boolean flag = sp.getBoolean("GroupchatisOpen", true);
+        sw_conversationdetail_notfaction.setChecked(flag);
     }
 
     //对GridView 显示的宽高经行设置
@@ -130,16 +148,46 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             }.getType();
                             Gson gson1 = new Gson();
                             GroupListBean GroupAllBean = gson1.fromJson(s, listType1);
-                            ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
-
-                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList, GroupDetailActivity.this);
+                            GroupBeanList = GroupAllBean.getText();
+                            Log.e("GroupBeanList", "---:" + GroupBeanList);
+                            setTitle("群信息" + "(" + GroupBeanList.size() + "人)");
+                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList, GroupDetailActivity.this,GroupDetailActivity.this,flag);
 //                            SettingGridView(GroupBeanList);
                             gv_userinfo.setAdapter(adapter);
+                            setListViewHeightBasedOnChildren(gv_userinfo);
                             gv_userinfo.deferNotifyDataSetChanged();
                         }
                     }
                 });
+    }
 
+    public static void setListViewHeightBasedOnChildren(GridView listView) {
+        // 获取listview的adapter
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            return;
+        }
+        // 固定列宽，有多少列
+        int col = 4;// listView.getNumColumns();
+        int totalHeight = 0;
+        // i每次加4，相当于listAdapter.getCount()小于等于4时 循环一次，计算一次item的高度，
+        // listAdapter.getCount()小于等于8时计算两次高度相加
+        for (int i = 0; i < listAdapter.getCount(); i += col) {
+            // 获取listview的每一个item
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            // 获取item的高度和
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        // 获取listview的布局参数
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        // 设置高度
+        params.height = totalHeight;
+        // 设置margin
+        ((ViewGroup.MarginLayoutParams) params).setMargins(10, 10, 10, 10);
+        // 设置参数
+        listView.setLayoutParams(params);
     }
 
     private void GetHistoryMessages() {
@@ -174,11 +222,56 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         rl_group_file = (RelativeLayout) this.findViewById(R.id.rl_group_file);
         rl_breakGroup = (RelativeLayout) this.findViewById(R.id.rl_breakGroup);
         gv_userinfo = (GridView) this.findViewById(R.id.gv_userinfo);
+        rl_group_clean = (RelativeLayout) this.findViewById(R.id.rl_group_clean);
+        sw_conversationdetail_notfaction = (CompoundButton) this.findViewById(R.id.sw_conversationdetail_notfaction);
+        rl_group_findFile = (RelativeLayout) this.findViewById(R.id.rl_group_findFile);
+        rl_movegroup = (RelativeLayout) this.findViewById(R.id.rl_movegroup);
 
+        rl_movegroup.setOnClickListener(this);
+        rl_group_findFile.setOnClickListener(this);
+        rl_group_clean.setOnClickListener(this);
         rl_signout.setOnClickListener(this);
         rl_changeGroupName.setOnClickListener(this);
         rl_group_file.setOnClickListener(this);
         rl_breakGroup.setOnClickListener(this);
+        sw_conversationdetail_notfaction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isChecked()) {
+                    RongIMClient.getInstance().setConversationNotificationStatus(mConversationType, fromConversationId,
+                            Conversation.ConversationNotificationStatus.DO_NOT_DISTURB, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
+                                @Override
+                                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
+                                    Log.e("免打扰", "---:" + conversationNotificationStatus);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    Log.e("免打扰", "---:" + errorCode);
+                                    NToast.shortToast(mContext, "开启免打扰失败");
+                                }
+                            });
+                    editor.putBoolean("GroupchatisOpen", true);
+                    editor.apply();
+                } else {
+                    RongIMClient.getInstance().setConversationNotificationStatus(mConversationType, fromConversationId,
+                            Conversation.ConversationNotificationStatus.NOTIFY, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
+                                @Override
+                                public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
+                                    Log.e("免打扰", "---:" + conversationNotificationStatus);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    Log.e("免打扰", "---:" + errorCode);
+                                    NToast.shortToast(mContext, "关闭免打扰失败");
+                                }
+                            });
+                    editor.putBoolean("GroupchatisOpen", false);
+                    editor.apply();
+                }
+            }
+        });
     }
 
     private void GroupInfo() {
@@ -195,12 +288,15 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             Gson gson = new Gson();
                             oneGroupBean = gson.fromJson(s, OneGroupBean.class);
                             IsLongGroupName(oneGroupBean.getText().getName());
-                            setTitle("群信息" + "(" + oneGroupBean.getText().getVolumeuse() + "人)");
                             LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
                             if (oneGroupBean.getText().getMid().equals(loginBean.getText().getId())) {
                                 rl_breakGroup.setVisibility(View.VISIBLE);
+                                rl_movegroup.setVisibility(View.VISIBLE);
+                                flag = true;
                             } else {
                                 rl_breakGroup.setVisibility(View.GONE);
+                                rl_movegroup.setVisibility(View.GONE);
+                                flag = false;
                             }
                         }
                     }
@@ -214,7 +310,6 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         final Gson gson = new Gson();
         LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
         String userid = loginBean.getText().getId();
-        Log.e("退出群", "要退出的:" + userid + "群组ID" + fromConversationId);
         OkGo.post(ConstantValue.SINGOUTGROUP)
                 .tag(this)
                 .connTimeOut(10000)
@@ -324,16 +419,66 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
             case R.id.rl_breakGroup:
                 BreakGroupUser();
                 break;
+            case R.id.rl_group_clean:
+                CleanChatLogDialog dialog = new CleanChatLogDialog(mContext, mConversationType, fromConversationId);
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable());
+                dialog.show();
+                CommonUtil.SetCleanDialogStyle(dialog);
+                break;
+            case R.id.rl_group_findFile:
+                Intent searchIntent = new Intent(mContext, SearchChattingDetailActivity.class);
+                ArrayList<Message> arrayList = new ArrayList<>();
+                searchIntent.putParcelableArrayListExtra("filterMessages", arrayList);
+                mResult = new SealSearchConversationResult();
+                Conversation conversation = new Conversation();
+                conversation.setTargetId(fromConversationId);
+                conversation.setConversationType(mConversationType);
+                mResult.setConversation(conversation);
+//                Log.e("打印用户信息", "id：" + oneGroupBean.getText().getGID() + "---:名字：" + oneGroupBean.getText().getGID() + "---头像:" +ConstantValue.ImageFile + oneGroupBean.getText().getLogo().toString());
+                if (oneGroupBean != null) {
+                    String portraitUri = ConstantValue.ImageFile + oneGroupBean.getText().getLogo().toString();
+                    mResult.setId(oneGroupBean.getText().getGID());
+                    if (!TextUtils.isEmpty(portraitUri)) {
+                        mResult.setPortraitUri(portraitUri);
+                    }
+                    if (!TextUtils.isEmpty(oneGroupBean.getText().getName())) {
+                        mResult.setTitle(oneGroupBean.getText().getName());
+                    }
+                } else {
+                    UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
+                    Log.e("群组的userInfo", "----:" + userInfo.getUserId());
+                    if (userInfo != null) {
+                        mResult.setId(conversation.getTargetId());
+                        String portraitUri = userInfo.getPortraitUri().toString();
+                        if (!TextUtils.isEmpty(portraitUri)) {
+                            mResult.setPortraitUri(portraitUri);
+                        }
+                        if (!TextUtils.isEmpty(userInfo.getName())) {
+                            mResult.setTitle(userInfo.getName());
+                        } else {
+                            mResult.setTitle(userInfo.getUserId());
+                        }
+                    }
+                }
+                searchIntent.putExtra("searchConversationResult", mResult);
+                searchIntent.putExtra("flag", SEARCH_TYPE_FLAG);
+                startActivity(searchIntent);
+                break;
+            case R.id.rl_movegroup:
+                ArrayList<GroupBean> listdata = new ArrayList<>();
+                for (int i = 0; i < GroupBeanList.size(); i++) {
+                    if(!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())){
+                        listdata.add(GroupBeanList.get(i));
+                    }
+                }
+                Intent MoveIntent = new Intent(mContext, MoveGroupUserActivity.class);
+                Bundle movebundle = new Bundle();
+                movebundle.putSerializable("GroupBeanList", listdata);
+                movebundle.putString("fromConversationId", fromConversationId);
+                MoveIntent.putExtras(movebundle);
+                startActivity(MoveIntent);
+                break;
         }
-    }
-
-    @Override
-    public void clickListener(View v) {
-        Intent intent = new Intent(mContext, AddGroupActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("GroupId", fromConversationId);
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     @Override
@@ -345,6 +490,31 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         } else {
             return;
         }
+    }
+
+    @Override
+    public void AddclickListener(View v) {
+        Intent intent = new Intent(mContext, AddGroupActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("GroupId", fromConversationId);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void DelclickListener(View v) {
+        ArrayList<GroupBean> listdata = new ArrayList<>();
+        for (int i = 0; i < GroupBeanList.size(); i++) {
+            if(!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())){
+                listdata.add(GroupBeanList.get(i));
+            }
+        }
+        Intent intent = new Intent(GroupDetailActivity.this,DeleteGropUserActivity.class);
+        Bundle delbundle = new Bundle();
+        delbundle.putSerializable("GroupBeanList", listdata);
+        delbundle.putString("fromConversationId", fromConversationId);
+        intent.putExtras(delbundle);
+        startActivity(intent);
     }
 }
 
