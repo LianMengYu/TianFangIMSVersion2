@@ -261,40 +261,45 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                             user = gson.fromJson(s, LoginBean.class);
                             CommonUtil.saveUserInfo(mContext, gson.toJson(user));
                             loginToken = user.getText().getToken();
-                            editor.putString("token", loginToken);
-                            editor.apply();
+//                            editor.putString("token", loginToken);
+//                            editor.apply();
                             if (user.getCode() == 1) {
                                 if (!TextUtils.isEmpty(loginToken)) {
+                                    Log.e("模拟器测试：", "------:" + loginToken);
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                         @Override
                                         public void onTokenIncorrect() {
-                                            Log.e("sasdfsaasfd", "你执行了啊");
+                                            Log.e("RongIM", "onTokenIncorrect");
                                         }
-
                                         @Override
                                         public void onSuccess(String s) {
+                                            Log.e("RongIM", "onSuccess");
                                             LoadDialog.dismiss(mContext);
+
                                             SetSyncUserGroup(user);
                                             connectResultId = s;
+                                            editor.putString("username", phoneString);
+                                            editor.putString("userpass", passwordString);
+                                            editor.apply();
                                             Toast.makeText(getApplicationContext(), "登陆成功", Toast.LENGTH_SHORT).show();
                                             Intent intent_login = new Intent();
                                             intent_login.setClass(LoginActivity.this, MainActivity.class);
                                             startActivity(intent_login);
                                             finish();
                                         }
-
                                         @Override
                                         public void onError(RongIMClient.ErrorCode errorCode) {
-                                            NToast.shortToast(mContext, "获取token失败" + errorCode);
-                                            Log.e("sasdfsaasfd", "你执行了啊"+errorCode);
+                                            Log.e("RongIM", "onError");
+//                                            NToast.shortToast(mContext, "获取token失败" + errorCode);
+                                            Log.e("sasdfsaasfd", "获取token失败" + errorCode);
                                             return;
                                         }
                                     });
                                 } else {
-                                    NToast.shortToast(mContext, "访问失败");
+                                    LoadDialog.dismiss(mContext);
+                                    NToast.shortToast(mContext, "连接服务器失败");
                                     return;
                                 }
-
                             }
                             if (user.getCode() == 0) {
                                 LoadDialog.dismiss(mContext);
@@ -315,6 +320,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
                         super.onError(call, response, e);
                         LoadDialog.dismiss(mContext);
                         Toast.makeText(getApplicationContext(), "登录失败", Toast.LENGTH_SHORT).show();
+                        Log.e("登陆失败", "-----:" + response);
                     }
                 });
 
@@ -339,9 +345,6 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
             case R.id.btn_login:
                 phoneString = et_login_user.getText().toString().trim();
                 passwordString = et_login_password.getText().toString().trim();
-                editor.putString("username", phoneString);
-                editor.putString("userpass", passwordString);
-                editor.apply();
                 setLogin();
                 break;
             case R.id.et_login_user:

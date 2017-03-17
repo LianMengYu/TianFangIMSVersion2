@@ -19,6 +19,7 @@ import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopFiveUserInfoBean;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.utils.NToast;
 import com.tianfangIMS.im.view.FloatView;
 
 import java.util.ArrayList;
@@ -52,10 +53,12 @@ public class FloatService extends Service {
     private String PrivateChatLogo;
     private String GroupLogo;
     TreeInfo mInfo;
+    private Context mContext;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        mContext = this;
     }
 
     @Override
@@ -114,7 +117,7 @@ public class FloatService extends Service {
                 }
             });
             mFloatView.btn.setImageResource(R.mipmap.icon_float);
-            if(mTreeInfos != null && mTreeInfos.size()>0){
+            if (mTreeInfos != null && mTreeInfos.size() > 0) {
                 for (int i = 0; i < mTreeInfos.size(); i++) {
                     ImageView mImageView = new ImageView(this);
                     mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -134,10 +137,16 @@ public class FloatService extends Service {
                         @Override
                         public void onClick(View v) {
                             mInfo = (TreeInfo) v.getTag(v.getId());
-                            if (mInfo.isGroup()) {
-                                RongIM.getInstance().startGroupChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                            Log.e("Float：", "------:" + mInfo.getId() + "---IsGroup:" + mInfo.isGroup());
+                            if (mInfo.getId() != 0) {
+                                if (mInfo.isGroup()) {
+                                    RongIM.getInstance().startGroupChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                                } else {
+                                    RongIM.getInstance().startPrivateChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                                }
+
                             } else {
-                                RongIM.getInstance().startPrivateChat(FloatService.this, mInfo.getId() + "", mInfo.getName());
+                                NToast.shortToast(FloatService.this, "没有找到用户");
                             }
                         }
                     });
@@ -148,7 +157,7 @@ public class FloatService extends Service {
                             return false;
                         }
                     });
-                    if(mTreeInfos != null && mTreeInfos.size() > 0){
+                    if (mTreeInfos != null && mTreeInfos.size() > 0) {
                         mFloatView.mCustomView.addView(mImageView);
                     }
                 }
@@ -167,7 +176,7 @@ public class FloatService extends Service {
             wl.y = (getResources().getDisplayMetrics().heightPixels - 100 * density) / 2;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_DIM_BEHIND | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS;
             wl.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-            if(mTreeInfos != null && mTreeInfos.size() > 0){
+            if (mTreeInfos != null && mTreeInfos.size() > 0) {
                 mWindowManager.addView(mFloatView, wl);
             }
             Log.d(TAG, "添加完成");
@@ -205,7 +214,7 @@ public class FloatService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mTreeInfos != null && mTreeInfos.size() > 0){
+        if (mTreeInfos != null && mTreeInfos.size() > 0) {
             mWindowManager.removeView(mFloatView);
         }
 //        if (mFloatView != null) {

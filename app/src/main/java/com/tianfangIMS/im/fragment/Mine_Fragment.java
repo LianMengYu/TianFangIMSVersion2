@@ -159,7 +159,6 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                                     .error(R.mipmap.default_portrait)
                                     .into(iv_me_icon_photo);
                             tv_me_username.setText(bean.getName());
-                            Log.e("adajdasdsad", "------:" + bean.getSex());
                             if (bean.getSex() != null) {
                                 if (bean.getSex().equals("1")) {
                                     iv_sex.setImageResource(R.mipmap.me_sexicon_nan);
@@ -369,12 +368,16 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                 startActivity(new Intent(getActivity(), Settings_Activity.class));
                 break;
             case R.id.rl_mine_company:
-                mIntent = new Intent(getActivity(), InfoActivity.class);
-                mIntent.putExtra("maps", maps);
-                mIntent.putExtra("viewMode", ViewMode.NORMAL);
-                mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
-                mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
-                startActivity(mIntent);
+                if (mTreeInfos != null && mTreeInfos.size() > 0) {
+                    mIntent = new Intent(getActivity(), InfoActivity.class);
+                    mIntent.putExtra("maps", maps);
+                    mIntent.putExtra("viewMode", ViewMode.NORMAL);
+                    mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
+                    mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
+                    startActivity(mIntent);
+                }else{
+                    NToast.shortToast(mContext,"数据加载失败,请重新启动应用");
+                }
                 break;
             case R.id.iv_setting_photo:
                 BigImagedialog bigImagedialog = new BigImagedialog(getActivity(), BigImagePath, R.style.Dialog_Fullscreen);

@@ -814,7 +814,6 @@ public class RongIM {
         Uri uri = Uri.parse("rong://" + context.getApplicationInfo().packageName).buildUpon()
                 .appendPath("conversation").appendPath(Conversation.ConversationType.GROUP.getName().toLowerCase())
                 .appendQueryParameter("targetId", targetGroupId).appendQueryParameter("title", title).build();
-
         context.startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 

@@ -57,7 +57,7 @@ public class Login_Welcome extends Activity {
                     Activity.MODE_PRIVATE);
             String username = sharedPreferences.getString("username", "");
             String userPwd = sharedPreferences.getString("userpass", "");
-            String token = sharedPreferences.getString("token", "");
+//            String token = sharedPreferences.getString("token", "");
             if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(userPwd)) {
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();

@@ -233,7 +233,9 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                 break;
             case R.id.btn_sendMessage:
                 if (userInfoBean != null) {
-                    RongIM.getInstance().startPrivateChat(mContext, userInfoBean.getId(), userInfoBean.getName());
+                    RongIM.getInstance().startPrivateChat(FriendPersonInfoActivity.this, userInfoBean.getId(), userInfoBean.getName());
+                }else{
+                    NToast.shortToast(mContext,"获取用户信息失败");
                 }
                 break;
         }

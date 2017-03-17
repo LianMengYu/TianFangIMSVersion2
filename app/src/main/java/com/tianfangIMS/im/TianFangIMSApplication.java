@@ -146,6 +146,7 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
     private class MyConnectionStatusListener implements RongIMClient.ConnectionStatusListener {
         @Override
         public void onChanged(ConnectionStatus connectionStatus) {
+            Log.e("MyConnectionStatusListener", "执行了没有" + connectionStatus);
             if (connectionStatus == ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT) {
                 Message msg = Message.obtain();
                 msg.what = 0;

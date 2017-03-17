@@ -253,11 +253,28 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getBooleanExtra("systemconversation", false)) {
-            mViewpager.setCurrentItem(0, false);
-        }
     }
+    //Activity的启动模式(launchMode),通过这个方法接受Intent
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        if (intent.getBooleanExtra("systemconversation", false)) {
+//            mViewpager.setCurrentItem(0, false);
+//        }
+//    }
 
+//    /**
+//     * @Data_Time 2015年7月16日 下午10:37:12
+//     * @Description { 处理Intent }
+//     * @param intent
+//     */
+//    private void handleIntent(Intent intent){
+//        if(intent!=null){
+//            String news_code=intent.getExtras().getString("news_code");
+////          LogUtil.e("MainTabActivity", "news_code  :"+news_code);
+//            myprefs.news_code().put(news_code);
+//        }
+//    }
     protected void initData() {
 
         final Conversation.ConversationType[] conversationTypes = {

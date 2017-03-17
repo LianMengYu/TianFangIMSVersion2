@@ -149,6 +149,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setUserInfoProvider(this, true);
         RongIM.setGroupInfoProvider(this, true);
         RongIM.getInstance().setMessageAttachedUserInfo(true);
+//        RongUserInfoManager.getInstance().init(mContext,"m7ua80guyso7u",this);
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         UnReadMessageManager.getInstance().addObserver(
@@ -852,5 +853,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     public boolean onReceived(Message message, int i) {
         return false;
     }
+
 }
 

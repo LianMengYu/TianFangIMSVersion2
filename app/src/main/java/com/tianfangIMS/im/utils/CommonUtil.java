@@ -322,7 +322,7 @@ public class CommonUtil {
         WindowManager.LayoutParams wlp = window.getAttributes();
         Display d = window.getWindowManager().getDefaultDisplay();
         //获取屏幕宽
-        wlp.width = 900;
+        wlp.width = 700;
         //宽度按屏幕大小的百分比设置，这里我设置的是全屏显示
         wlp.gravity = Gravity.CENTER;
         if (wlp.gravity == Gravity.CENTER)

@@ -24,6 +24,7 @@ import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopFiveUserInfoBean;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.bean.UserBean;
 import com.tianfangIMS.im.dialog.CleanAllChatDialog;
 import com.tianfangIMS.im.dialog.LoadDialog;
 import com.tianfangIMS.im.dialog.SignOutDialog;
@@ -89,46 +90,50 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
         rl_setting_signout.setOnClickListener(this);
         settting_clear_conversation.setOnClickListener(this);
         if (Build.VERSION.SDK_INT >= 23) {
-            if(!Settings.canDrawOverlays(Settings_Activity.this)){
-                NToast.longToast(mContext,"开启悬浮球权限");
+            if (!Settings.canDrawOverlays(Settings_Activity.this)) {
+                NToast.longToast(mContext, "开启悬浮球权限");
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:" + getPackageName()));
                 startActivityForResult(intent, 10);
             }
-        }else {
-            sw_sttings_notfaction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (buttonView.isChecked()) {
-                        editor.putBoolean("isOpen", true);
-                        editor.apply();
-                        mTreeInfos = new ArrayList<>();
-                        Log.e("settingResultData：", "打印传递值的数量----:" + data.size());
-                        for (int i = 0; i < data.size(); i++) {
-                            TreeInfo mInfo = new TreeInfo();
-                            mInfo.setLogo(data.get(i).getLogo());
-                            mInfo.setName(data.get(i).getName());
-                            if (resultdata.get(i).getConversationType() == Conversation.ConversationType.PRIVATE) {
-                                mInfo.setGroup(false);
-                            } else if (resultdata.get(i).getConversationType() == Conversation.ConversationType.GROUP) {
-                                mInfo.setGroup(true);
-                            }
-                            mTreeInfos.add(mInfo);
-                        }
-                        mIntent = new Intent(Settings_Activity.this, FloatService.class);
-                        mIntent.putExtra("data", mTreeInfos);
-                        startService(mIntent);
-                    } else {
-                        editor.putBoolean("isOpen", false);
-                        editor.apply();
-                        mIntent = new Intent(Settings_Activity.this, FloatService.class);
-//                    mIntent.putStringArrayListExtra("data",mTreeInfos);
-                        stopService(mIntent);
-
-                    }
-                }
-            });
         }
+        sw_sttings_notfaction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (buttonView.isChecked()) {
+                    editor.putBoolean("isOpen", true);
+                    editor.apply();
+                    mTreeInfos = new ArrayList<>();
+                    for (int i = 0; i < data.size(); i++) {
+                        Log.e("settingResultDataa：", "打印传递值的数量----:" + data.get(i));
+                        TreeInfo mInfo = new TreeInfo();
+                        int ids = 0;
+                        if(data.get(i).getId() != null){
+                            ids = Integer.parseInt(data.get(i).getId());
+                        }
+                        mInfo.setId(ids);
+                        mInfo.setLogo(data.get(i).getLogo());
+                        mInfo.setName(data.get(i).getName());
+                        if (resultdata.get(i).getConversationType() == Conversation.ConversationType.PRIVATE) {
+                            mInfo.setGroup(false);
+                        } else if (resultdata.get(i).getConversationType() == Conversation.ConversationType.GROUP) {
+                            mInfo.setGroup(true);
+                        }
+                        mTreeInfos.add(mInfo);
+                    }
+                    mIntent = new Intent(Settings_Activity.this, FloatService.class);
+                    mIntent.putExtra("data", mTreeInfos);
+                    startService(mIntent);
+                } else {
+                    editor.putBoolean("isOpen", false);
+                    editor.apply();
+                    mIntent = new Intent(Settings_Activity.this, FloatService.class);
+//                    mIntent.putStringArrayListExtra("data",mTreeInfos);
+                    stopService(mIntent);
+
+                }
+            }
+        });
     }
 
     public void getNew5Data() {
@@ -202,16 +207,16 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                             Log.e("Serivce", "s:" + s);
                             Gson gson = new Gson();
-                            final Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
-                            }.getType());
-                            Log.e("APP", "----图片地址:" + ConstantValue.ImageFile + map.get("logo"));
-                            if (!TextUtils.isEmpty(map.get("logo").toString())) {
-                                Log.e("Serivce", "Private缓存成功");
-                                data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, map.get("id").toString(),
-                                        map.get("name").toString(), ConstantValue.ImageFile + map.get("logo").toString()));
-                            } else {
-                                data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, map.get("id").toString(),
-                                        map.get("name").toString(), ConstantValue.ImageFile + map.get("logo").toString()));
+                            UserBean bean = gson.fromJson(s, UserBean.class);
+                            Log.e("Serivce", "map:" + bean);
+                            if (!TextUtils.isEmpty(bean.getLogo())) {
+                                data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, bean.getId(),
+                                        bean.getName(), ConstantValue.ImageFile + bean.getLogo()));
+                                Log.e("悬浮球", "-----------:" + data);
+                            } else if (TextUtils.isEmpty(bean.getLogo())) {
+                                Log.e("悬浮球", "等于空---:" + data);
+                                data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, bean.getId(),
+                                        bean.getName(), ConstantValue.ImageFile + bean.getLogo()));
                             }
                         }
                     }
@@ -258,6 +263,7 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                     }
                 });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
