@@ -46,7 +46,6 @@ import okhttp3.Response;
 
 public class UserInfo_Activity extends BaseActivity implements View.OnClickListener {
     private RelativeLayout rl_useinfo_phone, ly_useinfo_photo;
-    private TextView mphone;
     private Context mContext;
     private TextView friendinfo_email, tx_frienduserinfo_phonenumber, iv_friendinfo_phone,
             friendinfo_company, friendinfo_address, friendinfo_chanpin, friendinfo_jingli;
@@ -80,17 +79,16 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
 
     private void init() {
         rl_useinfo_phone = (RelativeLayout) this.findViewById(R.id.rl_useinfo_telephone);
-        ly_useinfo_photo = (RelativeLayout) this.findViewById(R.id.ly_useinfo_photo);
+        ly_useinfo_photo = (RelativeLayout) this.findViewById(R.id.ly_useinfofr1_photo);
 
         friendinfo_email = (TextView) this.findViewById(R.id.tv_userinfo_email);
         tx_frienduserinfo_phonenumber = (TextView) this.findViewById(R.id.tv_userinfo_phonenumber);
-        iv_friendinfo_phone = (TextView) this.findViewById(R.id.tv_userinfo_telephone);
+        iv_friendinfo_phone = (TextView) this.findViewById(R.id.tv_userinfo1_telephone);
         friendinfo_company = (TextView) this.findViewById(R.id.tv_userinfo_company);
         friendinfo_address = (TextView) this.findViewById(R.id.tv_userinfo_address);
         friendinfo_chanpin = (TextView) this.findViewById(R.id.tv_userinfo_department);
         friendinfo_jingli = (TextView) this.findViewById(R.id.tv_userinfo_position);
         iv_userinfo_photo = (ImageView) this.findViewById(R.id.iv_userinfo_photo);
-        mphone = (TextView) this.findViewById(R.id.tv_userinfo_phonenumber);
         rl_useinfo_phone.setOnClickListener(this);
         ly_useinfo_photo.setOnClickListener(this);
     }
@@ -148,7 +146,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.rl_useinfo_telephone:
-                String phonenumber = (mphone.getText().toString()).replaceAll(" ", "").trim();
+                String phonenumber = (tx_frienduserinfo_phonenumber.getText().toString()).replaceAll(" ", "").trim();
                 UserInfo_Phone_Dialog userInfo_phone_dialog = new UserInfo_Phone_Dialog(this, R.style.dialog, phonenumber);
                 userInfo_phone_dialog.getWindow().setBackgroundDrawable(new ColorDrawable());
                 userInfo_phone_dialog.show();

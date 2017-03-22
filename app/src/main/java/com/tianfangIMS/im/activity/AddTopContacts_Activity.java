@@ -36,6 +36,7 @@ import com.tianfangIMS.im.utils.NToast;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +62,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
     private List<AddFriendBean> allChecked;
     private Map<Integer, Boolean> checkedMap;
     private List<AddFriendRequestBean> ListRequestInfo = new ArrayList<AddFriendRequestBean>();
-
+    HashMap<Integer, Boolean> prepare;
     //    private LoginBean loginBean;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +162,7 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         AddTopContactsAdapter.Holder holder = (AddTopContactsAdapter.Holder) view.getTag();
 
         holder.cb_addfrien.toggle();
+
         rl_selectAddContacts_background.setVisibility(View.VISIBLE);
         getCount();
         setGridView();
@@ -216,18 +218,18 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                 /**
                  * 通过for循环筛选出想要去掉的成员，就可以解决此bug
                  */
-//                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
-//                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
-//                        continue;
-//                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
-//                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
-//                            Log.e(TAG, "I---:" + i);
-//                            checkedMap.put(i, false);
-//                            addTopContactsAdapter.notifyDataSetChanged();
-//                            gridView_adapter.notifyDataSetChanged();
-//                        }
-//                    }
-//                }
+                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
+                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
+                        continue;
+                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
+                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
+                            Log.e(TAG, "I---:" + i);
+                            checkedMap.put(i, false);
+                            addTopContactsAdapter.notifyDataSetChanged();
+                            gridView_adapter.notifyDataSetChanged();
+                        }
+                    }
+                }
                 gridView_adapter.notifyDataSetChanged();
             }
         });

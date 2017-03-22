@@ -3,7 +3,6 @@ package com.tianfangIMS.im.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -15,7 +14,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TopFiveUserInfoBean;
 import com.tianfangIMS.im.bean.TreeInfo;
@@ -120,17 +120,26 @@ public class FloatService extends Service {
             if (mTreeInfos != null && mTreeInfos.size() > 0) {
                 for (int i = 0; i < mTreeInfos.size(); i++) {
                     ImageView mImageView = new ImageView(this);
+                    String logo = mTreeInfos.get(i).getLogo();
                     mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                     RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(50 * density, 50 * density);
                     mImageView.setLayoutParams(lp);
                     mImageView.setId(View.NO_ID);
                     Log.e("settingResultData", "----:" + mTreeInfos.get(i).getLogo());
-                    Picasso.with(FloatService.this)
-                            .load(mTreeInfos.get(i).getLogo())
-                            .config(Bitmap.Config.ARGB_8888)
+//                    Picasso.with(FloatService.this)
+//                            .load(logo)
+//                            .resize(50, 50)
+//                            .placeholder(R.mipmap.default_portrait)
+//                            .config(Bitmap.Config.ARGB_8888)
+//                            .error(R.mipmap.default_portrait)
+//                            .into(mImageView);
+                    Glide.with(FloatService.this)
+                            .load(logo)
                             .placeholder(R.mipmap.default_portrait)
+                            .dontAnimate()
+                            .fallback(R.mipmap.default_portrait)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .error(R.mipmap.default_portrait)
-                            .resize(50, 50)
                             .into(mImageView);
                     mImageView.setTag(mImageView.getId(), mTreeInfos.get(i));
                     mImageView.setOnClickListener(new View.OnClickListener() {

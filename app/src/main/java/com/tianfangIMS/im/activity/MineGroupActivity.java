@@ -157,7 +157,12 @@ public class MineGroupActivity extends BaseActivity implements AdapterView.OnIte
         }
     }
 
-//    private void SendImageMessage(List<String> ImageMessageList, final int position) {
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GetGroupList();
+    }
+    //    private void SendImageMessage(List<String> ImageMessageList, final int position) {
 //        List<String> list = new ArrayList<String>();
 //        for (int i = 0; i < ImageMessageList.size(); i++) {
 //            ImageMessage imageMessage = ImageMessage.obtain(null, Uri.parse(ImageMessageList.get(i)), true);

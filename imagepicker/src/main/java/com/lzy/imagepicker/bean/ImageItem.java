@@ -28,6 +28,7 @@ public class ImageItem implements Serializable {
             ImageItem other = (ImageItem) o;
             return this.path.equalsIgnoreCase(other.path) && this.addTime == other.addTime;
         } catch (ClassCastException e) {
+            e.printStackTrace();
         }
         return super.equals(o);
     }

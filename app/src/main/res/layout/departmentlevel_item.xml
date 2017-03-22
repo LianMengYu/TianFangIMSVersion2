@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/White"
-    android:id="@+id/ceshi"
+    android:descendantFocusability="blocksDescendants"
     android:minHeight="?android:attr/listPreferredItemHeight">
 
     <ImageView

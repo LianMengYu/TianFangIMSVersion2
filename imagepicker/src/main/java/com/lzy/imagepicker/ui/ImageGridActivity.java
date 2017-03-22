@@ -1,10 +1,9 @@
 package com.lzy.imagepicker.ui;
 
 import android.Manifest;
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,13 +11,11 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.TextView;
 
+import com.lzy.imagepicker.DataHolder;
 import com.lzy.imagepicker.ImageDataSource;
 import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.R;
@@ -37,36 +34,62 @@ import java.util.List;
  * 创建日期：2016/5/19
  * 描    述：
  * 修订历史：
+ *
+ * 2017-03-17
+ * @author nanchen
+ * 新增可直接传递是否裁剪参数，以及直接拍照
+ *
+ *
  * ================================================
  */
 public class ImageGridActivity extends ImageBaseActivity implements ImageDataSource.OnImagesLoadedListener, ImageGridAdapter.OnImageItemClickListener, ImagePicker.OnImageSelectedListener, View.OnClickListener {
 
     public static final int REQUEST_PERMISSION_STORAGE = 0x01;
     public static final int REQUEST_PERMISSION_CAMERA = 0x02;
+    public static final String EXTRAS_TAKE_PICKERS = "TAKE";
 
     private ImagePicker imagePicker;
 
     private boolean isOrigin = false;  //是否选中原图
     private GridView mGridView;  //图片展示控件
     private View mFooterBar;     //底部栏
-    private TextView mBtnOk;       //确定按钮
+    private Button mBtnOk;       //确定按钮
     private Button mBtnDir;      //文件夹切换按钮
     private Button mBtnPre;      //预览按钮
     private ImageFolderAdapter mImageFolderAdapter;    //图片文件夹的适配器
     private FolderPopUpWindow mFolderPopupWindow;  //ImageSet的PopupWindow
     private List<ImageFolder> mImageFolders;   //所有的图片文件夹
     private ImageGridAdapter mImageGridAdapter;  //图片九宫格展示的适配器
+    private boolean directPhoto = false; // 默认不是直接调取相机
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_grid);
-        SystemBarTranslucentType(this);
+
         imagePicker = ImagePicker.getInstance();
         imagePicker.clear();
         imagePicker.addOnImageSelectedListener(this);
+
+
+        // 新增可直接拍照
+        if (getIntent() != null && getIntent().getExtras() != null){
+
+            directPhoto = getIntent().getBooleanExtra(EXTRAS_TAKE_PICKERS,false); // 默认不是直接打开相机
+            if (directPhoto){
+                if (!(checkPermission(Manifest.permission.CAMERA))) {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, ImageGridActivity.REQUEST_PERMISSION_CAMERA);
+                } else {
+                    imagePicker.takePicture(this, ImagePicker.REQUEST_CODE_TAKE);
+                }
+            }
+        }
+
         findViewById(R.id.btn_back).setOnClickListener(this);
-        mBtnOk = (TextView) findViewById(R.id.btn_ok);
+        mBtnOk = (Button) findViewById(R.id.btn_ok);
         mBtnOk.setOnClickListener(this);
         mBtnDir = (Button) findViewById(R.id.btn_dir);
         mBtnDir.setOnClickListener(this);
@@ -157,9 +180,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         }
     }
 
-    /**
-     * 创建弹出的ListView
-     */
+    /** 创建弹出的ListView */
     private void createPopupFolderList() {
         mFolderPopupWindow = new FolderPopUpWindow(this, mImageFolderAdapter);
         mFolderPopupWindow.setOnItemClickListener(new FolderPopUpWindow.OnItemClickListener() {
@@ -197,7 +218,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         if (imagePicker.isMultiMode()) {
             Intent intent = new Intent(ImageGridActivity.this, ImagePreviewActivity.class);
             intent.putExtra(ImagePicker.EXTRA_SELECTED_IMAGE_POSITION, position);
-            intent.putExtra(ImagePicker.EXTRA_IMAGE_ITEMS, imagePicker.getCurrentImageFolderItems());
+            DataHolder.getInstance().save(DataHolder.DH_CURRENT_IMAGE_FOLDER_ITEMS, imagePicker.getCurrentImageFolderItems());
             intent.putExtra(ImagePreviewActivity.ISORIGIN, isOrigin);
             startActivityForResult(intent, ImagePicker.REQUEST_CODE_PREVIEW);  //如果是多选，点击图片进入预览界面
         } else {
@@ -215,24 +236,7 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
         }
     }
 
-    //将Android状态栏改变为沉浸样式
-    private void SystemBarTranslucentType(Activity activity) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
-        }
-
-
-    }
-
+    @SuppressLint("StringFormatMatches")
     @Override
     public void onImageSelected(int position, ImageItem item, boolean isAdd) {
         if (imagePicker.getSelectImageCount() > 0) {
@@ -258,12 +262,12 @@ public class ImageGridActivity extends ImageBaseActivity implements ImageDataSou
                 //从拍照界面返回
                 //点击 X , 没有选择照片
                 if (data.getSerializableExtra(ImagePicker.EXTRA_RESULT_ITEMS) == null) {
-                    //什么都不做
+                    //什么都不做 直接调起相机
                 } else {
                     //说明是从裁剪页面过来的数据，直接返回就可以
                     setResult(ImagePicker.RESULT_CODE_ITEMS, data);
-                    finish();
                 }
+                finish();
             }
         } else {
             //如果是裁剪，因为裁剪指定了存储的Uri，所以返回的data一定为null

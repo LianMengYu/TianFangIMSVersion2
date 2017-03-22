@@ -18,8 +18,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -69,12 +69,13 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'net.qiujuer.genius:blur:2.0.0-beta4'
     compile 'com.android.support:multidex:1.0.1'
-    compile project(path: ':imagepicker')
+//    compile project(path: ':imagepicker')
     compile 'com.github.promeg:tinypinyin:2.0.2'
     // TinyPinyin核心包，约80KB
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
     //PhotoView
-    compile 'com.github.chrisbanes.photoview:library:+'
+    compile 'com.github.chrisbanes.photoview:library:1.2.4'
+    compile project(path: ':imagepicker')
 }
 
 allprojects {

@@ -1,16 +1,16 @@
 package com.tianfangIMS.im.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -59,7 +59,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import io.rong.imageloader.core.DisplayImageOptions;
-import io.rong.imageloader.core.display.CircleBitmapDisplayer;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import okhttp3.Call;
@@ -86,6 +85,9 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
     private UserPhotoAdatper adatper;
     private Handler mHandler;
     private Timer timer = new Timer();
+    private Handler mHandler2;
+    private Timer timer2 = new Timer();
+    private TimerTask task2;
     private TimerTask task;
     private String userID;
     private Conversation.ConversationType mConversationType;
@@ -95,15 +97,24 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
     private TextView tv_AMapuserNumber;
     private DisplayImageOptions options;// 展示图片的工具
     private List<LocationBean> locationBeanList;//所有群组的数据
-    private List<LocationBean> LocationData;//过滤有效位置之后的数据
+    private List<LocationBean> LocationData = new ArrayList<>();//过滤有效位置之后的数据
     private RelativeLayout rl_gridView;
     private GridView gv_sharelocationForDialog;
+    Double latitude;
+    Double longitude;
+    int type = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.amapshare_layout);
-
+        //这里以ACCESS_COARSE_LOCATION为例
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            //申请WRITE_EXTERNAL_STORAGE权限
+            ActivityCompat.requestPermissions(AMapShareActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE}, 1);//自定义的code
+        }
         //获取地图控件引用
         init();
         mContext = this;
@@ -120,7 +131,28 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         mTargetId = (String) getIntent().getSerializableExtra("mTargetId");
         Title = getIntent().getStringExtra("title");
         setTitle(Title);
-        GetUsreLocation();
+        mHandler2 = new Handler() {
+            @Override
+            public void handleMessage(Message msg1) {
+                super.handleMessage(msg1);
+                switch (msg1.what) {
+                    case 1:
+                        GetUsreLocation();
+                        break;
+                }
+            }
+        };
+        task2 = new TimerTask() {
+            @Override
+            public void run() {
+                Message msg1 = new Message();
+                msg1.what = 1;
+                mHandler2.sendMessage(msg1);
+            }
+        };
+        if (timer2 != null) {
+            timer2.schedule(task2, 0, 10000);
+        }
     }
 
     private void init() {
@@ -151,14 +183,12 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
     }
 
     private void GetUsreLocation() {
-        int type = 0;
         userID = RongIMClient.getInstance().getCurrentUserId();
         if (mConversationType.equals(Conversation.ConversationType.PRIVATE)) {
             type = 2;
         } else if (mConversationType.equals(Conversation.ConversationType.GROUP)) {
             type = 1;
         }
-        Log.e("mConversationtype", ":" + type + "---useriD:" + userID + "---mtatgetid：" + mTargetId);
         OkGo.post(ConstantValue.GETLOCATION)
                 .tag(this)
                 .connTimeOut(10000)
@@ -170,9 +200,9 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-                        Log.e("resultLocationCode", "--:" + s);
+                        Log.e("mConversationtype", "参数值:" + type + "---useriD:" + userID + "---mtatgetid：" + mTargetId);
+                        Log.e("mConversationtype", "返回地址:" + s);
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
-                            LocationData = new ArrayList<LocationBean>();
                             Gson gson = new Gson();
                             Map<String, Object> locationInfoMap = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
@@ -185,24 +215,25 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
                                 Log.e("code是多少：", ":" + s1);
                                 locationBeanList = gson1.fromJson(s1, new TypeToken<List<LocationBean>>() {
                                 }.getType());
+                                Log.e("LocationData：", "locationBeanList:" + locationBeanList);
                                 for (int i = 0; i < locationBeanList.size(); i++) {
-                                    if (!locationBeanList.get(i).getLatitude().equals("90.0") && !locationBeanList.get(i).getLongtitude().equals("180.0")) {
-                                        LocationData.add(locationBeanList.get(i));
+                                    if (CommonUtil.StringToDouble(locationBeanList.get(i).getLatitude()) != 90.0 &&
+                                            CommonUtil.StringToDouble(locationBeanList.get(i).getLongtitude()) != 180.0) {
+                                        if (!LocationData.contains(locationBeanList.get(i))) {
+                                            LocationData.add(locationBeanList.get(i));
+                                        }
                                     }
                                 }
                                 tv_AMapuserNumber.setText("共" + LocationData.size() + "人在共享位置");
-                                Log.e("locationbeanlist", ":" + LocationData);
                                 AMapShareAdapter adapter = new AMapShareAdapter(LocationData, mContext);
-                                SettingGridView(locationBeanList);
+                                SettingGridView(LocationData);
                                 gv_AMapUser.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
-                                for (int i = 0; i < locationBeanList.size(); i++) {
-                                    if (!locationBeanList.get(i).getLatitude().equals("90.0") && !locationBeanList.get(i).getLongtitude().equals("180.0")) {
-                                        DrawBlueLite(CommonUtil.StringToDouble(locationBeanList.get(i).getLatitude()),
-                                                CommonUtil.StringToDouble(locationBeanList.get(i).getLongtitude()),
-                                                locationBeanList.get(i).getUserID(),
-                                                locationBeanList.get(i).getLogo());
-                                    }
+                                for (int i = 0; i < LocationData.size(); i++) {
+                                    DrawBlueLite(CommonUtil.StringToDouble(LocationData.get(i).getLatitude()),
+                                            CommonUtil.StringToDouble(LocationData.get(i).getLongtitude()),
+                                            LocationData.get(i).getUserID(),
+                                            LocationData.get(i).getLogo());
                                 }
                             }
                         }
@@ -210,26 +241,24 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
                 });
     }
 
-
     //绘制坐标原点
     private void DrawBlueLite(Double latitude, Double longitude, String userID, String url) {
         View iconView = LayoutInflater.from(mContext).inflate(R.layout.view_infowindow, null);
         ImageView iv_amap_photo = (ImageView) iconView.findViewById(R.id.iv_amap_photo);
         ImageView locImageView = (ImageView) iconView.findViewById(R.id.iv_amap_mark);
-        Log.e("userid:", "userid:" + userID + "----url:" + url);
         if (userID.equals(RongIMClient.getInstance().getCurrentUserId() + ".0")) {
-            locImageView.setImageResource(R.mipmap.amap_location_blue);
+            locImageView.setImageResource(R.mipmap.amap_location_blue);//
         } else {
             locImageView.setImageResource(R.mipmap.amap_location_other);
         }
         if (!TextUtils.isEmpty(url)) {
             String image = ConstantValue.ImageFile + url;
-            Log.e("userid:", "userid:" + userID + "----url:" + url + "---imageurl:" + image);
             Picasso.with(mContext)
                     .load(image)
                     .resize(50, 50)
-                    .centerCrop()
-                    .error(R.mipmap.default_photo)
+                    .placeholder(R.mipmap.default_portrait)
+                    .config(Bitmap.Config.ARGB_8888)
+                    .error(R.mipmap.default_portrait)
                     .into(iv_amap_photo);
 //            Bitmap bm = ImageLoader.getInstance().loadImageSync(image);
 //            if (bm != null) {
@@ -242,23 +271,27 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         markerOption.position(latLng);
         markerOption.draggable(true);//设置Marker可拖动
         markerOption.icon(BitmapDescriptorFactory.fromView(iconView));
+//        CircleOptions circleOptions = new CircleOptions();
+//        circleOptions.center(latLng);
+//        circleOptions.radius(50);
         // 将Marker设置为贴地显示，可以双指下拉地图查看效果
         aMap.addMarker(markerOption);
+//        aMap.addCircle(circleOptions);
+//        marker.setPositionByPixels(mMapView.getWidth() / 2 - 50, mMapView.getHeight() / 2 + 100);
         aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
-        aMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+        Log.e("huoquzuobiaohyuandian", "---:" + latLng);
+        aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
 //        adatper = new UserPhotoAdatper(mContext,latLng,"");
         aMap.setOnMarkerClickListener(this);
     }
-
     //根据坐标定位，并且缩放显示的位置
     private void Locationforlatlng(LatLng latLng) {
-        MarkerOptions markerOption = new MarkerOptions();
-        markerOption.position(latLng);
+//        MarkerOptions markerOption = new MarkerOptions();
+//        markerOption.position(latLng);
         // 将Marker设置为贴地显示，可以双指下拉地图查看效果
         aMap.moveCamera(CameraUpdateFactory.changeLatLng(latLng));
         aMap.moveCamera(CameraUpdateFactory.zoomTo(18));
     }
-
     /**
      * 初始化定位
      */
@@ -281,7 +314,8 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         // 如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
         mLocationOption.setOnceLocationLatest(true);
         //设置定位间隔,单位毫秒,默认为2000ms，最低1000ms。
-        mLocationOption.setInterval(30000);
+        mLocationOption.setInterval(2000);
+        mLocationClient.setLocationOption(mLocationOption);
         //设置是否返回地址信息（默认返回地址信息）
         mLocationOption.setNeedAddress(true);
         //设置是否强制刷新WIFI，默认为true，强制刷新。
@@ -289,7 +323,7 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         //设置是否允许模拟位置,默认为false，不允许模拟位置
         mLocationOption.setMockEnable(false);
         //单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒。
-        mLocationOption.setHttpTimeOut(20000);
+        mLocationOption.setHttpTimeOut(30000);
         //关闭缓存机制
         mLocationOption.setLocationCacheEnable(false);
         StartLocation();
@@ -299,7 +333,7 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
      * 开始定位
      */
     private void StartLocation() {
-        //给定位客户端对象设置定位参数
+        //给定位客户端对象设置定位参数0
         mLocationClient.setLocationOption(mLocationOption);
         //启动定位
         mLocationClient.startLocation();
@@ -311,14 +345,24 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         public void onLocationChanged(AMapLocation aMapLocation) {
             if (aMapLocation != null) {
                 if (aMapLocation.getErrorCode() == 0) {
-                    final Double latitude = aMapLocation.getLatitude();
-                    final Double longitude = aMapLocation.getLongitude();
+                    latitude = aMapLocation.getLatitude();
+                    longitude = aMapLocation.getLongitude();
+                    PushlatLng(latitude.toString(), longitude.toString());
                     Log.e("AmapOnSuccess", "latitude:"
                             + latitude + ", longitude:"
                             + longitude);
-                    LatLng latLng = new LatLng(latitude, longitude);
-//                    DrawBlueLite(latitude,longitude);
-//                    GetUsreLocation();
+//                    LatLng latLng = new LatLng(latitude, longitude);
+//                    for (int i = 0; i < locationBeanList.size(); i++) {
+//                        if (CommonUtil.StringToDouble(locationBeanList.get(i).getLatitude()) != 90.0 &&
+//                                CommonUtil.StringToDouble(locationBeanList.get(i).getLongtitude()) != 180.0) {
+//                            DrawBlueLite(latitude,
+//                                    longitude,
+//                                    locationBeanList.get(i).getUserID(),
+//                                    locationBeanList.get(i).getLogo());
+//                        }
+//
+//                    }
+
                     mHandler = new Handler() {
                         @Override
                         public void handleMessage(Message msg) {
@@ -371,8 +415,9 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
                     }
                 });
     }
+
     //在退出程序时，将经纬度设置为无效
-    private void PushlatLngIsNull(){
+    private void PushlatLngIsNull() {
         userID = RongIMClient.getInstance().getCurrentUserId();
         OkGo.post(ConstantValue.SUBLOCATION)
                 .tag(this)
@@ -389,13 +434,22 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
 
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
-//        if (mListener != null&&aMapLocation != null) {
-//            if (aMapLocation != null
-//                    &&aMapLocation.getErrorCode() == 0) {
-//                mListener.onLocationChanged(aMapLocation);// 显示系统小蓝点
+//        if (aMapLocation != null) {
+//            if (aMapLocation.getErrorCode() == 0) {
+//                aMapLocation.getLocationType();//获取当前定位结果来源，如网络定位结果，详见定位类型表
+//                aMapLocation.getLatitude();//获取纬度
+//                aMapLocation.getLongitude();//获取经度
+//                aMapLocation.getAccuracy();//获取精度信息
+//                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                Date date = new Date(aMapLocation.getTime());
+//                df.format(date);//定位时间
+//                Log.e("AmapSuccess", "获取定位来源：" + aMapLocation.getLocationType() + "-获取纬度：" + aMapLocation.getLatitude() + "---获取经度:" + aMapLocation.getLongitude()
+//                        + "--/获取精度信息：" + aMapLocation.getAccuracy() + "----获取定位时间：" + df.format(date));
 //            } else {
-//                String errText = "定位失败," + aMapLocation.getErrorCode()+ ": " + aMapLocation.getErrorInfo();
-//                Log.e("AmapErr",errText);
+//                //显示错误信息ErrCode是错误码，errInfo是错误信息，详见错误码表。
+//                Log.e("AmapError", "location Error, ErrCode:"
+//                        + aMapLocation.getErrorCode() + ", errInfo:"
+//                        + aMapLocation.getErrorInfo());
 //            }
 //        }
     }
@@ -403,6 +457,9 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
     @Override
     public void activate(OnLocationChangedListener onLocationChangedListener) {
         mlistener = onLocationChangedListener;
+        if(mLocationClient != null){
+
+        }
     }
 
     @Override
@@ -480,34 +537,6 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
         return null;
     }
 
-    private Bitmap drawableToBitmap(Drawable drawable) {
-        int width = drawable.getIntrinsicWidth();
-        int height = drawable.getIntrinsicHeight();
-        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
-        Bitmap bitmap = Bitmap.createBitmap(width, height, config);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, width, height);
-        drawable.draw(canvas);
-        return bitmap;
-    }
-
-    private DisplayImageOptions createDisplayImageOptions(int defaultResId) {
-        DisplayImageOptions.Builder builder = new DisplayImageOptions.Builder();
-        if (defaultResId != 0) {
-            Drawable defaultDrawable = getResources().getDrawable(defaultResId);
-            builder.showImageOnLoading(defaultDrawable);
-            builder.showImageForEmptyUri(defaultDrawable);
-            builder.showImageOnFail(defaultDrawable);
-        }
-        builder.displayer(new CircleBitmapDisplayer());
-        DisplayImageOptions options = builder.resetViewBeforeLoading(false)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .build();
-        return options;
-    }
-
     private ShareLoactionDialog shareLoactiondialog;
 
     @Override
@@ -520,10 +549,17 @@ public class AMapShareActivity extends BaseActivity implements LocationSource, A
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id, Marker marker) {
+        Log.e("GridViewOnItem", "---LocationData:" + LocationData);
         LatLng latLng = new LatLng(CommonUtil.StringToDouble(LocationData.get(position).getLatitude()),
                 CommonUtil.StringToDouble(LocationData.get(position).getLongtitude().toString()));
+        Log.e("GridViewOnItem", "----:" + latLng);
         Locationforlatlng(latLng);
         shareLoactiondialog.dismiss();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        //可在此继续其他操作。
+    }
 }

@@ -354,7 +354,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
     //当群名称大于规定数量时，显示未命名
     private void IsLongGroupName(String name) {
         int longName = name.length();
-        if (longName > 5) {
+        if (longName > 100) {
             tv_group_groupname.setText("未命名");
         } else {
             tv_group_groupname.setText(name);

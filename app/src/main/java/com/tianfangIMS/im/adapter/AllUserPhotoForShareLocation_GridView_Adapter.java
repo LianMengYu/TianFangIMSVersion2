@@ -56,7 +56,7 @@ public class AllUserPhotoForShareLocation_GridView_Adapter extends BaseAdapter{
                 .load(ConstantValue.ImageFile+mlist.get(position).getLogo())
                 .resize(50,50)
                 .centerCrop()
-                .error(R.mipmap.default_photo)
+                .error(R.mipmap.default_portrait)
                 .into(viewHolder.img);
         return convertView;
     }

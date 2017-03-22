@@ -60,4 +60,10 @@ public class LocationBean implements Serializable{
                 ", longtitude='" + longtitude + '\'' +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        LocationBean lb = (LocationBean)obj;
+        return userID.equals(lb.getUserID());
+    }
 }

@@ -1,16 +1,21 @@
 package com.tianfangIMS.im.activity;
 
+import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -32,6 +37,7 @@ import com.tianfangIMS.im.service.FloatService;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +82,57 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
         editor = sp.edit();
         boolean flag = sp.getBoolean("isOpen", false);
         sw_sttings_notfaction.setChecked(flag);
+        Log.e("Settings_Activity", "悬浮球初始状态：" + flag);
+    }
+
+    public static boolean getAppOps(Context context) {
+        try {
+            Object object = context.getSystemService("appops");
+            if (object == null) {
+                return false;
+            }
+            Class localClass = object.getClass();
+            Class[] arrayOfClass = new Class[3];
+            arrayOfClass[0] = Integer.TYPE;
+            arrayOfClass[1] = Integer.TYPE;
+            arrayOfClass[2] = String.class;
+            Method method = localClass.getMethod("checkOp", arrayOfClass);
+            if (method == null) {
+                return false;
+            }
+            Object[] arrayOfObject1 = new Object[3];
+            arrayOfObject1[0] = Integer.valueOf(24);
+            arrayOfObject1[1] = Integer.valueOf(Binder.getCallingUid());
+            arrayOfObject1[2] = context.getPackageName();
+            int m = ((Integer) method.invoke(object, arrayOfObject1)).intValue();
+            return m == AppOpsManager.MODE_ALLOWED;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+    private void showDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getBaseContext());
+        builder.setTitle("提示");
+        builder.setMessage("允许");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog simpledialog = builder.create();
+        simpledialog.setCanceledOnTouchOutside(false);
+        simpledialog.setCancelable(false);
+        simpledialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        simpledialog.show();
     }
 
     private void init() {
@@ -89,14 +146,14 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
         rl_resetPwd.setOnClickListener(this);
         rl_setting_signout.setOnClickListener(this);
         settting_clear_conversation.setOnClickListener(this);
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!Settings.canDrawOverlays(Settings_Activity.this)) {
-                NToast.longToast(mContext, "开启悬浮球权限");
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + getPackageName()));
-                startActivityForResult(intent, 10);
-            }
-        }
+//        if (Build.VERSION.SDK_INT >= 23) {
+//            if (!Settings.canDrawOverlays(Settings_Activity.this)) {
+//                NToast.longToast(mContext, "开启悬浮球权限");
+//                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+//                        Uri.parse("package:" + getPackageName()));
+//                startActivityForResult(intent, 10);
+//            }
+//        }
         sw_sttings_notfaction.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -108,7 +165,7 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                         Log.e("settingResultDataa：", "打印传递值的数量----:" + data.get(i));
                         TreeInfo mInfo = new TreeInfo();
                         int ids = 0;
-                        if(data.get(i).getId() != null){
+                        if (data.get(i).getId() != null) {
                             ids = Integer.parseInt(data.get(i).getId());
                         }
                         mInfo.setId(ids);
@@ -121,9 +178,22 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                         }
                         mTreeInfos.add(mInfo);
                     }
-                    mIntent = new Intent(Settings_Activity.this, FloatService.class);
-                    mIntent.putExtra("data", mTreeInfos);
-                    startService(mIntent);
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        if (!Settings.canDrawOverlays(Settings_Activity.this)) {
+                            NToast.longToast(mContext, "请开启悬浮球权限");
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:" + getPackageName()));
+                            startActivityForResult(intent, 10);
+                        }else {
+                            mIntent = new Intent(Settings_Activity.this, FloatService.class);
+                            mIntent.putExtra("data", mTreeInfos);
+                            startService(mIntent);
+                        }
+                    }else{
+                        mIntent = new Intent(Settings_Activity.this, FloatService.class);
+                        mIntent.putExtra("data", mTreeInfos);
+                        startService(mIntent);
+                    }
                 } else {
                     editor.putBoolean("isOpen", false);
                     editor.apply();
@@ -132,6 +202,7 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                     stopService(mIntent);
 
                 }
+
             }
         });
     }

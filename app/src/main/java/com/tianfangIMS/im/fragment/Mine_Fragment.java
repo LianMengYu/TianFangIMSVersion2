@@ -66,15 +66,14 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
 
     ArrayList<Integer> childCount;
     ArrayList<TreeInfo> mTreeInfos, clickHistory, tmpList;
-
+    TreeInfo mTreeInfo;
     HashMap<Integer, TreeInfo> map, tmpMap;
     HashMap<Integer, HashMap<Integer, TreeInfo>> maps;
     private boolean flag = true;
     InfoAdapter mAdapter;
     int workerCount;
-
+    //树节点深度
     int currentLevel;
-
     Intent mIntent;
     private ListView mine_department_List;
     HashMap<Integer, Boolean> prepare;
@@ -106,26 +105,23 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
         rl_mine_company.setOnClickListener(this);
         rl_mine_settings.setOnClickListener(this);
         rl_me_use.setOnClickListener(this);
-        mine_department_List.setOnItemClickListener(this);
         GetLoginUserInfo();
-//        Gson gson = new Gson();
-//        String str = CommonUtil.getUserInfo(getActivity());
-//        if (!TextUtils.isEmpty(str)) {
-//            LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(getActivity()), LoginBean.class);
-//            Log.e("loginBean", "---:" + ConstantValue.ImageFile + loginBean.getText().getLogo());
-//            Picasso.with(getActivity())
-//                    .load(ConstantValue.ImageFile + loginBean.getText().getLogo())
-//                    .resize(50, 50)
-//                    .centerCrop()
-//                    .error(R.mipmap.default_photo)
-//                    .into(iv_me_icon_photo);
-//            tv_me_username.setText(loginBean.getText().getFullname());
-//            tv_mine_company.setText(" ");
-//            if (loginBean.getText().getSex() != null) {
-//            }
-//        }
-//        tv_mine_department.setText(loginBean.getText().getIntro());
-//        tv_position.setText(loginBean.getText().getWorkno());
+        mine_department_List.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.e("onItemClick", "----:" + tmpList.get(position).getId());
+        if (tmpList != null && tmpList.size() > 0) {
+            Intent itemIntent = new Intent(getActivity(), InfoActivity.class);
+            itemIntent.putExtra("maps", maps);
+            itemIntent.putExtra("viewMode", ViewMode.NORMAL);
+            itemIntent.putExtra("currentLevel", tmpList.get(position).getId());
+            itemIntent.putExtra("parentLevel", tmpList.get(position).getPid());
+            startActivity(itemIntent);
+        }else {
+            NToast.shortToast(getActivity(),"没有获取到数据");
+        }
     }
 
     private void GetLoginUserInfo() {
@@ -212,12 +208,10 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                         int pid = -1;
                         tmpMap = new HashMap<Integer, TreeInfo>();
                         String str = CommonUtil.getUserInfo(getActivity());
-                        Log.e("dayinsstr", "----:" + str);
                         if (!TextUtils.isEmpty(str) && !str.equals("{}")) {
                             Gson gson1 = new Gson();
                             Map<String, Object> LoginbeanMap = gson1.fromJson(CommonUtil.getUserInfo(getActivity()), new TypeToken<Map<String, Object>>() {
                             }.getType());
-                            Log.e("asdadasdsadsad", "----:" + LoginbeanMap.get("code"));
                             if ((double) LoginbeanMap.get("code") == 0.0) {
                                 NToast.shortToast(getActivity(), "没有获取到数据");
                             } else {
@@ -253,7 +247,6 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                                         mTreeInfos = new ArrayList<>();
                                         childCount = new ArrayList<Integer>();
                                         mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
-//                                lv_addGroup_company.setAdapter(mAdapter);
                                         Log.e("哈哈", "TreeInfo：" + mTreeInfos);
                                         transfer();
                                     }
@@ -274,25 +267,14 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                 return o1.getId() < o2.getId() ? -1 : 1;
             }
         });
-        for (TreeInfo info : tmpList) {
-            Log.i("aaaa", "info.getId() : " + info.getId() + " , info.getName() : " + info.getName());
-        }
         adatper = new DeparmentLevelAdatper(getActivity(), tmpList);
         mine_department_List.setAdapter(adatper);
         adatper.notifyDataSetChanged();
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-    }
-
     private void getParent(int id) {
         if (tmpMap.containsKey(id)) {
-            Log.e("怎么可能", "---tmpMap:" + tmpMap);
             TreeInfo mInfo = tmpMap.get(id);
-            Log.e("怎么可能", "---TreeInfo:" + mInfo.getPid() + "----Flag:" + mInfo.getFlag());
             if (mInfo.getPid() > 0) {
                 if (mInfo.getFlag() != 1) {
                     tmpList.add(mInfo);
@@ -375,8 +357,8 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                     mIntent.putExtra("currentLevel", mTreeInfos.get(0).getId());
                     mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                     startActivity(mIntent);
-                }else{
-                    NToast.shortToast(mContext,"数据加载失败,请重新启动应用");
+                } else {
+                    NToast.shortToast(mContext, "数据加载失败,请重新启动应用");
                 }
                 break;
             case R.id.iv_setting_photo:

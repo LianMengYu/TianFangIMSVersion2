@@ -1,17 +1,14 @@
 package com.lzy.imagepicker.ui;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lzy.imagepicker.ImagePicker;
 import com.lzy.imagepicker.R;
@@ -44,12 +41,12 @@ public class ImageCropActivity extends ImageBaseActivity implements View.OnClick
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_crop);
-        SystemBarTranslucentType(this);
+
         imagePicker = ImagePicker.getInstance();
 
         //初始化View
         findViewById(R.id.btn_back).setOnClickListener(this);
-        TextView btn_ok = (TextView) findViewById(R.id.btn_ok);
+        Button btn_ok = (Button) findViewById(R.id.btn_ok);
         btn_ok.setText(getString(R.string.complete));
         btn_ok.setOnClickListener(this);
         TextView tv_des = (TextView) findViewById(R.id.tv_des);
@@ -134,23 +131,5 @@ public class ImageCropActivity extends ImageBaseActivity implements View.OnClick
             mBitmap.recycle();
             mBitmap = null;
         }
-    }
-
-    //将Android状态栏改变为沉浸样式
-    private void SystemBarTranslucentType(Activity activity) {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.TRANSPARENT);
-            window.setNavigationBarColor(Color.TRANSPARENT);
-        }
-
-
     }
 }

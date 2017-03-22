@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.tianfangIMS.im.R;
@@ -44,11 +43,11 @@ public class DeparmentLevelAdatper extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = View.inflate(mContext, R.layout.departmentlevel_item, null);
-        RelativeLayout ceshi = (RelativeLayout) convertView.findViewById(R.id.ceshi);
-        ceshi.setVisibility(View.VISIBLE);
-        TextView textView = (TextView) convertView.findViewById(R.id.tv_position);
-        textView.setText(mlist.get(position).getName());
+        if (convertView == null) {
+            convertView = View.inflate(mContext, R.layout.departmentlevel_item, null);
+            TextView textView = (TextView) convertView.findViewById(R.id.tv_position);
+            textView.setText(mlist.get(position).getName());
+        }
         return convertView;
     }
 }

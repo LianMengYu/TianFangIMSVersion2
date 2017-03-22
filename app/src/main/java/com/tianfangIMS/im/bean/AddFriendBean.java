@@ -24,8 +24,9 @@ public class AddFriendBean implements Serializable {
     private String positionname;
     private String organname;
     private String sex;
+    private boolean isChecked;
 
-    public AddFriendBean(String account, String address, String birthday, String branchname, String email, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String name, String organname, String positionname, String sex, String telephone, String workno) {
+    public AddFriendBean(String account, String address, String birthday, String branchname, String email, String groupmax, String groupuse, String id, String intro, String logo, String mobile, String name, String organname, String positionname, String sex, String telephone, String workno,boolean isChecked) {
         this.account = account;
         this.address = address;
         this.birthday = birthday;
@@ -43,6 +44,7 @@ public class AddFriendBean implements Serializable {
         this.sex = sex;
         this.telephone = telephone;
         this.workno = workno;
+        this.isChecked = isChecked;
     }
 
     public String getAccount() {
@@ -179,6 +181,14 @@ public class AddFriendBean implements Serializable {
 
     public void setWorkno(String workno) {
         this.workno = workno;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 
     @Override

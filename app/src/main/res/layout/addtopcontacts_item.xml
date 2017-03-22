@@ -53,8 +53,5 @@
                 android:layout_height="wrap_content"
                 android:text="灰色字体测试" />
         </LinearLayout>
-
     </RelativeLayout>
-
-
 </LinearLayout>

@@ -159,6 +159,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
+        setTitle("选择所有联系人");
         Groupid = getIntent().getStringExtra("Groupid");
         PrivateID = getIntent().getStringExtra("PrivateChat");
         ImageMessageList = getIntent().getStringArrayListExtra("ImageUri");
@@ -249,11 +250,14 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
             mTextView.setLayoutParams(lp);
             mTextView.setTag(treeInfo);
             mTextView.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+
             mTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mTreeInfo = (TreeInfo) v.getTag();
+                    Log.e("clickHistory","-----:"+mTreeInfo);
                     int index = clickHistory.indexOf(mTreeInfo);
+
                     if (index == -1) {
                         clickHistory.clear();
                         currentLevel = 0;
@@ -311,6 +315,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         mTreeInfo = mTreeInfos.get(position);
+        Log.e("onItemClick","----:"+mTreeInfo.getId());
         //点击的选项为员工类型
         if (mTreeInfo.getFlag() == 1) {
 //            Toast.makeText(this, "即将进入通信界面", Toast.LENGTH_SHORT).show();
@@ -535,16 +540,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                             if (bean.getCode().equals("200")) {
                                 NToast.shortToast(mContext, "创建成功");
                                 RongIM.getInstance().startGroupChat(mContext, bean.getText().getId(), bean.getText().getName());
-//                                RongIM.getInstance().getRongIMClient().joinGroup(bean.getText().getId(), bean.getText().getName(), new RongIMClient.OperationCallback() {
-//                                    @Override
-//                                    public void onSuccess() {
-//
-//                                    }
-//                                    @Override
-//                                    public void onError(RongIMClient.ErrorCode errorCode) {
-//
-//                                    }
-//                                });
+
                             } else {
                                 NToast.shortToast(mContext, "创建失败");
                             }
