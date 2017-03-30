@@ -52,6 +52,7 @@ import okhttp3.Response;
  * Created by LianMengYu on 2017/1/4.
  */
 
+
 public class Contacts_Fragment extends BaseFragment implements View.OnClickListener, AdapterView.OnItemClickListener {
     private RelativeLayout rl_mine_contacts;
     private RelativeLayout rl_mine_topcontacts;
@@ -116,7 +117,6 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
     private void initView(View view) {
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
         rl_mine_topcontacts = (RelativeLayout) view.findViewById(R.id.rl_mine_topcontacts);
-        fragment_contacts_search = (ListView) view.findViewById(R.id.fragment_contacts_search);
         et_search = (EditText) view.findViewById(R.id.et_search);
 
         fragment_contacts_lv_departments = (ListView) view.findViewById(R.id.fragment_contacts_lv_departments);
@@ -126,93 +126,8 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         et_search.setOnClickListener(this);
         rl_mine_topcontacts.setOnClickListener(this);
         rl_mine_contacts.setOnClickListener(this);
-//        et_search.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                searchData.clear();
-//                String input = s.toString();
-////                if (input.length() > 0) {
-////                    for (int i = 0; i < input.length(); i++) {
-////                        char a = input.charAt(i);
-////                        if (Pinyin.isChinese(a)) {
-////                            for (int j = 0; j < searchList.size(); j++) {
-////                                if (searchList.get(j).getName().indexOf(a) >= 0 || searchList.get(j).getPhoneNumber().indexOf(a) >= 0) {
-////                                    if (!searchData.contains(searchList.get(j))) {
-////                                        searchData.add(searchList.get(j));
-////                                    }
-////                                }
-////                            }
-////                        } else {
-////                            for (int j = 0; j < searchList.size(); j++) {
-////                                if (searchList.get(j).getName().indexOf(a) >= 0 || searchList.get(j).getPhoneNumber().indexOf(a) >= 0) {
-////                                    searchData.add(searchList.get(j));
-////                                }
-////                            }
-////                        }
-////                    }
-////                }
-//                for (int i = 0; i < searchList.size(); i++) {
-//                    int count = 0;
-//                    //全部转为小写
-//                    input = input.toLowerCase();
-//                    for (int j = 0; j < input.length(); j++) {
-//                        char a = input.charAt(j);
-//                        //如果是中文 则只跟Name属性进行比对 (因为其他属性不会存在中文字符)
-//                        if (Pinyin.isChinese(a)) {
-//                            if (searchList.get(i).getName().indexOf(a) >= 0) {
-//                                count++;
-//                            }
-//                        } else {
-//                            //非中文 对所有属性进行比对
-//                            if (searchList.get(i).getName().indexOf(a) >= 0 || searchList.get(i).getId().indexOf(a) >= 0 || searchList.get(i).getPhoneNumber().indexOf(a) >= 0) {
-//                                count++;
-//                            } else {
-//                                //对Name属性值进行拼音转换
-//                                String[] arr = Pinyin.toPinyin(searchList.get(i).getName(), ",").split(",");
-//                                //循环每个字符
-//                                for (String s1 : arr) {
-//                                    //对每个字符的拼音数组进行比对
-//                                    for (int i1 = 0; i1 < s1.length(); i1++) {
-//                                        if (a == s1.charAt(i1)) {
-//                                            count++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (count == input.length()) {
-//                        searchData.add(searchList.get(i));
-//                    }
-//                }
-//                searchAdapter = new SearchAdapter(getActivity(), searchData);
-//                fragment_contacts_search.setVisibility(View.VISIBLE);
-//                fragment_contacts_search.setAdapter(searchAdapter);
-//                searchAdapter.notifyDataSetChanged();
-//            }
-//        });
 
     }
-
-//    private void SearchUserInfo() {
-//        searchList = new ArrayList<SearchUserBean>();
-//        Gson gson = new Gson();
-//        Type listType = new TypeToken<TopContactsListBean>() {
-//        }.getType();
-//        TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(getActivity()), listType);
-//        for (int i = 0; i < bean.getText().size(); i++) {
-//            searchList.add(new SearchUserBean(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), bean.getText().get(i).getFullname(), bean.getText().get(i).getLogo()));
-//        }
-//    }
 
     private void GetData() {
         OkGo.post(ConstantValue.DEPARTMENTPERSON)
@@ -272,13 +187,17 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                clickHistory = new ArrayList<TreeInfo>();
-                                mTreeInfos = new ArrayList<>();
-                                childCount = new ArrayList<Integer>();
-                                prepare = new HashMap<Integer, Boolean>();
-                                mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount, ViewMode.NORMAL, null);
-                                fragment_contacts_lv_departments.setAdapter(mAdapter);
-                                transfer();
+                                try {
+                                    clickHistory = new ArrayList<TreeInfo>();
+                                    mTreeInfos = new ArrayList<TreeInfo>();
+                                    childCount = new ArrayList<Integer>();
+                                    prepare = new HashMap<Integer, Boolean>();
+                                    mAdapter = new InfoAdapter(getActivity(), mTreeInfos, childCount, ViewMode.NORMAL, null);
+                                    fragment_contacts_lv_departments.setAdapter(mAdapter);
+                                    transfer();
+                                }catch (NullPointerException e){
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     }

@@ -79,6 +79,7 @@ public class InfoAdapter extends BaseAdapter {
         BranchHolder mBranchHolder = null;
         WorkerHolder mWorkerHolder = null;
         switch (getItemViewType(position)) {
+            case -1:
             case 0:
                 if (convertView == null) {
                     convertView = LayoutInflater.from(mContext).inflate(R.layout.adapter_info_item_banch, null);
@@ -90,14 +91,14 @@ public class InfoAdapter extends BaseAdapter {
                 } else {
                     mBranchHolder = (BranchHolder) convertView.getTag();
                 }
-                mBranchHolder.adapter_info_item_branch_name.setText(getItem(position).getName());
+                mBranchHolder.adapter_info_item_branch_name.setText(mTreeInfo.getName());
                 if (mMode == ViewMode.CHECK) {
                     mBranchHolder.adapter_info_item_branch_iv.setVisibility(View.VISIBLE);
                     mBranchHolder.adapter_info_item_branch_iv.setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
                     mBranchHolder.adapter_info_item_branch_iv.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            mTreeInfo = getItem(position);
+//                            mTreeInfo = getItem(position);
                             mTreeInfo.setChecked(mTreeInfo.isChecked() ? false : true);
                             ((ImageView) v).setImageResource(mTreeInfo.isChecked() ? R.drawable.checkbox_selected : R.drawable.checkbox_normal);
                             mListener.onCheckedChange(mTreeInfo.getPid(), mTreeInfo.getId(), mTreeInfo);
@@ -143,7 +144,7 @@ public class InfoAdapter extends BaseAdapter {
                 }
 //                Glide.with(mContext).load("http://35.164.107.27:8080/im/upload/images/" + mInfos.get(position).getLogo()).bitmapTransform(new CropCircleTransformation(mContext)).into(mWorkerHolder.adapter_info_item_worker_header);
                 Picasso.with(mContext)
-                        .load(ConstantValue.ImageFile+mInfos.get(position).getLogo())
+                        .load(ConstantValue.ImageFile + mInfos.get(position).getLogo())
                         .resize(80, 80)
                         .centerCrop()
                         .placeholder(R.mipmap.default_portrait)

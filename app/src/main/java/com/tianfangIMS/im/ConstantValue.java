@@ -1,7 +1,7 @@
 package com.tianfangIMS.im;
 
 /**
- * Created by Lincktek_Lmy on 2016/12/29.
+ * Created by Lmy on 2016/12/29.
  * 常量类。
  */
 

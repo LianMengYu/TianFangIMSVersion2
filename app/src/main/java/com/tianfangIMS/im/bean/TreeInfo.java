@@ -15,8 +15,8 @@ public class TreeInfo implements Serializable {
     /**
      * 所属上级
      */
-    private int pid;
-    private int id;
+    private Integer pid;
+    private Integer id;
     private String account;
     private String name;
     private String logo;
@@ -54,19 +54,19 @@ public class TreeInfo implements Serializable {
         this.flag = flag;
     }
 
-    public int getPid() {
+    public Integer getPid() {
         return pid;
     }
 
-    public void setPid(int pid) {
+    public void setPid(Integer pid) {
         this.pid = pid;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

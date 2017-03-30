@@ -38,7 +38,7 @@ import io.rong.ptt.kit.PTTEndMessageItemProvider;
 import io.rong.ptt.kit.PTTStartMessageItemProvider;
 
 /**
- * Created by Lincktek_Lmy on 2016/12/29.
+ * Created by Lmy on 2016/12/29.
  * Application继承类
  */
 

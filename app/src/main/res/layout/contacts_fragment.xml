@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.zhy.android.percent.support.PercentLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="-10dp"
@@ -21,13 +21,13 @@
             android:background="#00272c"
             android:visibility="gone" />
 
-        <LinearLayout
+        <com.zhy.android.percent.support.PercentLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical">
 
-            <RelativeLayout
+            <com.zhy.android.percent.support.PercentRelativeLayout
                 android:id="@+id/rl_mine_contacts"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
@@ -49,9 +49,9 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@+id/iv_mine_chatroom"
                     android:text="我的群组" />
-            </RelativeLayout>
+            </com.zhy.android.percent.support.PercentRelativeLayout>
 
-            <RelativeLayout
+            <com.zhy.android.percent.support.PercentRelativeLayout
                 android:id="@+id/rl_mine_topcontacts"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
@@ -73,9 +73,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@+id/iv_topcontacts"
                     android:text="常用联系人" />
-            </RelativeLayout>
-
-
+            </com.zhy.android.percent.support.PercentRelativeLayout>
             <ListView
                 android:id="@+id/fragment_contacts_lv_departments"
                 android:layout_width="match_parent"
@@ -83,15 +81,7 @@
                 android:layout_marginTop="10dp"
                 android:background="@android:color/white"
                 android:divider="@color/fengexian" />
-
-            <ListView
-                android:id="@+id/fragment_contacts_search"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@android:color/white"
-                android:visibility="gone" />
-        </LinearLayout>
+        </com.zhy.android.percent.support.PercentLinearLayout>
 
 
     </FrameLayout>
@@ -104,4 +94,4 @@
         android:layout_marginTop="50dp"
         android:text="@string/No_friends"
         android:visibility="gone" />
-</LinearLayout>
+</com.zhy.android.percent.support.PercentLinearLayout>

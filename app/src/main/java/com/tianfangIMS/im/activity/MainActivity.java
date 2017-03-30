@@ -8,7 +8,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -22,6 +25,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.lzy.okgo.OkGo;
@@ -100,8 +107,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private Conversation.ConversationType[] mConversationsTypes = null;
     private boolean ischeck = true;
     //    FragmentManager fragmentManager;
-    private android.support.v4.app.FragmentTransaction transaction;
-    private android.support.v4.app.FragmentManager fragmentManager;
+    private FragmentTransaction transaction;
+    private FragmentManager fragmentManager;
     private List<LoginBean> mLoginBeanList;
     private ImageView main_button;
     private TopContactsBean topContactsBean;
@@ -112,6 +119,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private LinearLayout search_layout;
     private EditText et_search;
     Intent mIntent;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -209,6 +222,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             }
         });
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     /**
@@ -420,6 +436,42 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         return bean;
     }
 
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
+    }
+
     private class MyConversationBehaviorListener implements RongIM.ConversationBehaviorListener {
         @Override
         public boolean onMessageClick(Context context, View view, Message message) {
@@ -558,7 +610,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 mainPlusDialog.showPopupWindow(main_plus);
                 break;
             case R.id.et_search:
-                startActivity(new Intent(this,SearchAllContactsActivity.class));
+                startActivity(new Intent(this, SearchAllContactsActivity.class));
                 break;
         }
     }
@@ -620,7 +672,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         transaction.commit();
     }
 
-    private void hideAll(android.support.v4.app.FragmentTransaction ft) {
+    private void hideAll(FragmentTransaction ft) {
         if (mConversationList != null) {
             ft.hide(mConversationList);
         }
@@ -818,7 +870,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             if (RongIM.getInstance() != null)
                 RongIM.getInstance().disconnect(true);
 
-            android.os.Process.killProcess(android.os.Process.myPid());
+            Process.killProcess(Process.myPid());
 //            finish();
 //            System.exit(0);
 //            RongIM.getInstance().disconnect();

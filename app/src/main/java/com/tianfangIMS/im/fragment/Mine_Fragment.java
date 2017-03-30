@@ -247,7 +247,7 @@ public class Mine_Fragment extends BaseFragment implements View.OnClickListener,
                                         mTreeInfos = new ArrayList<>();
                                         childCount = new ArrayList<Integer>();
                                         mAdapter = new InfoAdapter(mContext, mTreeInfos, childCount, ViewMode.NORMAL, prepare);
-                                        Log.e("哈哈", "TreeInfo：" + mTreeInfos);
+                                        Log.e("看看数值是否为空：","----childCount:"+childCount+"----Tree:"+mTreeInfos);
                                         transfer();
                                     }
                                 });
