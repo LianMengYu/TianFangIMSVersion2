@@ -1,17 +1,19 @@
 package com.tianfangIMS.im.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.TreeInfo;
+import com.tianfangIMS.im.utils.NToast;
 import com.tianfangIMS.im.view.CustomChildLinearLayout;
 
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class TreeActivity extends BaseActivity {
     HashMap<Integer, TreeInfo> map;
 
     ArrayList<TreeInfo> mTreeInfos;
-
+    Context mContext;
     List<Integer> keys, tmp;
 
     int nodeWidth;
@@ -49,23 +51,34 @@ public class TreeActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tree);
         mInflater = LayoutInflater.from(this);
+        mContext = this;
         keys = new ArrayList<>();
         activity_tree_ll_view = (LinearLayout) findViewById(R.id.activity_tree_ll_view);
         //屏幕宽度的一半
         nodeWidth = getResources().getDisplayMetrics().widthPixels / 2;
         maps = (HashMap<Integer, HashMap<Integer, TreeInfo>>) getIntent().getSerializableExtra("maps");
+        Log.e("查看树状图：","---:"+maps);
         //获取首节点 测试环境下的Json数据首节点ID为0
         keys.add(0);
         mInfoMap = new HashMap<>();
         dictionary = new HashMap<>();
         //以ID为Key 实体自身为Value 存入Map中
-
-        for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
-            for (TreeInfo info : hashMap.values()) {
-                mInfoMap.put(info.getId(), info);
-                dictionary.put(info.getPid(), info);
+        try {
+            if(maps != null){
+                for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
+                    for (TreeInfo info : hashMap.values()) {
+                        mInfoMap.put(info.getId(), info);
+                        dictionary.put(info.getPid(), info);
+                    }
+                }
+            }else{
+                NToast.shortToast(mContext,"没有获取到数据");
+                return;
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
         transfer();
     }
 
@@ -125,7 +138,6 @@ public class TreeActivity extends BaseActivity {
                             public void onClick(View v) {
                                 mTreeInfos.clear();
                                 TreeInfo mInfo = (TreeInfo) v.getTag();
-                                Toast.makeText(TreeActivity.this, "PID :" + mInfo.getPid() + " / ID : " + mInfo.getId(), Toast.LENGTH_SHORT).show();
                                 int currentLevel = mInfo.getId();
                                 int parentLevel = mInfo.getPid();
                                 mTreeInfos.add(mInfo);

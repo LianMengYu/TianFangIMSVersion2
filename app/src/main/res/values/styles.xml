@@ -163,4 +163,13 @@
         <item name="android:textColor">#999999</item>
         <item name="android:maxLines">1</item>
     </style>
+    <style name="Anim_fade" parent="android:Theme.NoTitleBar">
+        <item name="android:windowAnimationStyle">@style/fade</item>
+    </style>
+    <style name="fade" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/bottom_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/bottom_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/bottom_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/bottom_out</item>
+    </style>
 </resources>

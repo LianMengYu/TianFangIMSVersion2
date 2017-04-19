@@ -1,13 +1,9 @@
 package com.tianfangIMS.im.activity;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextWatcher;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -48,6 +45,8 @@ public class SearchChattingDetailActivity extends BaseActivity implements Adapte
     private List<Message> mAdapterMessages;
     private ChattingRecordsAdapter mAdapter;
     private int type;//0为群组，1为单聊
+    private LinearLayout no_result_chatting;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +64,7 @@ public class SearchChattingDetailActivity extends BaseActivity implements Adapte
         et_search = (EditText) this.findViewById(R.id.et_search);
         lv_privatechat_search = (ListView) this.findViewById(R.id.lv_privatechat_search);
         mSearchNoResultsTextView = (TextView) this.findViewById(R.id.ac_tv_search_no_results);
+        no_result_chatting = (LinearLayout)this.findViewById(R.id.no_result_chatting);
         lv_privatechat_search.setOnItemClickListener(this);
     }
 
@@ -89,23 +89,25 @@ public class SearchChattingDetailActivity extends BaseActivity implements Adapte
                                     if (mResult.getMatchCount() == 0) {
                                         lv_privatechat_search.setVisibility(View.GONE);
                                         mSearchNoResultsTextView.setVisibility(View.VISIBLE);
-                                        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-                                        spannableStringBuilder.append("没有搜到");
-                                        SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
-                                        colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                                        spannableStringBuilder.append(colorFilterStr);
-                                        spannableStringBuilder.append("相关信息");
-                                        mSearchNoResultsTextView.setText(spannableStringBuilder);
+//                                        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+//                                        spannableStringBuilder.append("没有搜到");
+//                                        SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
+//                                        colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+//                                        spannableStringBuilder.append(colorFilterStr);
+//                                        spannableStringBuilder.append("相关信息");
+//                                        mSearchNoResultsTextView.setText(spannableStringBuilder);
+                                        no_result_chatting.setVisibility(View.VISIBLE);
                                     } else {
-                                        mSearchNoResultsTextView.setVisibility(View.GONE);
-                                        lv_privatechat_search.setVisibility(View.VISIBLE);
-                                        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-                                        spannableStringBuilder.append(getString(R.string.ac_search_chat_detail, mResult.getMatchCount()));
-                                        SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
-                                        colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                                        spannableStringBuilder.append(colorFilterStr);
-                                        spannableStringBuilder.append("相关的聊天记录");
-                                        mSearchNoResultsTextView.setText(spannableStringBuilder);
+//                                        mSearchNoResultsTextView.setVisibility(View.GONE);
+//                                        lv_privatechat_search.setVisibility(View.VISIBLE);
+//                                        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+//                                        spannableStringBuilder.append(getString(R.string.ac_search_chat_detail, mResult.getMatchCount()));
+//                                        SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
+//                                        colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+//                                        spannableStringBuilder.append(colorFilterStr);
+//                                        spannableStringBuilder.append("相关的聊天记录");
+//                                        mSearchNoResultsTextView.setText(spannableStringBuilder);
+                                        no_result_chatting.setVisibility(View.GONE);
                                     }
                                 }
                             }
@@ -125,16 +127,18 @@ public class SearchChattingDetailActivity extends BaseActivity implements Adapte
                                 if (mMessages.size() == 0) {
                                     lv_privatechat_search.setVisibility(View.GONE);
                                     mSearchNoResultsTextView.setVisibility(View.VISIBLE);
-                                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-                                    spannableStringBuilder.append("没有搜到");
-                                    SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
-                                    colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                                    spannableStringBuilder.append(colorFilterStr);
-                                    spannableStringBuilder.append("相关信息");
-                                    mSearchNoResultsTextView.setText(spannableStringBuilder);
+//                                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
+//                                    spannableStringBuilder.append("没有搜到");
+//                                    SpannableStringBuilder colorFilterStr = new SpannableStringBuilder(mFilterString);
+//                                    colorFilterStr.setSpan(new ForegroundColorSpan(Color.parseColor("#0099ff")), 0, mFilterString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+//                                    spannableStringBuilder.append(colorFilterStr);
+//                                    spannableStringBuilder.append("相关信息");
+//                                    mSearchNoResultsTextView.setText(spannableStringBuilder);
+                                    no_result_chatting.setVisibility(View.VISIBLE);
                                 } else {
                                     mSearchNoResultsTextView.setVisibility(View.GONE);
                                     lv_privatechat_search.setVisibility(View.VISIBLE);
+                                    no_result_chatting.setVisibility(View.GONE);
                                     mAdapterMessages = messages;
                                     mAdapter = new ChattingRecordsAdapter();
                                     lv_privatechat_search.setAdapter(mAdapter);

@@ -12,6 +12,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -47,6 +48,7 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.userInfoCache.RongUserInfoManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
@@ -59,7 +61,8 @@ import okhttp3.Response;
 /**
  * Created by LianMengYu on 2017/1/21.
  */
-public class GroupDetailActivity extends BaseActivity implements View.OnClickListener,GroupDetailInfo_GridView_Adapter.AddClickListener,GroupDetailInfo_GridView_Adapter.DelClickListener {
+public class GroupDetailActivity extends BaseActivity implements View.OnClickListener, GroupDetailInfo_GridView_Adapter.AddClickListener, GroupDetailInfo_GridView_Adapter.DelClickListener,
+        AdapterView.OnItemClickListener {
     private static final String TAG = "GroupDetailActivity";
     private static final int SEARCH_TYPE_FLAG = 0;
     private String fromConversationId;
@@ -151,7 +154,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             GroupBeanList = GroupAllBean.getText();
                             Log.e("GroupBeanList", "---:" + GroupBeanList);
                             setTitle("群信息" + "(" + GroupBeanList.size() + "人)");
-                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList, GroupDetailActivity.this,GroupDetailActivity.this,flag);
+                            adapter = new GroupDetailInfo_GridView_Adapter(mContext, GroupBeanList, GroupDetailActivity.this, GroupDetailActivity.this, flag);
 //                            SettingGridView(GroupBeanList);
                             gv_userinfo.setAdapter(adapter);
                             setListViewHeightBasedOnChildren(gv_userinfo);
@@ -227,6 +230,8 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         rl_group_findFile = (RelativeLayout) this.findViewById(R.id.rl_group_findFile);
         rl_movegroup = (RelativeLayout) this.findViewById(R.id.rl_movegroup);
 
+
+        gv_userinfo.setOnItemClickListener(this);
         rl_movegroup.setOnClickListener(this);
         rl_group_findFile.setOnClickListener(this);
         rl_group_clean.setOnClickListener(this);
@@ -290,12 +295,12 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                             IsLongGroupName(oneGroupBean.getText().getName());
                             LoginBean loginBean = gson.fromJson(CommonUtil.getUserInfo(mContext), LoginBean.class);
                             if (oneGroupBean.getText().getMid().equals(loginBean.getText().getId())) {
-                                rl_breakGroup.setVisibility(View.VISIBLE);
                                 rl_movegroup.setVisibility(View.VISIBLE);
+
+                                rl_breakGroup.setVisibility(View.VISIBLE);
                                 flag = true;
                             } else {
-                                rl_breakGroup.setVisibility(View.GONE);
-                                rl_movegroup.setVisibility(View.GONE);
+                                rl_signout.setVisibility(View.VISIBLE);
                                 flag = false;
                             }
                         }
@@ -409,6 +414,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                 requestCode = 0;
                 Bundle bundle = new Bundle();
                 GroupName = oneGroupBean.getText().getName();
+                Log.e("打印数据","单个的："+GroupName);
                 bundle.putSerializable("GroupBean", oneGroupBean);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, requestCode);
@@ -446,7 +452,6 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
                     }
                 } else {
                     UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
-                    Log.e("群组的userInfo", "----:" + userInfo.getUserId());
                     if (userInfo != null) {
                         mResult.setId(conversation.getTargetId());
                         String portraitUri = userInfo.getPortraitUri().toString();
@@ -467,7 +472,7 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
             case R.id.rl_movegroup:
                 ArrayList<GroupBean> listdata = new ArrayList<>();
                 for (int i = 0; i < GroupBeanList.size(); i++) {
-                    if(!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())){
+                    if (!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())) {
                         listdata.add(GroupBeanList.get(i));
                     }
                 }
@@ -487,6 +492,9 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         if (data != null) {
             String change01 = data.getStringExtra("change01");
             tv_group_groupname.setText(change01);
+            RongIM.getInstance().refreshGroupInfoCache(new Group(oneGroupBean.getText().getGID(),change01,Uri.parse(ConstantValue.ImageFile+oneGroupBean.getText().getLogo())));
+            Log.e("打印数据：","---ID:"+oneGroupBean.getText().getGID()+"--name:"+oneGroupBean.getText().getName()+"头像:"+Uri.parse(ConstantValue.ImageFile+oneGroupBean.getText().getLogo()));
+
         } else {
             return;
         }
@@ -499,22 +507,35 @@ public class GroupDetailActivity extends BaseActivity implements View.OnClickLis
         bundle.putString("GroupId", fromConversationId);
         intent.putExtras(bundle);
         startActivity(intent);
+        this.finish();
     }
 
     @Override
     public void DelclickListener(View v) {
         ArrayList<GroupBean> listdata = new ArrayList<>();
         for (int i = 0; i < GroupBeanList.size(); i++) {
-            if(!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())){
+            if (!RongIM.getInstance().getCurrentUserId().equals(GroupBeanList.get(i).getId())) {
                 listdata.add(GroupBeanList.get(i));
             }
         }
-        Intent intent = new Intent(GroupDetailActivity.this,DeleteGropUserActivity.class);
+        Intent intent = new Intent(GroupDetailActivity.this, DeleteGropUserActivity.class);
         Bundle delbundle = new Bundle();
         delbundle.putSerializable("GroupBeanList", listdata);
         delbundle.putString("fromConversationId", fromConversationId);
         intent.putExtras(delbundle);
         startActivity(intent);
+        this.finish();
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent detailintent = new Intent(mContext, FriendPersonInfoActivity.class);
+        Bundle detailbundle = new Bundle();
+        detailbundle.putString("userId", GroupBeanList.get(position).getId());
+        detailintent.putExtras(detailbundle);
+        detailintent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+        startActivity(detailintent);
+        this.finish();
     }
 }
 

@@ -42,9 +42,7 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
     private Context mContext;
     private ListView lv_addGroup_company;
     private RelativeLayout rl_allContacts;
-
     Gson mGson;
-
     ArrayList<Integer> childCount;
     ArrayList<TreeInfo> mTreeInfos, clickHistory;
 
@@ -252,4 +250,5 @@ public class AddGroupActivity extends BaseActivity implements View.OnClickListen
                 break;
         }
     }
+
 }

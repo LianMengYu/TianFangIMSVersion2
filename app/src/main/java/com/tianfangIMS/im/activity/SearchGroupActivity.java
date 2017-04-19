@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
@@ -40,7 +41,7 @@ public class SearchGroupActivity extends BaseActivity implements AdapterView.OnI
     SearchGroupAdapter searchAdapter;
     private Context mContext;
     private ListView fragment_contacts_search;
-
+    private LinearLayout no_result_group;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +79,7 @@ public class SearchGroupActivity extends BaseActivity implements AdapterView.OnI
         et_search = (EditText) this.findViewById(R.id.et_search);
         fragment_contacts_search = (ListView) this.findViewById(R.id.lv_contacts_search);
         fragment_contacts_search.setOnItemClickListener(this);
+        no_result_group = (LinearLayout)this.findViewById(R.id.no_result_group);
 
         et_search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -92,6 +94,15 @@ public class SearchGroupActivity extends BaseActivity implements AdapterView.OnI
 
             @Override
             public void afterTextChanged(Editable s) {
+                Log.e("dayindadadasdsa","11111----:"+searchData);
+                if(searchData.size() == 0){
+                    no_result_group.setVisibility(View.VISIBLE);
+                }else {
+                    no_result_group.setVisibility(View.GONE);
+                }
+                if(TextUtils.isEmpty(s.toString())){
+                    searchData.clear();
+                }
                 if (searchList != null) {
                     GetSearch(s);
                     searchAdapter = new SearchGroupAdapter(searchData, mContext);

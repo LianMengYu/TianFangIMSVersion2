@@ -6,20 +6,22 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.github.promeg.pinyinhelper.Pinyin;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.tianfangIMS.im.ConstantValue;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.adapter.SearchAllContactsAdapter;
 import com.tianfangIMS.im.bean.GroupListBean;
 import com.tianfangIMS.im.bean.SearchAllBean;
 import com.tianfangIMS.im.bean.TopContactsListBean;
+import com.tianfangIMS.im.dialog.SendImageMessageDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
 
@@ -49,6 +51,9 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
     //过滤数据的集合
     List<SearchAllBean> AdapterData;
     private SearchAllContactsAdapter adapter;
+    private ArrayList<String> uriList;
+
+    private LinearLayout no_result_all;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +63,14 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
         initview();
         InitPrivateChatData();
         InitGroupChatData();
+        uriList = getIntent().getStringArrayListExtra("ListUri");
     }
 
     private void initview() {
         lv_searchAll_data = (ListView) this.findViewById(R.id.lv_searchAll_data);
         et_search = (EditText) this.findViewById(R.id.et_search);
         lv_searchAll_data.setOnItemClickListener(this);
+        no_result_all = (LinearLayout) this.findViewById(R.id.no_result_all);
         et_search.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -74,13 +81,18 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 GetPrivateChatSearch(s);
                 GetGroupChatSearch(s);
-                Log.e("打印搜索结果：", "----个人:" + PrivateChatListData);
-                Log.e("打印搜索结果：", "----群组:" + GroupChatListData);
                 SetAdapterInfo();
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (PrivateChatListData.size() == 0 && PrivateChatListData.size() == 0) {
+                    lv_searchAll_data.setVisibility(View.GONE);
+                    no_result_all.setVisibility(View.VISIBLE);
+                } else {
+                    lv_searchAll_data.setVisibility(View.VISIBLE);
+                    no_result_all.setVisibility(View.GONE);
+                }
                 String file = s.toString();
                 if (TextUtils.isEmpty(file)) {
                     AdapterData.clear();
@@ -100,8 +112,7 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
             for (int i = 0; i < bean.getText().size(); i++) {
                 PrivateChatList.add(new SearchAllBean(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(),
                         bean.getText().get(i).getPosition()
-                        , bean.getText().get(i).getLogo(), true));
-                Log.e("打印全部数据：", "----单聊：" + PrivateChatList.get(i).getName());
+                        , bean.getText().get(i).getLogo(), true, bean.getText().get(i).getMobile()));
             }
         }
     }
@@ -119,8 +130,7 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
                 }.getType();
                 GroupListBean bean = gson.fromJson(str, listType);
                 for (int i = 0; i < bean.getText().size(); i++) {
-                    GroupChatList.add(new SearchAllBean(bean.getText().get(i).getGID(), bean.getText().get(i).getName(), null, bean.getText().get(i).getLogo(), false));
-                    Log.e("打印全部数据：", "----群聊：" + GroupChatList.get(i).getName());
+                    GroupChatList.add(new SearchAllBean(bean.getText().get(i).getGID(), bean.getText().get(i).getName(), null, bean.getText().get(i).getLogo(), false, null));
                 }
             } else if ((Double) map.get("code") == 0.0) {
                 NToast.shortToast(mContext, "该用户没有加入群组");
@@ -144,7 +154,7 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
                     }
                 } else {
                     //非中文 对所有属性进行比对
-                    if (PrivateChatList.get(i).getName().indexOf(a) >= 0 || PrivateChatList.get(i).getId().indexOf(a) >= 0) {
+                    if (PrivateChatList.get(i).getName().indexOf(a) >= 0 || PrivateChatList.get(i).getId().indexOf(a) >= 0 || PrivateChatList.get(i).getMphone().indexOf(input) >=0) {
                         count++;
                     } else {
                         //对Name属性值进行拼音转换
@@ -230,15 +240,29 @@ public class SearchAllContactsActivity extends BaseActivity implements AdapterVi
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (AdapterData.get(position).isFlag()) {
-            Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString("userId", AdapterData.get(position).getId());
-            intent.putExtras(bundle);
-            intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
-            startActivity(intent);
-            finish();
+            if (uriList != null && uriList.size() > 0) {
+                SendImageMessageDialog sendImageMessageDialog = new SendImageMessageDialog(mContext, AdapterData.get(position).getId(),
+                        position, AdapterData.get(position).getName(), uriList, Conversation.ConversationType.PRIVATE,
+                        ConstantValue.ImageFile + AdapterData.get(position).getLogo(), AdapterData.get(position).getPosition());
+                sendImageMessageDialog.show();
+            } else {
+                Intent intent = new Intent(mContext, FriendPersonInfoActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("userId", AdapterData.get(position).getId());
+                intent.putExtras(bundle);
+                intent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+                startActivity(intent);
+                finish();
+            }
         } else {
-            RongIM.getInstance().startGroupChat(mContext, AdapterData.get(position).getId(), AdapterData.get(position).getName());
+            if (uriList != null && uriList.size() > 0) {
+                SendImageMessageDialog sendImageMessageDialog = new SendImageMessageDialog(mContext, AdapterData.get(position).getId(),
+                        position, AdapterData.get(position).getName(), uriList, Conversation.ConversationType.GROUP, ConstantValue.ImageFile + AdapterData.get(position).getLogo(),
+                        null);
+                sendImageMessageDialog.show();
+            } else {
+                RongIM.getInstance().startGroupChat(mContext, AdapterData.get(position).getId(), AdapterData.get(position).getName());
+            }
         }
     }
 }

@@ -26,9 +26,9 @@ public class AddTopContactsAdapter extends BaseAdapter {
 
     private Context mContext;
     private List<AddFriendBean> mList;
-    public static HashMap<Integer, Boolean> isSelectedCheck;
+    public static HashMap<String, Boolean> isSelectedCheck;
     //存储CheckBox状态的集合
-    private Map<Integer,Boolean> checkedMap;
+    private Map<String,Boolean> checkedMap;
 
     public AddTopContactsAdapter(Context mContext, List<AddFriendBean> mList) {
         this.mContext = mContext;
@@ -42,7 +42,7 @@ public class AddTopContactsAdapter extends BaseAdapter {
      */
     public void initCheckBox(boolean isChecked) {
         for (int i = 0; i<mList.size();i++) {
-            checkedMap.put(i,isChecked);
+            checkedMap.put(mList.get(i).getId(),isChecked);
         }
     }
 
@@ -80,10 +80,11 @@ public class AddTopContactsAdapter extends BaseAdapter {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // 当勾选框状态发生改变时,重新存入map集合
-                checkedMap.put(position,isChecked);
+                checkedMap.put(mList.get(position).getId(),isChecked);
             }
         });
-        holder.cb_addfrien.setChecked(checkedMap.get(position));
+        holder.cb_addfrien.setChecked(checkedMap.get(mList.get(position).getId()));
+
 //        CommonUtil.GetImages(mContext, mList.get(position).getLogo(), holder.AddFriendPhoto);
         Picasso.with(mContext)
                 .load(ConstantValue.ImageFile+mList.get(position).getLogo())
@@ -106,7 +107,7 @@ public class AddTopContactsAdapter extends BaseAdapter {
      * 得到勾选状态的集合
      * @return
      */
-    public Map<Integer,Boolean> getCheckedMap() {
+    public Map<String,Boolean> getCheckedMap() {
         return checkedMap;
     }
 }

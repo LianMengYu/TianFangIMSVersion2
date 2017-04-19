@@ -1,5 +1,7 @@
 package com.tianfangIMS.im.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -53,7 +55,6 @@ public class DeleteGropUserActivity extends BaseActivity implements AdapterView.
         mlist = (ArrayList<GroupBean>) object;
         tv_delete = getTv_title();
         tv_delete.setText("删除");
-        Log.e("看看有没有群主:","-----:"+mlist);
         init();
         adapter = new MoveGroupUserAdapter(this, mlist, true);
         lv_delete_GroupUser.setAdapter(adapter);
@@ -61,7 +62,10 @@ public class DeleteGropUserActivity extends BaseActivity implements AdapterView.
         tv_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DelGroupUser();
+//                DelGroupUser();
+//                DelGroupDialog delGroupDialog = new DelGroupDialog(mContext,GroupID,allChecked,mlist,0);
+//                delGroupDialog.show();
+                dialog();
             }
         });
     }
@@ -87,6 +91,26 @@ public class DeleteGropUserActivity extends BaseActivity implements AdapterView.
 
     }
 
+    private void dialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("提示");
+        builder.setMessage("确认删除群组成员吗？");
+        builder.setPositiveButton("删除", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DelGroupUser();
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
     private void DelGroupUser() {
         String str = "";
         List<String> list = new ArrayList<String>();
@@ -96,7 +120,6 @@ public class DeleteGropUserActivity extends BaseActivity implements AdapterView.
             }
             str = list.toString();
         }
-        Log.e("打印数据----：", "--------:" + str);
         OkGo.post(ConstantValue.SINGOUTGROUP)
                 .tag(this)
                 .connTimeOut(10000)

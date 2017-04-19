@@ -1,5 +1,6 @@
 package com.tianfangIMS.im.utils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,7 +10,6 @@ import android.graphics.Bitmap;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Window;
@@ -95,7 +95,6 @@ public class CommonUtil {
                     @Override
                     public void onSuccess(Bitmap bitmap, Call call, Response response) {
                         Bitmap mbitmap = bitmap;
-                        Log.e("qqqqqqqqqqqqqqqqqq", "下载方法：" + mbitmap);
                     }
                 });
         return mbitmap;
@@ -175,13 +174,13 @@ public class CommonUtil {
 
     public static boolean saveGroupUserInfo(Context mContext, String info) {
         SharedPreferences pref = mContext.getSharedPreferences(
-                "group_info", 0);
+                "group_info", Activity.MODE_PRIVATE);
         return pref.edit().putString("group_info", info).commit();
     }
 
     public static String getGroupUserInfo(Context mContext) {
         SharedPreferences pref = mContext.getSharedPreferences(
-                "group_info", 0);
+                "group_info", Activity.MODE_PRIVATE);
         return pref.getString("group_info", "");
     }
 
@@ -193,7 +192,6 @@ public class CommonUtil {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
     }
-
 
     /**
      * md5加密

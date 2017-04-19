@@ -3,8 +3,8 @@ package com.tianfangIMS.im.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -23,6 +23,7 @@ import com.tianfangIMS.im.bean.GroupBean;
 import com.tianfangIMS.im.utils.NToast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import io.rong.imkit.RongIM;
@@ -30,60 +31,71 @@ import okhttp3.Call;
 import okhttp3.Response;
 
 /**
- * Created by LianMengYu on 2017/3/12.
+ * Created by LianMengYu on 2017/4/13.
  */
 
-public class MoveGroupUserDialog extends Dialog implements View.OnClickListener {
+public class DelGroupDialog extends Dialog implements View.OnClickListener{
     private Context mContext;
     private String GroupID;
-    private ArrayList<GroupBean> list;
+    private List<GroupBean> allChecked;
+    private ArrayList<GroupBean> mlist;
     private int position;
 
     private Button btn_quxiao_move, btn_submit_move;
     private ImageView iv_movegroupuser_photo;
     private TextView tv_movegroupuser_departmentName;
     private TextView tv_person_departmentTxt;
-    public MoveGroupUserDialog(Context context, String groupID, ArrayList<GroupBean> list, int position) {
+
+    public DelGroupDialog(Context context,String groupID, List<GroupBean> allChecked, ArrayList<GroupBean> mlist,int position) {
         super(context);
         this.mContext = context;
         GroupID = groupID;
-        this.list = list;
+        this.allChecked = allChecked;
+        this.mlist = mlist;
         this.position = position;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        View view = LayoutInflater.from(mContext).inflate(R.layout.movegroupuser_dialog, null);
+        View view = LayoutInflater.from(mContext)
+                .inflate(R.layout.delgroupuser_dialog,null);
         setContentView(view);
         init(view);
     }
-
-    private void init(View view) {
-        btn_quxiao_move = (Button) view.findViewById(R.id.btn_quxiao_move);
-        btn_submit_move = (Button) view.findViewById(R.id.btn_submit_move);
-        iv_movegroupuser_photo = (ImageView) view.findViewById(R.id.iv_movegroupuser_photo);
-        tv_movegroupuser_departmentName = (TextView) view.findViewById(R.id.tv_movegroupuser_departmentName);
-        tv_person_departmentTxt = (TextView)view.findViewById(R.id.tv_person_departmentTxt);
+    private void init(View view){
+        btn_quxiao_move = (Button) view.findViewById(R.id.btn_quxiao_del);
+        btn_submit_move = (Button) view.findViewById(R.id.btn_submit_del);
+        iv_movegroupuser_photo = (ImageView) view.findViewById(R.id.iv_delgroupuser_photo);
+        tv_movegroupuser_departmentName = (TextView) view.findViewById(R.id.tv_delgroupuser_departmentName);
+        tv_person_departmentTxt = (TextView)view.findViewById(R.id.tv_person_department_del);
 
 
         btn_quxiao_move.setOnClickListener(this);
         btn_submit_move.setOnClickListener(this);
-        tv_movegroupuser_departmentName.setText("确定选择 " + list.get(position).getFullname() + " 为新的群主");
-        tv_person_departmentTxt.setText("您将自动放弃群主身份");
+        tv_movegroupuser_departmentName.setText("确定将 " + mlist.get(position).getFullname() + "移除本群");
+//        tv_person_departmentTxt.setText("您将自动放弃群主身份");
         Picasso.with(mContext)
-                .load(ConstantValue.ImageFile + list.get(position).getLogo())
+                .load(ConstantValue.ImageFile + mlist.get(position).getLogo())
                 .resize(80, 80)
                 .into(iv_movegroupuser_photo);
     }
-
-    private void initTransferGroup(final int position) {
-        OkGo.post(ConstantValue.TRANSFERGROUP)
+    private void DelGroupUser() {
+        String str = "";
+        List<String> list = new ArrayList<String>();
+        if (allChecked != null) {
+            for (int i = 0; i < allChecked.size(); i++) {
+                list.add(allChecked.get(i).getId());
+            }
+            str = list.toString();
+        }
+        Log.e("打印数据----：", "--------:" + str);
+        OkGo.post(ConstantValue.SINGOUTGROUP)
                 .tag(this)
                 .connTimeOut(10000)
                 .readTimeOut(10000)
                 .writeTimeOut(10000)
-                .params("userid", list.get(position).getId())
+                .params("groupids", str)
                 .params("groupid", GroupID)
                 .execute(new StringCallback() {
                     @Override
@@ -95,22 +107,14 @@ public class MoveGroupUserDialog extends Dialog implements View.OnClickListener 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
+                        Log.e("打印数据----：", "--------:" + s);
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                             Gson gson = new Gson();
                             Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
-                            if ((Double) map.get("code") == 1.0) {
-                                NToast.shortToast(mContext,"转让成功");
-                                new Handler().postDelayed(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        RongIM.getInstance().startGroupChat(mContext, GroupID, list.get(position).getName());
-                                    }
-                                }, 1000);//延时1s
-
-                            }else{
-                                NToast.shortToast(mContext,"转让失败");
+                            if((Double)map.get("code") == 1.0){
+                                NToast.shortToast(mContext,"移除成员成功");
+                                RongIM.getInstance().startGroupChat(mContext,GroupID,mlist.get(0).getName());
                             }
                         }
                     }
@@ -124,7 +128,7 @@ public class MoveGroupUserDialog extends Dialog implements View.OnClickListener 
                 this.dismiss();
                 break;
             case R.id.btn_submit_move:
-                initTransferGroup(position);
+                DelGroupUser();
                 this.dismiss();
                 break;
         }

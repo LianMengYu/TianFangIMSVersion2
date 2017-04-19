@@ -524,12 +524,10 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             @Override
             public void onTokenIncorrect() {
 
-                Log.e(TAG, "---onTokenIncorrect--");
             }
 
             @Override
             public void onSuccess(String s) {
-                Log.i(TAG, "---onSuccess--" + s);
                 if (mDialog != null)
                     mDialog.dismiss();
 
@@ -539,7 +537,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
 
             @Override
             public void onError(RongIMClient.ErrorCode e) {
-                Log.e(TAG, "---onError--" + e);
                 if (mDialog != null)
                     mDialog.dismiss();
 
@@ -594,6 +591,7 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
             intent.putExtra("TargetId", mTargetId);
             if (intent != null) {
                 startActivityForResult(intent, 500);
+                this.finish();
             }
 
         }
@@ -642,22 +640,6 @@ public class ConversationActivity extends BaseActivity implements View.OnClickLi
                 enterSettingActivity();
                 break;
             case R.id.iv_conversation_location:
-//                String[] items = {"位置共享"};
-//                OptionsPopupDialog.newInstance(mContext, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-//                    @Override
-//                    public void onOptionsItemClicked(int i) {
-//                        if (i == 0) {
-//                            if (LocationManager.getInstance().joinLocationSharing() == 0) {
-//                                Intent intent = new Intent(mContext, AMapRealTimeActivity.class);
-//                                mContext.startActivity(intent);
-//                            } else {
-//                                Toast.makeText(mContext, io.rong.imkit.R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
-//                            }
-//                        }
-//                    }
-//                }).show();
-//                break;
-//                startActivity(new Intent(mContext, AMapShareActivity.class));
                 JoinAMapShare();
         }
 

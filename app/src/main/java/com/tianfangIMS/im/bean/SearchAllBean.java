@@ -12,15 +12,16 @@ public class SearchAllBean implements Serializable {
     private String position;
     private String Logo;
     private boolean flag;//true为单聊，false为群聊
-
+    private String mphone;
     public SearchAllBean() {}
 
-    public SearchAllBean(String id, String name, String position, String logo, boolean flag) {
+    public SearchAllBean(String id, String name, String position, String logo, boolean flag,String mphone) {
         this.id = id;
         this.name = name;
         this.position = position;
         this.Logo = logo;
         this.flag = flag;
+        this.mphone = mphone;
     }
 
     public boolean isFlag() {
@@ -63,6 +64,14 @@ public class SearchAllBean implements Serializable {
         Logo = logo;
     }
 
+    public String getMphone() {
+        return mphone;
+    }
+
+    public void setMphone(String mphone) {
+        this.mphone = mphone;
+    }
+
     @Override
     public String toString() {
         return "SearchAllBean{" +
@@ -70,6 +79,8 @@ public class SearchAllBean implements Serializable {
                 ", name='" + name + '\'' +
                 ", position='" + position + '\'' +
                 ", Logo='" + Logo + '\'' +
+                ", flag=" + flag +
+                ", mphone='" + mphone + '\'' +
                 '}';
     }
 }

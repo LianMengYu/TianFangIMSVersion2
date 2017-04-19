@@ -37,6 +37,7 @@ import com.tianfangIMS.im.utils.NToast;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -60,9 +61,10 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
     private GridView gv_addContacts;
     private AddTopContacts_GridView_Adapter gridView_adapter;
     private List<AddFriendBean> allChecked;
-    private Map<Integer, Boolean> checkedMap;
+    private Map<String, Boolean> checkedMap;
     private List<AddFriendRequestBean> ListRequestInfo = new ArrayList<AddFriendRequestBean>();
     HashMap<Integer, Boolean> prepare;
+
     //    private LoginBean loginBean;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,15 +190,21 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         gv_addContacts.setStretchMode(GridView.NO_STRETCH);
         gv_addContacts.setNumColumns(size);
     }
-
     private void getCount() {
         checkedMap = addTopContactsAdapter.getCheckedMap();//获取选中的人，true是选中的，false是没选中的
-        Log.e(TAG, "checkedMap：" + checkedMap);
+        List<String> bb = new ArrayList<>();
         allChecked = new ArrayList<AddFriendBean>();//创建一个存储选中的人的集合
+        Iterator a = checkedMap.keySet().iterator();//先迭代出来
+        while (a.hasNext()){
+            bb.add(a.next().toString());
+        }
+
         for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
-            if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
+
+            if (checkedMap.get(bb.get(i)) == null) {    //防止出现空指针,如果为空,证明没有被选中
                 continue;
-            } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
+            } else if (checkedMap.get(bb.get(i))) {//判断是否有值，如果为空证明没有被选中
+                Log.e("checkedMap","-----:"+checkedMap.get(bb.get(i)));
                 AddFriendBean testCheckBean = list.get(i);
                 allChecked.add(testCheckBean);
                 tv_addfriend_submit.setText("添加（" + (allChecked.size()) + "）");
@@ -214,23 +222,22 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
         gv_addContacts.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                allChecked.remove(position);
+                Map<String,Integer> posMap = new HashMap<String, Integer>();
+//                posMap.put(allChecked.get(position).getId(),position);
+                Log.e("打印数据集合","posMap---:"+allChecked.size());
                 /**
                  * 通过for循环筛选出想要去掉的成员，就可以解决此bug
                  */
-                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
-                    if (checkedMap.get(i) == null) {    //防止出现空指针,如果为空,证明没有被选中
-                        continue;
-                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
-                        if (allChecked.get(i).getId().equals(allChecked.remove(position).getId())) {
-                            Log.e(TAG, "I---:" + i);
-                            checkedMap.put(i, false);
-                            addTopContactsAdapter.notifyDataSetChanged();
-                            gridView_adapter.notifyDataSetChanged();
-                        }
-                    }
-                }
+                allChecked.remove(position);
+                addTopContactsAdapter.notifyDataSetChanged();
                 gridView_adapter.notifyDataSetChanged();
+//                for (int i = 0; i < checkedMap.size(); i++) {//循环获取选中人的集合
+//                    if (checkedMap.get(i) == null) {   //防止出现空指针,如果为空,证明没有被选中
+//                        continue;
+//                    } else if (checkedMap.get(i)) {//判断是否有值，如果为空证明没有被选中
+
+//                    }
+//                }
             }
         });
     }
@@ -264,10 +271,11 @@ public class AddTopContacts_Activity extends BaseActivity implements View.OnClic
                         LoadDialog.dismiss(mContext);
                         Log.e(TAG, "返回json:" + s);
                         Gson gson1 = new Gson();
-                        Map<String,Object> map =gson1.fromJson(s,new TypeToken<Map<String,Object>>(){}.getType());
-                        if ((double)map.get("code") == -1.0) {
-                            NToast.shortToast(mContext,"未知错误");
-                        }else {
+                        Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
+                        }.getType());
+                        if ((double) map.get("code") == -1.0) {
+                            NToast.shortToast(mContext, "未知错误");
+                        } else {
                             if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                                 Gson gson = new Gson();
                                 AddFriendRequestBean bean = gson.fromJson(s, AddFriendRequestBean.class);

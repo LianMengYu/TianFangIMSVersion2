@@ -2,12 +2,16 @@ package com.tianfangIMS.im;
 
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 import android.view.WindowManager;
@@ -42,7 +46,7 @@ import io.rong.ptt.kit.PTTStartMessageItemProvider;
  * Application继承类
  */
 
-public class TianFangIMSApplication extends Application implements PTTStateListener {
+public class TianFangIMSApplication extends Application implements PTTStateListener,RongIMClient.OnReceiveMessageListener{
     private static TianFangIMSApplication instance;
     private List<TopFiveUserInfoBean> data = new ArrayList<TopFiveUserInfoBean>(5);
     private int sum = 5;
@@ -52,6 +56,8 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
     private String PrivateChatLogo;
     private String GroupLogo;
     private RongExtension extension;
+    private boolean IsVibrator = true;
+    private boolean IsSound = true;
     private Handler handler = new Handler() {
         @Override
         public void handleMessage(android.os.Message msg) {
@@ -69,7 +75,7 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
     public void onCreate() {
         super.onCreate();
         instance = this;
-        RongIM.setServerInfo("103.36.132.10:80", null);
+        RongIM.setServerInfo("103.36.132.10:80","up.qbox.me/");
         RongIM.init(this);
         RongIM.registerMessageTemplate(new PTTStartMessageItemProvider());
         RongIM.registerMessageTemplate(new PTTEndMessageItemProvider());
@@ -109,7 +115,6 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
                     //如果不想让框架管理cookie（或者叫session的保持）,以下不需要
 //              .setCookieStore(new MemoryCookieStore())            //cookie使用内存缓存（app退出后，cookie消失）
                     .setCookieStore(new PersistentCookieStore())        //cookie持久化存储，如果cookie不过期，则一直有效
-
                     //可以设置https的证书,以下几种方案根据需要自己设置
                     .setCertificates()                            //方法一：信任所有证书,不安全有风险
 //              .setCertificates(new SafeTrustManager())            //方法二：自定义信任规则，校验服务端证书
@@ -141,6 +146,8 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
         RongIM.setConnectionStatusListener(new MyConnectionStatusListener());
         pttClient.init(this);
         pttClient.setPttStateListener(this);
+//        RongIMClient.setOnReceiveMessageListener(this);
+        RongIM.setOnReceiveMessageListener(this);
     }
 
     private class MyConnectionStatusListener implements RongIMClient.ConnectionStatusListener {
@@ -218,5 +225,28 @@ public class TianFangIMSApplication extends Application implements PTTStateListe
     @Override
     public void onNetworkError(String msg) {
         Log.e("PTT", "onNetworkError------:" + msg);
+
+    }
+
+    @Override
+    public boolean onReceived(io.rong.imlib.model.Message message, int i) {
+        IsSound = getSharedPreferences("sound",MODE_PRIVATE).getBoolean("sound", true);
+        IsVibrator = getSharedPreferences("vibrator",MODE_PRIVATE).getBoolean("vibrator",true);
+        if(IsVibrator){
+            Vibrator vibrator = (Vibrator)this.getSystemService(Service.VIBRATOR_SERVICE);
+            vibrator.vibrate(500);
+        }
+        if(IsSound){
+            MediaPlayer mp = new MediaPlayer();
+            try {
+                mp.setDataSource(this, RingtoneManager
+                        .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                mp.prepare();
+                mp.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return true;
     }
 }

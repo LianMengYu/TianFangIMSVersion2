@@ -22,7 +22,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.squareup.picasso.Picasso;
 import com.tianfangIMS.im.R;
 import com.tianfangIMS.im.bean.SealSearchConversationResult;
-import com.tianfangIMS.im.dialog.BigImagedialog;
 import com.tianfangIMS.im.dialog.CleanChatLogDialog;
 import com.tianfangIMS.im.utils.CommonUtil;
 import com.tianfangIMS.im.utils.NToast;
@@ -39,6 +38,7 @@ import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ImageMessage;
 import uk.co.senab.photoview.PhotoViewAttacher;
+
 /**
  * Created by LianMengYu on 2017/1/21.
  * 个人聊天设置页面
@@ -53,7 +53,7 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
     private TextView tv_user_name;
     private Context mContext;
     private ImageView iv_createGroup;
-    private RelativeLayout privateChat_file,privateChat_searchChatting;
+    private RelativeLayout privateChat_file, privateChat_searchChatting;
     private LinearLayout ly_privatechat_clean;
     private CompoundButton CompoundButton;
     PhotoViewAttacher mAttacher;
@@ -66,6 +66,7 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
     private GoogleApiClient client;
     private SealSearchConversationResult mResult;
     private boolean flag = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,12 +84,12 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
         sp = getSharedPreferences("config", MODE_PRIVATE);
         editor = sp.edit();
-        RongIMClient.getInstance().getConversationNotificationStatus(mConversationType,fromConversationId, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
+        RongIMClient.getInstance().getConversationNotificationStatus(mConversationType, fromConversationId, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
             @Override
             public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
-                if (conversationNotificationStatus.getValue() == 1){
+                if (conversationNotificationStatus.getValue() == 1) {
                     flag = sp.getBoolean("PrivatechatisOpen", false);
-                }else{
+                } else {
                     flag = sp.getBoolean("PrivatechatisOpen", true);
                 }
             }
@@ -110,7 +111,7 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
         ly_privatechat_clean = (LinearLayout) this.findViewById(R.id.ly_privatechat_clean);
         iv_user_photo = (ImageView) this.findViewById(R.id.iv_user_photo);
         CompoundButton = (CompoundButton) this.findViewById(R.id.sw_conversationdetail_notfaction);
-        privateChat_searchChatting = (RelativeLayout)this.findViewById(R.id.privateChat_searchChatting);
+        privateChat_searchChatting = (RelativeLayout) this.findViewById(R.id.privateChat_searchChatting);
 
         privateChat_searchChatting.setOnClickListener(this);
         iv_user_photo.setOnClickListener(this);
@@ -249,10 +250,13 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
                 CommonUtil.SetCleanDialogStyle(dialog);
                 break;
             case R.id.iv_user_photo:
-                BigImagedialog bigImagedialog = new BigImagedialog(mContext, mUserInfo.getPortraitUri().toString(), R.style.Dialog_Fullscreen);
-                bigImagedialog.getWindow().setBackgroundDrawable(new ColorDrawable());
-                bigImagedialog.show();
-                CommonUtil.SetDialogStyle(bigImagedialog);
+                Intent detailintent = new Intent(mContext, FriendPersonInfoActivity.class);
+                Bundle detailbundle = new Bundle();
+                detailbundle.putString("userId", fromConversationId);
+                detailintent.putExtras(detailbundle);
+                detailintent.putExtra("conversationType", Conversation.ConversationType.PRIVATE);
+                startActivity(detailintent);
+                this.finish();
                 break;
             case R.id.privateChat_searchChatting:
                 Intent searchIntent = new Intent(mContext, SearchChattingDetailActivity.class);
@@ -263,17 +267,16 @@ public class PrivateChatDetailActivity extends BaseActivity implements View.OnCl
                 conversation.setTargetId(fromConversationId);
                 conversation.setConversationType(mConversationType);
                 mResult.setConversation(conversation);
-                Log.e("打印用户信息","id："+ mUserInfo.getUserId()+"---:名字："+mUserInfo.getName()+"---头像:"+mUserInfo.getPortraitUri());
-                if(mUserInfo != null){
+                if (mUserInfo != null) {
                     String portraitUri = mUserInfo.getPortraitUri().toString();
                     mResult.setId(mUserInfo.getUserId());
-                    if(!TextUtils.isEmpty(portraitUri)){
+                    if (!TextUtils.isEmpty(portraitUri)) {
                         mResult.setPortraitUri(portraitUri);
                     }
-                    if (!TextUtils.isEmpty(mUserInfo.getName())){
+                    if (!TextUtils.isEmpty(mUserInfo.getName())) {
                         mResult.setTitle(mUserInfo.getName());
                     }
-                }else {
+                } else {
                     UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
                     mResult.setId(conversation.getTargetId());
                     String portraitUri = userInfo.getPortraitUri().toString();

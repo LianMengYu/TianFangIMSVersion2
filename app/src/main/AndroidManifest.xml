@@ -80,7 +80,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <!--震动-->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:name=".TianFangIMSApplication"
         android:allowBackup="true"
@@ -178,13 +179,13 @@
             android:theme="@android:style/Theme.NoTitleBar">
 
         </activity>
-        <activity android:name=".activity.AddTopContacts_Activity">
+        <activity android:name=".activity.AddTopContacts_Activity" android:theme="@style/Anim_fade">
 
         </activity>
         <activity android:name=".activity.MineTopContactsActivity">
 
         </activity>
-        <activity android:name=".activity.AddGroupActivity">
+        <activity android:name=".activity.AddGroupActivity" android:theme="@style/Anim_fade">
 
         </activity>
         <activity android:name=".activity.SelectPhoteActivity" />
@@ -202,9 +203,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="com.android.action.MY_ACTION" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data
                     android:host="com.tianfangIMS.im"
                     android:pathPrefix="/conversation/"

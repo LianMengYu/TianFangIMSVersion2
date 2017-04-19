@@ -96,7 +96,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
 
     int oldLevel, selectedCount;
     private LinearLayout search_infoactivity;
-    private EditText iv_search_icon;
+    private EditText tv_search_icon;
     Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -116,43 +116,6 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
     private RelativeLayout rl_selectAddContacts_background;
     private Context mContext;
     private ArrayList<String> ListUri;
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_info);
-//        activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
-//        activity_info_ll_indicator = (LinearLayout) findViewById(R.id.activity_info_ll_indicator);
-//        activity_info_btn_tree = (Button) findViewById(R.id.activity_info_btn_tree);
-//        activity_info_btn_tree.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                Intent mIntent = new Intent(InfoActivity.this, TreeActivity.class);
-////                mIntent.putExtra("map", maps);
-////                startActivityForResult(mIntent, 100);
-//                List<TreeInfo> results = new ArrayList<TreeInfo>();
-//                for (HashMap<Integer, TreeInfo> hashMap : maps.values()) {
-//                    for (TreeInfo info : hashMap.values()) {
-//                        if (info.isChecked() && info.getFlag() == 1) {
-//                            Log.d("InfoActivity", info.getName());
-//                            results.add(info);
-//                        }
-//                    }
-//                }
-//                Log.d("InfoActivity", "共计" + results.size() + "人");
-//
-//            }
-//        });
-//        activity_info_ll_header = (LinearLayout) findViewById(R.id.activity_info_ll_header);
-//        activity_info_tv_header = (TextView) findViewById(R.id.activity_info_tv_header);
-//        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
-//        activity_info_lv_part.setOnItemClickListener(this);
-//    }
-
     private GridView gv_create;
 
     @Override
@@ -180,7 +143,7 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                 GetInfo();
             }
         });
-        iv_search_icon = (EditText) this.findViewById(R.id.et_search);
+        tv_search_icon = (EditText) this.findViewById(R.id.et_search);
         gv_create = (GridView) this.findViewById(R.id.gv_create);
         gv_create.setOnItemClickListener(this);
         activity_info_lv_part = (ListView) findViewById(R.id.activity_info_lv_part);
@@ -190,16 +153,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         tv_creategroup_submit = (TextView) this.findViewById(R.id.tv_creategroup_submit);
         search_infoactivity = (LinearLayout) this.findViewById(R.id.search_infoactivity);
         search_infoactivity.setOnClickListener(this);
-        iv_search_icon.setFocusable(false);
-        iv_search_icon.setOnClickListener(this);
+        tv_search_icon.setFocusable(false);
+        tv_search_icon.setOnClickListener(this);
         rl_selectAddContacts_background = (RelativeLayout) this.findViewById(R.id.rl_selectAddContacts_background);
         tv_creategroup_submit.setOnClickListener(this);
-//        activity_info_tv_header.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                finish();
-//            }
-//        });
         activity_info_lv_part.setOnItemClickListener(this);
 
         clickHistory = new ArrayList<TreeInfo>();
@@ -470,7 +427,6 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
         list.add(loginBean.getText().getId());
         String UID = loginBean.getText().getId();
         String aa = list.toString();
-        Log.e("哈哈哈", "打印list:" + list + "--传入的字符串:" + aa + "--传过来的ID:" + PrivateID + "--登录ID:" + UID);
         OkGo.post(ConstantValue.CREATEGROUP)
                 .tag(this)
                 .connTimeOut(10000)
@@ -534,9 +490,10 @@ public class InfoActivity extends BaseActivity implements AdapterView.OnItemClic
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
-                        if (!TextUtils.isEmpty(s)) {
+                        if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
                             Gson gson = new Gson();
                             TopContactsRequestBean bean = gson.fromJson(s, TopContactsRequestBean.class);
+                            Log.e("dayinbean","---"+s);
                             if (bean.getCode().equals("200")) {
                                 NToast.shortToast(mContext, "创建成功");
                                 RongIM.getInstance().startGroupChat(mContext, bean.getText().getId(), bean.getText().getName());

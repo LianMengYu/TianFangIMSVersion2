@@ -64,6 +64,7 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.fragment.ConversationListFragment;
 import io.rong.imkit.manager.IUnReadMessageObserver;
 import io.rong.imkit.manager.UnReadMessageManager;
+import io.rong.imkit.model.GroupUserInfo;
 import io.rong.imkit.model.UIConversation;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -83,8 +84,7 @@ import okhttp3.Response;
  * 我具体的实现，就是 在会话列表类中 implements 一个 RongIM.UserInfoProvider
  */
 
-public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider,
-        RongIMClient.OnReceiveMessageListener, IUnReadMessageObserver {
+public class MainActivity extends BaseActivity implements View.OnClickListener, RongIM.UserInfoProvider, RongIM.GroupInfoProvider, IUnReadMessageObserver {
     private static final String TAG = "MainActivity";
     private LinearLayout ly_tab_menu_msg, ly_tab_menu_job, ly_tab_menu_contacts, ly_tab_menu_me;
     private TextView tv_tab_menu_msg, tv_tab_menu_job, tv_tab_menu_contacts, tv_tab_menu_me;
@@ -118,6 +118,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     private Map<String, Boolean> supportedConversation;
     private LinearLayout search_layout;
     private EditText et_search;
+    private UserInfo userInfo;
+    private GroupUserInfo groupUserinfo;
     Intent mIntent;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -141,12 +143,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
                 @Override
                 public void onSuccess(String s) {
-
                 }
 
                 @Override
                 public void onError(RongIMClient.ErrorCode errorCode) {
-
                 }
             });
         }
@@ -162,7 +162,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         RongIM.setUserInfoProvider(this, true);
         RongIM.setGroupInfoProvider(this, true);
         RongIM.getInstance().setMessageAttachedUserInfo(true);
-//        RongUserInfoManager.getInstance().init(mContext,"m7ua80guyso7u",this);
         RongIM.setConversationBehaviorListener(new MyConversationBehaviorListener());
         RongIM.setConversationListBehaviorListener(new MyConversationListBehaviorListener());
         UnReadMessageManager.getInstance().addObserver(
@@ -171,28 +170,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                         Conversation.ConversationType.CUSTOMER_SERVICE},
                 this);
         RemoveSignOutGroupConversation();
-//        <<<<<<<HEAD
-//                =======
-//
-//        mTreeInfos = new ArrayList<>();
-//        for (int i = 0; i < 5; i++) {
-//            TreeInfo mInfo = new TreeInfo();
-//            mInfo.setLogo("http://www.qqzhi.com/uploadpic/2014-09-26/153011818.jpg");
-//            mInfo.setName(String.valueOf(i * 100));
-//            mTreeInfos.add(mInfo);
-//        }
-//        Intent mIntent = new Intent(this, FloatService.class);
-//        mIntent.putExtra("data", mTreeInfos);
-//        startService(mIntent);
-//
-//        >>>>>>>intercom, PrivateChatDetail, MessageNumber
-//        RongIM.startActivity
-//        PTTClient pttClient = PTTClient.getInstance();
-//
-//
-//        startActivity(new Intent(MainActivity.this, ConversationListDynamicActivtiy.class));
-//        CommonUtil.GetImage(this,GetUesrBean().getText().getLogo());
-
         PTTClient pttClient = PTTClient.getInstance();
         pttClient.init(this);
         pttClient.setPttStateListener(new PTTStateListener() {
@@ -346,25 +323,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s)) {
                             Log.e(TAG, "获取所有好友的信息:" + s);
-//                            Gson gson = new Gson();
-//                            Type listType = new TypeToken<TopContactsListBean>() {
-//                            }.getType();
-//                            TopContactsListBean bean = gson.fromJson(s, listType);
-//                            FriendDB friendDB = new FriendDB();
-//                            for (int i = 0; i < bean.getText().size(); i++) {
-//                                Friend friendName = new Friend("name",bean.getText().get(i).getFullname());
-//                                Friend friendphoto = new Friend("logo",bean.getText().get(i).getLogo());
-//                                Friend friendposition = new Friend("position",bean.getText().get(i).getWorkno());
-//                                friendDB.savePerson(friendName);
-//                                friendDB.savePerson(friendphoto);
-//                                friendDB.savePerson(friendposition);
-//                                List<Friend> list = FriendDB.loadPerson();
-//                                if (list!=null) {
-//                                    for (Friend person : list) {
-//                                        Log.d("xyz", person.toString());
-//                                    }
-//                                }
-//                            }
                             CommonUtil.saveFrientUserInfo(mContext, s);
                         } else {
                             return;
@@ -455,17 +413,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        GetGroupInfo();//持久化所有群组信息
+        Log.e("生命周期", "onStart");
         client.connect();
         AppIndex.AppIndexApi.start(client, getIndexApiAction());
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("生命周期", "onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.e("生命周期", "onPause");
+    }
+
+    @Override
     public void onStop() {
         super.onStop();
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         AppIndex.AppIndexApi.end(client, getIndexApiAction());
@@ -512,8 +480,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         @Override
         public boolean onMessageLongClick(Context context, View view, Message message) {
-//            startActivity(new Intent(MainActivity.this,ConversationViewpagerActivity.class));
-//            Log.e(TAG,"执行点击会话列表消息界面");
             return false;
         }
     }
@@ -522,8 +488,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
         @Override
         public boolean onConversationClick(Context context, View view, UIConversation conversation) {
-//            startActivity(new Intent(MainActivity.this, ConversationActivity.class));
-//            Log.e(TAG, "执行点击会话列表消息界面");
             return false;
         }
 
@@ -647,11 +611,11 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case 3:
                 if (Contacts_Fragment == null) {
                     Contacts_Fragment = new Contacts_Fragment();
-                    search_layout.setVisibility(View.GONE);
+                    search_layout.setVisibility(View.VISIBLE);
                     transaction.add(R.id.fragment_container, Contacts_Fragment);
                 } else {
                     transaction.show(Contacts_Fragment);
-                    search_layout.setVisibility(View.GONE);
+                    search_layout.setVisibility(View.VISIBLE);
                 }
 
                 Log.i("TAG", "进入jobs");
@@ -781,30 +745,23 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public UserInfo getUserInfo(String s) {
-        Log.e(TAG, "用户新提供的S：" + s);
         if (CommonUtil.isNumeric(s)) {
             Gson gson1 = new Gson();
             String jsondata = CommonUtil.getFrientUserInfo(mContext);
-            Log.e(TAG, "我回去的信息：" + jsondata);
             if (!TextUtils.isEmpty(jsondata)) {
                 Type listTypeJson = new TypeToken<Map<String, Object>>() {
                 }.getType();
                 Map<String, Object> map = gson1.fromJson(jsondata, listTypeJson);
-                Log.e(TAG, "打印code：" + (double) map.get("code"));
                 if (0.0 == (double) map.get("code")) {
-                    Log.e(TAG, "打印code：" + (double) map.get("code"));
                     return null;
                 } else {
                     Gson gson = new Gson();
                     Type listType = new TypeToken<TopContactsListBean>() {
                     }.getType();
                     TopContactsListBean bean = gson.fromJson(CommonUtil.getFrientUserInfo(mContext), listType);
-                    Log.e(TAG, "打印bean：" + bean.getText());
                     if (bean != null && bean.getText().size() > 0) {
                         for (int i = 0; i < bean.getText().size(); i++) {
                             if (bean.getText().get(i).getId().equals(s)) {
-                                Log.e(TAG, "用户新提供的S：" + s);
-                                Log.e(TAG, "自己的id" + bean.getText().get(i).getId());
                                 return new UserInfo(bean.getText().get(i).getId(), bean.getText().get(i).getFullname(), Uri.parse(ConstantValue.ImageFile + bean.getText().get(i).getLogo()));
                             }
                         }
@@ -817,26 +774,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public Group getGroupInfo(String groupId) {
-        Log.e(TAG, "群组返回的信息：" + groupId);
         String str = CommonUtil.getGroupUserInfo(mContext);
-        Log.e(TAG, "首先获取信息：" + str);
         if (!TextUtils.isEmpty(str)) {
             Type listType = new TypeToken<Map<String, Object>>() {
             }.getType();
             Gson gson = new Gson();
             Map<String, Object> jsonData = gson.fromJson(str, listType);
-            Log.e(TAG, "群组数据:" + jsonData + "---返回的数据：" + jsonData.get("code"));
             if ((double) jsonData.get("code") == 0.0) {
                 Map<String, String> textData = (Map<String, String>) jsonData.get("text");
-                Log.e(TAG, "群组信息提供者:" + textData);
             } else {
-                Log.e(TAG, "执行没有");
                 Type listType1 = new TypeToken<GroupListBean>() {
                 }.getType();
                 Gson gson1 = new Gson();
                 GroupListBean GroupAllBean = gson1.fromJson(CommonUtil.getGroupUserInfo(mContext), listType1);
                 ArrayList<GroupBean> GroupBeanList = GroupAllBean.getText();
-                Log.e(TAG, "群组信息提供者:" + GroupBeanList);
+                Log.e("aaaaaaaa","-----:"+GroupAllBean.getText());
                 if (GroupBeanList != null && GroupBeanList.size() > 0) {
                     for (GroupBean i : GroupBeanList) {
                         if (i.getGID().equals(groupId)) {
@@ -899,11 +851,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             tv_tab_menu_msg_num.setVisibility(View.VISIBLE);
             tv_tab_menu_msg_num.setText("···");
         }
-    }
-
-    @Override
-    public boolean onReceived(Message message, int i) {
-        return false;
     }
 
 }

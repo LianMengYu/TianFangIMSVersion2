@@ -3,8 +3,8 @@ package com.tianfangIMS.im.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import com.google.gson.Gson;
@@ -53,7 +53,7 @@ public class SendMessageActivity extends BaseActivity implements View.OnClickLis
     private Context mContext;
     private RelativeLayout rl_sendmessage_contacts, rl_sendmessage_topcontacts, rl_sendmessage_allContacts;
     private ArrayList<String> listUri;
-
+    private EditText et_search;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,17 +62,19 @@ public class SendMessageActivity extends BaseActivity implements View.OnClickLis
         init();
         GetData();
         listUri = getIntent().getStringArrayListExtra("ListUri");
-        Log.e("打印群组", "---:" + listUri);
     }
 
     private void init() {
         rl_sendmessage_contacts = (RelativeLayout) this.findViewById(R.id.rl_sendmessage_contacts);
         rl_sendmessage_topcontacts = (RelativeLayout) this.findViewById(R.id.rl_sendmessage_topcontacts);
         rl_sendmessage_allContacts = (RelativeLayout) this.findViewById(R.id.rl_sendmessage_allContacts);
+        et_search = (EditText) this.findViewById(R.id.et_search);
 
         rl_sendmessage_contacts.setOnClickListener(this);
         rl_sendmessage_topcontacts.setOnClickListener(this);
         rl_sendmessage_allContacts.setOnClickListener(this);
+        et_search.setFocusable(false);
+        et_search.setOnClickListener(this);
     }
 
     private void GetData() {
@@ -227,6 +229,13 @@ public class SendMessageActivity extends BaseActivity implements View.OnClickLis
                 mIntent.putExtra("parentLevel", mTreeInfos.get(0).getPid());
                 startActivity(mIntent);
                 finish();
+                break;
+            case R.id.et_search:
+                Intent searchIntent = new Intent(mContext, SearchAllContactsActivity.class);
+                if (listUri != null && listUri.size() > 0) {
+                    searchIntent.putStringArrayListExtra("ListUri", listUri);
+                }
+                startActivity(searchIntent);
                 break;
         }
     }

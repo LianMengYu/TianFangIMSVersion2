@@ -118,7 +118,6 @@ public class Contacts_Fragment extends BaseFragment implements View.OnClickListe
         rl_mine_contacts = (RelativeLayout) view.findViewById(R.id.rl_mine_contacts);
         rl_mine_topcontacts = (RelativeLayout) view.findViewById(R.id.rl_mine_topcontacts);
         et_search = (EditText) view.findViewById(R.id.et_search);
-
         fragment_contacts_lv_departments = (ListView) view.findViewById(R.id.fragment_contacts_lv_departments);
         search_layout = (LinearLayout)view.findViewById(R.id.search_layout);
         fragment_contacts_lv_departments.setOnItemClickListener(this);

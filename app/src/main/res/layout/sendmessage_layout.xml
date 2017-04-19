@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/search_layout" />
+    <include
+        android:id="@+id/sendmessage_search"
+        layout="@layout/search_layout" />
 
     <RelativeLayout
         android:id="@+id/rl_sendmessage_contacts"

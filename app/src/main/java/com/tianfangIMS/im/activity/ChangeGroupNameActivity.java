@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -104,13 +105,13 @@ public class ChangeGroupNameActivity extends BaseActivity implements View.OnClic
                             Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
                             String str = map.get("code").toString();
+                            Log.e("打印数据","访问网络返回Code："+str);
                             if (str.equals("1.0")) {
                                 String aa = et_changeName.getText().toString();
                                 Intent mIntent = new Intent(mContext, GroupDetailActivity.class);
                                 mIntent.putExtra("change01", aa);
                                 setResult(resultCode, mIntent);
                                 finish();
-
                             }
                         }
                     }

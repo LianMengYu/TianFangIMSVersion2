@@ -154,7 +154,6 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
-                            Log.e("aaaaaaaaaa", "aaaaaaa:" + s);
                             Gson gson = new Gson();
                             Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
@@ -165,7 +164,6 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                                 fl_friendinfo_delete.setVisibility(View.VISIBLE);
                             }
                             if (code == 0.0) {
-                                Log.e("aaaaaaaaaa", "执行添加好友" + map.get("code"));
                                 if (RongIMClient.getInstance().getCurrentUserId().equals(UID)) {
                                     fl_friendinfo_add.setVisibility(View.GONE);
                                     fl_friendinfo_delete.setVisibility(View.GONE);
@@ -232,10 +230,15 @@ public class FriendPersonInfoActivity extends BaseActivity implements View.OnCli
                 CommonUtil.SetDialogStyle(bigImagedialog);
                 break;
             case R.id.btn_sendMessage:
-                if (userInfoBean != null) {
-                    RongIM.getInstance().startPrivateChat(FriendPersonInfoActivity.this, userInfoBean.getId(), userInfoBean.getName());
-                }else{
-                    NToast.shortToast(mContext,"获取用户信息失败");
+                try {
+                    if (!TextUtils.isEmpty(userInfoBean.getId())) {
+                        RongIM.getInstance().startPrivateChat(FriendPersonInfoActivity.this, userInfoBean.getId(), userInfoBean.getName());
+                        this.finish();
+                    }else{
+                        NToast.shortToast(mContext,"获取用户信息失败");
+                    }
+                }catch (NullPointerException e){
+                    e.printStackTrace();
                 }
                 break;
         }

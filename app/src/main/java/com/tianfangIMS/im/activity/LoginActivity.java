@@ -70,7 +70,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
     private String connectResultId;
     private LoginBean user;
     private List<LoginBean> mLoginBeanList;
-
+    private ImageView img_login_clean_daima_et;
+    private EditText et_login_daima;// 企业代码
+    private String CompanyCode;
+    private SharedPreferences daima_sp;
+    private SharedPreferences.Editor daima_editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +82,9 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         mContext = this;
         SystemBarTranslucentType();//将Android状态栏改变为沉浸样式
         sp = getSharedPreferences("config", MODE_PRIVATE);
+        daima_sp= getSharedPreferences("CompanyCode",MODE_PRIVATE);
         editor = sp.edit();
+        daima_editor = daima_sp.edit();
         init();//初始化控件
     }
 
@@ -115,7 +121,29 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         et_login_user = (EditText) this.findViewById(R.id.et_login_user);
         et_login_password = (EditText) this.findViewById(R.id.et_login_password);
         btn_login = (Button) this.findViewById(R.id.btn_login);
+        img_login_clean_daima_et = (ImageView) this.findViewById(R.id.img_login_clean_daima_et);
+        et_login_daima = (EditText)this.findViewById(R.id.et_login_daima);
 
+        et_login_daima.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0) {
+                    img_login_clean_daima_et.setVisibility(View.VISIBLE);
+                } else {
+                    img_login_clean_daima_et.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
         //根据Edittext输入的改变，隐藏或者显示输入框右边的清空button
         et_login_user.addTextChangedListener(new TextWatcher() {
             @Override
@@ -157,34 +185,6 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
             }
         });
-        String oldPhone = sp.getString(ConstantValue.SEALTALK_LOGING_PHONE, "");
-        String oldPassword = sp.getString(ConstantValue.SEALTALK_LOGING_PASSWORD, "");
-
-        if (getIntent().getBooleanExtra("kickedByOtherClient", false)) {
-//            final AlertDialog dlg = new AlertDialog().Builder(LoginActivity.this).create();
-//            dlg.show();
-//              //注释掉的为掉线逻辑，现在暂未实现，保留后续
-//            Window window = dlg.getWindow();
-//            window.setContentView(R.layout.other_devices);
-//            Toast.makeText(getApplicationContext(), "您的账号在其他设备登录", Toast.LENGTH_SHORT).show();
-//            if (RongIM.getInstance() != null)
-//                RongIM.getInstance().disconnect(true);
-//
-//            android.os.Process.killProcess(android.os.Process.myPid());
-////            finish();
-////            System.exit(0);
-////            RongIM.getInstance().disconnect();
-//            System.exit(0);
-//
-//            TextView text = (TextView) window.findViewById(R.id.ok);
-//            text.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    dlg.cancel();
-//                }
-//            });
-        }
-
         et_login_password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -217,10 +217,15 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
         btn_login.setOnClickListener(this);
         et_login_password.setOnClickListener(this);
         et_login_user.setOnClickListener(this);
+        img_login_clean_daima_et.setOnClickListener(this);
         CommonUtil.FilePath();//创建项目文件
     }
 
     private void setLogin() {
+//        if (TextUtils.isEmpty(CompanyCode)){
+//            NToast.shortToast(getApplicationContext(), "企业码不能为空");
+//            return;
+//        }
         if (TextUtils.isEmpty(phoneString)) {
             NToast.shortToast(getApplicationContext(), R.string.phone_number_is_null);
             return;
@@ -254,18 +259,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-                        Log.e("assdadsasdsad", "是否访问成功:----:" + loginToken);
                         if (!TextUtils.isEmpty(s)) {
-                            Log.e("OnSuccess", "访问成功" + s);
                             Gson gson = new Gson();
                             user = gson.fromJson(s, LoginBean.class);
                             CommonUtil.saveUserInfo(mContext, gson.toJson(user));
                             loginToken = user.getText().getToken();
-//                            editor.putString("token", loginToken);
-//                            editor.apply();
                             if (user.getCode() == 1) {
                                 if (!TextUtils.isEmpty(loginToken)) {
-                                    Log.e("模拟器测试：", "------:" + loginToken);
                                     RongIM.connect(loginToken, new RongIMClient.ConnectCallback() {
                                         @Override
                                         public void onTokenIncorrect() {
@@ -278,13 +278,17 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
 
                                             SetSyncUserGroup(user);
                                             connectResultId = s;
+//                                            editor.putString("CompanyCode",CompanyCode);
                                             editor.putString("username", phoneString);
                                             editor.putString("userpass", passwordString);
+                                            daima_editor.putString("CompanyCode",CompanyCode);
                                             editor.apply();
+                                            daima_editor.apply();
                                             Toast.makeText(getApplicationContext(), "登陆成功", Toast.LENGTH_SHORT).show();
                                             Intent intent_login = new Intent();
                                             intent_login.setClass(LoginActivity.this, MainActivity.class);
                                             startActivity(intent_login);
+                                            Log.e("获取cookie：","----:"+OkGo.getInstance().getCookieJar().getCookieStore().getAllCookie());
                                             finish();
                                         }
                                         @Override
@@ -342,9 +346,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Ron
             case R.id.img_login_clean_password:
                 et_login_password.getText().clear();
                 break;
+            case R.id.img_login_clean_daima_et:
+                et_login_daima.getText().clear();
+                break;
             case R.id.btn_login:
                 phoneString = et_login_user.getText().toString().trim();
                 passwordString = et_login_password.getText().toString().trim();
+                CompanyCode = et_login_daima.getText().toString().trim();
                 setLogin();
                 break;
             case R.id.et_login_user:

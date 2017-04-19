@@ -12,6 +12,9 @@ public class ConstantValue {
     //天坊服务器120.26.42.225
     public static String Urls = "http://120.26.42.225:8080/sealtalk/";
 
+    //多公司服务器
+//    public static String Urls = "http://42.62.4.82:8080/im/";
+
     public static final String AFTERLOGINUSERINFO = "member!getOneOfMember";//获取登录后用户单独的信息接口
 
     public static String ImageFile = Urls + "upload/images/";//网络图片路径

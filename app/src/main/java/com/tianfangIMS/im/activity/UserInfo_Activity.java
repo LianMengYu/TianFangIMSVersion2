@@ -91,6 +91,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
         iv_userinfo_photo = (ImageView) this.findViewById(R.id.iv_userinfo_photo);
         rl_useinfo_phone.setOnClickListener(this);
         ly_useinfo_photo.setOnClickListener(this);
+        iv_userinfo_photo.setOnClickListener(this);
     }
 
     private void SetUserInfo(String eMail, String phone, String telephone, String company, String address, String chanpin, String jingli) {
@@ -127,15 +128,13 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                             Gson gson = new Gson();
                             Map<String, String> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
-                            Log.e("userinfo打印map", ":" + map);
                             SetUserInfo(map.get("email"), map.get("mobile"), map.get("telephone"), map.get("organname"), map.get("address"),
                                     map.get("branchname"), map.get("positionname"));
                             Picasso.with(mContext)
                                     .load(ConstantValue.ImageFile + map.get("logo"))
                                     .resize(50, 50)
-                                    .error(R.mipmap.default_photo)
+                                    .error(R.mipmap.default_portrait)
                                     .into(iv_userinfo_photo);
-                            Log.e("loginBean", "---userinfo：" + ConstantValue.ImageFile + map.get("logo"));
                         }
                     }
                 });
@@ -151,7 +150,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                 userInfo_phone_dialog.getWindow().setBackgroundDrawable(new ColorDrawable());
                 userInfo_phone_dialog.show();
                 break;
-            case R.id.ly_useinfo_photo:
+            case R.id.iv_userinfo_photo:
                 Intent intent = new Intent(this, ImageGridActivity.class);
                 startActivityForResult(intent, 0);
                 break;
@@ -179,9 +178,7 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
 
                     @Override
                     public void onSuccess(String s, Call call, Response response) {
-                        Log.e("是否执行成功", "OnSuccess：" + s);
                         if (!TextUtils.isEmpty(s)) {
-                            Log.e("查看上传情况", "打印返回数据：" + s);
                             Gson gson1 = new Gson();
                             Map<String, Object> map = gson1.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
@@ -212,7 +209,6 @@ public class UserInfo_Activity extends BaseActivity implements View.OnClickListe
                         super.upProgress(currentSize, totalSize, progress, networkSpeed);
 
                         if (currentSize == totalSize) {
-                            Log.e("查看上传回调", "上传图片大小：" + currentSize + "--图片大小:" + totalSize + "--Progress:" + progress + "--当前网速:" + networkSpeed);
                             LoadDialog.dismiss(mContext);
                         }
                     }

@@ -276,16 +276,12 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
-                            Log.e("Serivce", "s:" + s);
                             Gson gson = new Gson();
                             UserBean bean = gson.fromJson(s, UserBean.class);
-                            Log.e("Serivce", "map:" + bean);
                             if (!TextUtils.isEmpty(bean.getLogo())) {
                                 data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, bean.getId(),
                                         bean.getName(), ConstantValue.ImageFile + bean.getLogo()));
-                                Log.e("悬浮球", "-----------:" + data);
                             } else if (TextUtils.isEmpty(bean.getLogo())) {
-                                Log.e("悬浮球", "等于空---:" + data);
                                 data.add(new TopFiveUserInfoBean(Conversation.ConversationType.PRIVATE, bean.getId(),
                                         bean.getName(), ConstantValue.ImageFile + bean.getLogo()));
                             }
@@ -312,23 +308,18 @@ public class Settings_Activity extends BaseActivity implements View.OnClickListe
                     public void onSuccess(String s, Call call, Response response) {
                         LoadDialog.dismiss(mContext);
                         if (!TextUtils.isEmpty(s) && !s.equals("{}")) {
-                            Log.e("Serivce", "缓存群组s:" + s);
                             Gson gson = new Gson();
                             final Map<String, Object> map = gson.fromJson(s, new TypeToken<Map<String, Object>>() {
                             }.getType());
                             Object object = map.get("text");
                             final Map<String, String> map1 = (Map<String, String>) object;
-                            Log.e("Serivce", "Group缓存失败" + map1.get("logo"));
                             if (!TextUtils.isEmpty(map1.get("logo"))) {
                                 data.add(new TopFiveUserInfoBean(Conversation.ConversationType.GROUP,
                                         id,
                                         map1.get("name").toString(),
                                         ConstantValue.ImageFile + map1.get("logo")));
                             } else {
-                                data.add(new TopFiveUserInfoBean(Conversation.ConversationType.GROUP,
-                                        id,
-                                        map1.get("name").toString(),
-                                        ConstantValue.ImageFile + map1.get("logo")));
+                                return;
                             }
                         }
                     }
